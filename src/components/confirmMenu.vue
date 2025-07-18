@@ -108,8 +108,16 @@ const showRemarkDialog = ref(false); // 添加这一行！！
   function submitOrder() {
   console.log("提交菜单：", dishes.value);
   console.log("备注：", orderRemark.value);
-  // 可将 orderRemark.value 一并发送给后端
+
+  router.push({
+    path: '/orderInfo',
+    query: {
+      dishes: JSON.stringify(dishes.value),
+      remark: orderRemark.value
+    }
+  })
 }
+
 
 function openRemarkDialog() {
   tempRemark.value = orderRemark.value;

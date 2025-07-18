@@ -6,6 +6,7 @@ import Index from '../components/index.vue'
 import Menu from '../components/menu.vue'
 import MenuChoose from '../components/menuChoose.vue'
 import confirmMenu from '../components/confirmMenu.vue'
+import orderInfo from '../components/orderInfo.vue'
 
 const routes = [
   { path: '/', component: HelloWorld },
@@ -14,6 +15,7 @@ const routes = [
   { path: '/menu', component: Menu },
   { path: '/menuChoose', name: 'menuChoose', component: MenuChoose },
   { path: '/confirmMenu', name: 'confirmMenu', component: confirmMenu },
+  { path: '/orderInfo', name: 'orderInfo', component: orderInfo },
 ]
 
 const router = createRouter({
