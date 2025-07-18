@@ -1,7 +1,9 @@
 <template>
   <div class="landing-page">
     <!-- Logo 图标 -->
-
+    <div class="logo-container">
+      <img src="@/assets/logo.svg" alt="Club Logo" class="logo" />
+    </div>
 
     <!-- 标题区 -->
     <div class="title-group">
@@ -32,7 +34,7 @@ function goToMenu() {
 .landing-page {
   position: relative;
   min-height: 100vh;
-  background: url('@/assets/bg-texture.png') no-repeat center center;
+  background: url('@/assets/bg.svg') no-repeat center center;
   background-size: cover;
 
   display: flex;
@@ -47,9 +49,7 @@ function goToMenu() {
   box-sizing: border-box;
 
   /* ✅ 新增内容： */
-  max-width: 1024px;
   width: 100%;
-  margin: 0 auto;
   text-align: center;
 }
 

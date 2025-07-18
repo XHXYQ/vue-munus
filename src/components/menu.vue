@@ -59,15 +59,14 @@ const menuList = [
 <style scoped>
 .menu-page {
   min-height: 100vh;
-  background: url('@/assets/bg-texture.png') no-repeat center center;
+  width: 100vw;
+  background: url('@/assets/menu/menubg.svg') no-repeat center center;
   background-size: cover;
-  padding: 8vh 10vw;
+  padding: 8vh 6vw;
   box-sizing: border-box;
   font-family: 'Noto Serif SC', serif;
   color: #5e4003;
   text-align: center;
-  max-width: 1440px;
-  margin: 0 auto;
 }
 
 .title {
@@ -144,5 +143,53 @@ const menuList = [
   cursor: pointer;
   margin-top: 4vh;
 }
+
+@media (max-width: 768px) {
+  .menu-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .card-img-wrapper {
+    width: 80px;
+    height: 80px;
+  }
+
+  .card-title {
+    font-size: 18px;
+  }
+
+  .card-subtitle {
+    font-size: 14px;
+  }
+
+  .menu-card {
+    padding: 16px 20px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+}
+
+.back-btn {
+  font-size: 18px;
+  color: #a07417;
+  cursor: pointer;
+  margin-top: 4vh;
+
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10px 24px;
+  border-radius: 999px;
+  display: inline-block;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.back-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
 
 </style>
