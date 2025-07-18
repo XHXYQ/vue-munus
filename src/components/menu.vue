@@ -3,7 +3,13 @@
     <h1 class="title">选择菜系</h1>
 
     <div class="menu-grid">
-      <div class="menu-card" v-for="item in menuList" :key="item.title" @click="router.push(item.link)">
+      <div
+  class="menu-card"
+  v-for="item in menuList"
+  :key="item.title"
+  @click="router.push({ name: 'menuChoose', query: { type: item.code } })"
+>
+
         <div class="card-img-wrapper">
           <img :src="item.img" alt="image" class="card-img" />
         </div>
@@ -33,27 +39,28 @@ const menuList = [
     title: '中式佳肴',
     subtitle: 'Chinese cuisine',
     img: 'https://dummyimage.com/100x100/ccc/fff&text=中餐',
-    link: '/menu/chinese',
+    code: 'chinese',
   },
   {
     title: '西式珍味',
     subtitle: 'Western cuisine',
     img: 'https://dummyimage.com/100x100/ccc/fff&text=西餐',
-    link: '/menu/western',
+    code: 'western',
   },
   {
     title: '特调饮品',
     subtitle: 'Beverages',
     img: 'https://dummyimage.com/100x100/ccc/fff&text=饮品',
-    link: '/menu/beverages',
+    code: 'beverages',
   },
   {
     title: '精致小点',
     subtitle: 'Snacks',
     img: 'https://dummyimage.com/100x100/ccc/fff&text=小点',
-    link: '/menu/snacks',
+    code: 'snacks',
   },
 ]
+
 </script>
 
 <style scoped>
