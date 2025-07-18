@@ -38,6 +38,14 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- 添加订单备注 -->
+<div class="order-remark-row">
+  <span v-if="orderRemark">备注：{{ orderRemark }}</span>
+  <span v-else class="add-remark" @click="openRemarkDialog">+ 添加备注</span>
+  <span v-if="orderRemark" class="edit-remark" @click="openRemarkDialog">✎ 修改</span>
+</div>
+
       </div>
   
       <!-- 固定底部操作栏 -->
@@ -46,6 +54,22 @@
         <button class="submit-btn" @click="submitOrder">提交</button>
       </div>
     </div>
+
+    <!-- 添加备注弹窗 -->
+<div class="remark-modal" v-if="showRemarkDialog">
+  <div class="remark-dialog">
+    <div class="remark-header">
+      <span>添加备注</span>
+      <span class="close" @click="showRemarkDialog = false">✕</span>
+    </div>
+    <textarea v-model="tempRemark" placeholder="请输入备注内容" />
+    <div class="remark-footer">
+      <button class="cancel" @click="showRemarkDialog = false">取消</button>
+      <button class="confirm" @click="confirmRemark">确认并提交</button>
+    </div>
+  </div>
+</div>
+
   </template>
   
   <script setup>
@@ -54,6 +78,11 @@
   
   const route = useRoute();
   const router = useRouter();
+
+  const orderRemark = ref(""); // 整个订单备注
+const tempRemark = ref(""); // 弹窗临时输入
+const showRemarkDialog = ref(false); // 添加这一行！！
+
   
   const dishes = ref([]);
   
@@ -77,9 +106,20 @@
   }
   
   function submitOrder() {
-    console.log("提交菜单：", dishes.value);
-    // 可以发送给后端或跳转下一步页面
-  }
+  console.log("提交菜单：", dishes.value);
+  console.log("备注：", orderRemark.value);
+  // 可将 orderRemark.value 一并发送给后端
+}
+
+function openRemarkDialog() {
+  tempRemark.value = orderRemark.value;
+  showRemarkDialog.value = true;
+}
+
+function confirmRemark() {
+  orderRemark.value = tempRemark.value;
+  showRemarkDialog.value = false;
+}
   </script>
   
   <style scoped>
@@ -132,18 +172,19 @@
   .dish-table th,
   .dish-table td {
     padding: 12px;
-    border-bottom: 1px solid #e6d5b3;
+    border-bottom: 1px solid #fcfcfc;
     text-align: center;
   }
   
   .dish-name-cn {
     font-weight: bold;
     font-size: 16px;
+    color: #fefdfb;
   }
   
   .dish-name-en {
     font-size: 13px;
-    color: #9b7e4e;
+    color: #f1e9db;
   }
   
   .quantity-control {
@@ -198,5 +239,97 @@
     background: #b68d41;
     color: white;
   }
+
+  .order-remark-row {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #7b5500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
+.add-remark {
+  color: #fefdfb;
+  cursor: pointer;
+}
+
+.edit-remark {
+  margin-left: 12px;
+  color: #a07c49;
+  cursor: pointer;
+}
+
+.remark-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.remark-dialog {
+  background: #f5e0c6;
+  padding: 24px;
+  width: 440px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.remark-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #5e4003;
+}
+
+.remark-header .close {
+  cursor: pointer;
+}
+
+.remark-dialog textarea {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
+  border: 1px solid #b68d41;
+  border-radius: 6px;
+  resize: none;
+  font-size: 14px;
+  background: #fffaf0;
+}
+
+.remark-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.remark-footer button {
+  padding: 8px 20px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.remark-footer .cancel {
+  background: #ccb89a;
+  color: white;
+}
+
+.remark-footer .confirm {
+  background: #b68d41;
+  color: white;
+}
+
   </style>
   
