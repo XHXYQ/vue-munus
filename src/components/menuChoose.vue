@@ -2,10 +2,10 @@
   <div class="menu-choose-page">
     <!-- 左侧分类 -->
     <aside class="category-sidebar">
-        <div class="back" @click="router.back()">
-  <span class="back-icon">←</span>
-  返回选择菜系
-</div>
+      <div class="back" @click="router.back()">
+        <span class="back-icon">←</span>
+        返回选择菜系
+      </div>
 
       <div
         v-for="(item, index) in categories"
@@ -21,39 +21,38 @@
 
     <!-- 右侧菜单列表 -->
     <main class="menu-content">
-  <!-- 标题在外部，居中显示 -->
-  <h1 class="menu-title">{{ currentCategory.name }}</h1>
+      <!-- 标题在外部，居中显示 -->
+      <h1 class="menu-title">{{ currentCategory.name }}</h1>
 
-  <!-- 内部遮罩框 -->
-  <div class="menu-overlay-wrapper">
-    <div class="menu-wrapper">
-      <div
-        class="menu-section"
-        v-for="group in currentCategory.groups"
-        :key="group.name"
-      >
-        <h2 class="group-title">
-          {{ group.name }}
-          <span class="group-en">{{ group.en }}</span>
-        </h2>
+      <!-- 内部遮罩框 -->
+      <div class="menu-overlay-wrapper">
+        <div class="menu-wrapper">
+          <div
+            class="menu-section"
+            v-for="group in currentCategory.groups"
+            :key="group.name"
+          >
+            <h2 class="group-title">
+              {{ group.name }}
+              <span class="group-en">{{ group.en }}</span>
+            </h2>
 
-        <div class="menu-item" v-for="dish in group.items" :key="dish.name">
-          <img :src="dish.img" class="dish-img" />
-          <div class="dish-info">
-            <div class="dish-name">{{ dish.name }}</div>
-            <div class="dish-en">{{ dish.en }}</div>
-          </div>
-          <div class="quantity-control">
-            <button @click="decrease(dish)">－</button>
-            <span>{{ dish.count }}</span>
-            <button @click="increase(dish)">＋</button>
+            <div class="menu-item" v-for="dish in group.items" :key="dish.name">
+              <img :src="dish.img" class="dish-img" />
+              <div class="dish-info">
+                <div class="dish-name">{{ dish.name }}</div>
+                <div class="dish-en">{{ dish.en }}</div>
+              </div>
+              <div class="quantity-control">
+                <button @click="decrease(dish)">－</button>
+                <span>{{ dish.count }}</span>
+                <button @click="increase(dish)">＋</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</main>
-
+    </main>
 
     <!-- 底部悬浮购物车图标 -->
     <div class="cart-fab" @click="toggleCart">
@@ -91,12 +90,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { listDishGroup } from "@/api/system/dishGroup";
 
 const router = useRouter();
 const route = useRoute();
-const activeIndex = ref(2);
+const activeIndex = ref(0);
 
 const type = computed(() => route.query.type || "chinese");
 
@@ -116,48 +116,51 @@ const categoryData = computed(() => {
   }
 });
 
-const categories = ref([
-  { name: "精选套餐", en: "Simple meal", count: 0, groups: [] },
-  { name: "家常臻选", en: "Home-style stir-fry", count: 0, groups: [] },
-  {
-    name: "特色火锅",
-    en: "Hot pot",
-    count: 3,
-    groups: [
-      {
-        name: "肉韵醇香",
-        en: "Meat",
-        items: [
-          {
-            name: "鸡肉",
-            en: "Chicken",
-            img: "https://dummyimage.com/100x100/ddd/000&text=鸡肉",
-            count: 1,
-          },
-          {
-            name: "牛肉",
-            en: "Beef",
-            img: "https://dummyimage.com/100x100/ccc/000&text=牛肉",
-            count: 0,
-          },
-          {
-            name: "牛肉丸",
-            en: "Stewed Beef Meatballs",
-            img: "https://dummyimage.com/100x100/eee/000&text=丸",
-            count: 0,
-          },
-        ],
-      },
-    ],
-  },
-  { name: "主食荟萃", en: "Staple food", count: 0, groups: [] },
-]);
+const categories = ref([]);
+// const categories = ref([
+//   { name: "精选套餐", en: "Simple meal", count: 0, groups: [] },
+//   { name: "家常臻选", en: "Home-style stir-fry", count: 0, groups: [] },
+//   {
+//     name: "特色火锅",
+//     en: "Hot pot",
+//     count: 3,
+//     groups: [
+//       {
+//         name: "肉韵醇香",
+//         en: "Meat",
+//         items: [
+//           {
+//             name: "鸡肉",
+//             en: "Chicken",
+//             img: "https://dummyimage.com/100x100/ddd/000&text=鸡肉",
+//             count: 1,
+//           },
+//           {
+//             name: "牛肉",
+//             en: "Beef",
+//             img: "https://dummyimage.com/100x100/ccc/000&text=牛肉",
+//             count: 0,
+//           },
+//           {
+//             name: "牛肉丸",
+//             en: "Stewed Beef Meatballs",
+//             img: "https://dummyimage.com/100x100/eee/000&text=丸",
+//             count: 0,
+//           },
+//         ],
+//       },
+//     ],
+//   },
+//   { name: "主食荟萃", en: "Staple food", count: 0, groups: [] },
+// ]);
 
-const currentCategory = ref(categories.value[activeIndex.value]);
+// const currentCategory = ref(categories.value[activeIndex.value]);
+const currentCategory = computed(() => categories.value[activeIndex.value] || { name: '', groups: [] });
+
 
 function selectCategory(index) {
   activeIndex.value = index;
-  currentCategory.value = categories.value[index];
+  // currentCategory.value = categories.value[index];
 }
 
 function increase(dish) {
@@ -214,6 +217,46 @@ function confirmMenu() {
       items: JSON.stringify(selectedItems.value),
     },
   });
+}
+
+// 页面加载时调用接口
+onMounted(() => {
+  fetchDishGroups();
+});
+
+
+
+async function fetchDishGroups() {
+  try {
+    const rawType = route.query.type
+    console.log('route.query.type 是：', rawType)
+
+    const categoryMap = {
+      chinese: 1,
+      western: 2,
+      beverages: 3,
+      snacks: 4
+    }
+    const categoryId = categoryMap[rawType] || Number(rawType) || 1
+    console.log('转换后的 categoryId 是：', categoryId)
+
+    const res = await listDishGroup({ categoryId })
+    console.log('接口返回结果：', res)
+
+    // ✅ 正确解析 rows
+    const rows = Array.isArray(res) ? res : res.rows || []
+    console.log('rows是什么', rows)
+
+    categories.value = rows.map(row => ({
+      name: row.name,
+      en: row.nameEn,
+      count: 0,
+      groups: []
+    }))
+    activeIndex.value = 0
+  } catch (err) {
+    console.error('获取失败', err)
+  }
 }
 
 
@@ -322,7 +365,6 @@ function confirmMenu() {
 .menu-wrapper {
   width: 100%;
 }
-
 
 /* ✅ 响应式：小屏幕时可适当缩小字号和边距 */
 @media (max-width: 768px) {
@@ -545,5 +587,4 @@ function confirmMenu() {
 .menu-content.activeCategory .dish-en {
   color: white !important;
 }
-
 </style>
