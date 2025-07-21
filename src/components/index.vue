@@ -61,7 +61,7 @@ function goToMenu() {
 }
 
 .main-title {
-  font-size: 6vw;
+  font-size: 10vw;
   font-weight: 600;
   color: #a07417;
   letter-spacing: 0.4vw;
@@ -128,7 +128,7 @@ function goToMenu() {
 /* ✅ 针对大屏幕补丁（字体不至于太小） */
 @media (min-width: 768px) {
   .main-title {
-    font-size: 36px;
+    font-size: 66px;
   }
   .subtitle {
     font-size: 18px;

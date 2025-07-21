@@ -4,12 +4,11 @@
 
     <div class="menu-grid">
       <div
-  class="menu-card"
-  v-for="item in menuList"
-  :key="item.title"
-  @click="router.push({ name: 'menuChoose', query: { type: item.code } })"
->
-
+        class="menu-card"
+        v-for="item in menuList"
+        :key="item.title"
+        @click="router.push({ name: 'menuChoose', query: { type: item.code } })"
+      >
         <div class="card-img-wrapper">
           <img :src="item.img" alt="image" class="card-img" />
         </div>
@@ -25,53 +24,60 @@
   </div>
 </template>
 
-<script setup>
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
+import { useRouter } from "vue-router";
+import { ref, onMounted } from "vue";
+import { listCategory } from '@/api/system/category'
+import type { CategoryVO } from '@/api/system/category/types'
 
-const router = useRouter()
+const router = useRouter();
+
+// 页面渲染所需结构
+const menuList = ref<Array<{
+  title: string
+  subtitle: string
+  img: string
+  code: string
+}>>([])
+
+const defaultImg = 'https://dummyimage.com/100x100/ccc/fff&text=菜系'
 
 function goHome() {
-  router.push('/index')
+  router.push("/index");
 }
 
-const menuList = [
-  {
-    title: '中式佳肴',
-    subtitle: 'Chinese cuisine',
-    img: 'https://dummyimage.com/100x100/ccc/fff&text=中餐',
-    code: 'chinese',
-  },
-  {
-    title: '西式珍味',
-    subtitle: 'Western cuisine',
-    img: 'https://dummyimage.com/100x100/ccc/fff&text=西餐',
-    code: 'western',
-  },
-  {
-    title: '特调饮品',
-    subtitle: 'Beverages',
-    img: 'https://dummyimage.com/100x100/ccc/fff&text=饮品',
-    code: 'beverages',
-  },
-  {
-    title: '精致小点',
-    subtitle: 'Snacks',
-    img: 'https://dummyimage.com/100x100/ccc/fff&text=小点',
-    code: 'snacks',
-  },
-]
+async function fetchMenuList() {
+  try {
+    const res = await listCategory() // ✅ 返回的是 rows 数组
+    const rows = res || []
 
+    menuList.value = rows.map((item): typeof menuList.value[0] => ({
+      title: item.name,
+      subtitle: item.nameEn,
+      img: item.imageUrl || defaultImg,
+      code: String(item.id)
+    }))
+  } catch (err) {
+    console.error('获取菜系失败', err)
+  }
+}
+
+
+onMounted(() => {
+  fetchMenuList()
+})
 </script>
+
 
 <style scoped>
 .menu-page {
   min-height: 100vh;
   width: 100vw;
-  background: url('@/assets/menu/menubg.svg') no-repeat center center;
+  background: url("@/assets/menu/menubg.svg") no-repeat center center;
   background-size: cover;
   padding: 8vh 6vw;
   box-sizing: border-box;
-  font-family: 'Noto Serif SC', serif;
+  font-family: "Noto Serif SC", serif;
   color: #5e4003;
   text-align: center;
 }
@@ -197,6 +203,4 @@ const menuList = [
   transform: scale(1.05);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
-
-
 </style>
