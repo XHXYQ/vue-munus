@@ -18,6 +18,10 @@
       <div class="text-en">Swipe the screen to start ordering</div>
     </div>
   </div>
+
+  <!-- 清除数据按钮 -->
+<div class="clear-btn" @click="clearStorage">清除数据</div>
+
 </template>
 
 <script setup>
@@ -28,6 +32,13 @@ const router = useRouter()
 function goToMenu() {
   router.push('/menu')
 }
+
+function clearStorage() {
+  localStorage.clear();
+  sessionStorage.clear();
+  alert("已清除本地数据");
+}
+
 </script>
 
 <style scoped>
@@ -103,6 +114,26 @@ function goToMenu() {
 .text-en {
   font-size: 2.4vw;
 }
+
+.clear-btn {
+  position: fixed;
+  bottom: 12px;
+  right: 16px;
+  font-size: 14px;
+  color: #a07417;
+  cursor: pointer;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  z-index: 1000;
+  transition: transform 0.2s ease;
+}
+.clear-btn:hover {
+  transform: scale(1.05);
+}
+
 
 /* 动画保持不变 */
 @keyframes bounce {
