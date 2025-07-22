@@ -166,14 +166,25 @@
     z-index: 999;
   }
   
-  .dialog-box {
+  /* .dialog-box {
     background: #f5e3c6;
     width: 500px;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     color: #7a5700;
-  }
+  } */
+  .dialog-box {
+  background: #f5e3c6;
+  width: 500px;
+  max-height: 80vh; /* 限制最大高度 */
+  overflow-y: auto;  /* 超出滚动 */
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  color: #7a5700;
+}
+
   
   .dialog-header {
     display: flex;

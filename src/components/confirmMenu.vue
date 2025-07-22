@@ -265,26 +265,7 @@ function confirmRemark() {
     color: white;
   }
 
-  /* .order-remark-row {
-  margin-top: 16px;
-  font-size: 14px;
-  color: #7b5500;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-}
 
-.add-remark {
-  color: #fefdfb;
-  cursor: pointer;
-}
-
-.edit-remark {
-  margin-left: 12px;
-  color: #a07c49;
-  cursor: pointer;
-} */
 .order-remark-row {
   margin-top: 16px;
   font-size: 14px;
@@ -324,12 +305,15 @@ function confirmRemark() {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.6); /* 可调深浅 */
+  backdrop-filter: blur(8px);     /* 关键：模糊效果 */
+  -webkit-backdrop-filter: blur(8px); /* Safari 支持 */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 999;
 }
+
 
 .remark-dialog {
   background: #f5e0c6;
