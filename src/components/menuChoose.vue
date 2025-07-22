@@ -22,8 +22,8 @@
     <!-- 右侧菜单列表 -->
     <main class="menu-content">
       <!-- 标题在外部，居中显示 -->
-      <h1 class="menu-title">{{ currentCategory.name }}</h1>
-
+      <!-- <h1 class="menu-title">{{ currentCategory.name }}</h1> -->
+      <h1 class="menu-title">{{ categoryName }}</h1>
       <!-- 内部遮罩框 -->
       <div class="menu-overlay-wrapper">
         <div class="menu-wrapper">
@@ -127,6 +127,9 @@ const activeIndex = ref(0);
 
 const type = computed(() => route.query.type || "chinese");
 
+//接收菜系名
+const categoryName = computed(() => decodeURIComponent(route.query.name || '菜系'));
+
 // 根据 type 加载对应分类数据
 const categoryData = computed(() => {
   switch (type.value) {
@@ -173,12 +176,31 @@ const cartVisible = ref(false);
 function toggleCart() {
   cartVisible.value = !cartVisible.value;
 }
+// function clearCart() {
+//   categories.value.forEach((cat) =>
+//     cat.groups.forEach((g) => g.items?.forEach((item) => (item.count = 0)))
+//   );
+//   updateAllCounts();
+// }
 function clearCart() {
-  categories.value.forEach((cat) =>
-    cat.groups.forEach((g) => g.items?.forEach((item) => (item.count = 0)))
-  );
-  updateAllCounts();
+  categories.value = categories.value.map((cat) => {
+    const updatedGroups = cat.groups.map((group) => {
+      const updatedItems = group.items.map((item) => ({
+        ...item,
+        count: 0,
+      }));
+      return { ...group, items: updatedItems };
+    });
+
+    return {
+      ...cat,
+      groups: updatedGroups,
+      count: 0,
+    };
+  });
 }
+
+
 function updateAllCounts() {
   categories.value.forEach((cat) => {
     cat.count = cat.groups.reduce(
@@ -517,9 +539,9 @@ async function fetchDishGroups() {
 .quantity-control button {
   width: 28px;
   height: 28px;
-  font-size: 16px;
+  font-size: 13px;
   background: none;
-  border: 1px solid #fff;
+  border: 2px solid #fff;
   color: #fff;
   border-radius: 4px;
   cursor: pointer;

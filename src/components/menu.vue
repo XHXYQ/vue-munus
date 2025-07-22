@@ -7,7 +7,7 @@
         class="menu-card"
         v-for="item in menuList"
         :key="item.title"
-        @click="router.push({ name: 'menuChoose', query: { type: item.code } })"
+        @click="router.push({ name: 'menuChoose', query: { type: item.code, name: item.title } })"
       >
         <div class="card-img-wrapper">
           <img
