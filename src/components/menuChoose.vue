@@ -647,9 +647,12 @@ async function fetchDishGroups() {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.05); /* 可选淡色遮罩 */
-  z-index: 998; /* 比 .cart-drawer 稍低 */
+  background: rgba(0, 0, 0, 0.1); /* 可调浅色遮罩 */
+  backdrop-filter: blur(6px); /* 🔥 毛玻璃模糊 */
+  -webkit-backdrop-filter: blur(6px); /* Safari 兼容 */
+  z-index: 998;
 }
+
 
 /* 右侧当前分类标题 */
 /* .menu-title {
