@@ -209,8 +209,8 @@ function confirmRemark() {
     height: 28px;
     font-size: 16px;
     background: none;
-    border: 1px solid #b68d41;
-    color: #b68d41;
+    border: 1px solid #fff;
+    color: #fff;
     border-radius: 4px;
     cursor: pointer;
   }

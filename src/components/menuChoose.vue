@@ -33,8 +33,8 @@
             :key="group.name"
           >
             <h2 class="group-title">
-              {{ group.name }}
-              <span class="group-en">{{ group.en }}</span>
+              <div class="group-cn">{{ group.name }}</div>
+              <div class="group-en">{{ group.en }}</div>
             </h2>
 
             <div class="menu-item" v-for="dish in group.items" :key="dish.name">
@@ -351,7 +351,7 @@ async function fetchDishGroups() {
 
 .badge {
   position: absolute;
-  top: 8px;
+  top: 28px;
   right: 12px;
   background: #d64040;
   color: white;
@@ -368,12 +368,14 @@ async function fetchDishGroups() {
 }
 
 .menu-title {
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 40px;
+  font-weight: 900;
+  font-style: normal;
+  line-height: 44px;
   margin: 0 auto 16px;
-  color: #7b5500;
+  color: #886417;
   text-align: center;
-  letter-spacing: 4px;
+  letter-spacing: 6px;
 }
 
 /* 包裹商品列表的浅棕色背景区域 */
@@ -404,20 +406,26 @@ async function fetchDishGroups() {
 }
 
 .group-title {
-  font-size: 28px;
-  font-weight: 700;
-  font-style: normal;
-  line-height: 32px;
-  letter-spacing: 3.6px;
+  display: flex;
+  flex-direction: column; /* ✅ 垂直排列 */
+  align-items: flex-start;
   margin-top: 32px;
   margin-bottom: 16px;
-  color: #5e4003;
+}
+
+.group-cn {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 32px;
+  color: #fff;
+  letter-spacing: 3.6px;
 }
 
 .group-en {
   font-size: 20px;
   color: #fff;
-  margin-left: 8px;
+  margin-top: 7px; /* ✅ 增加上下间隔 */
+  letter-spacing: 2px;
 }
 
 .menu-item {
