@@ -40,11 +40,17 @@
         </table>
 
         <!-- 添加订单备注 -->
+<!-- 添加订单备注 -->
 <div class="order-remark-row">
-  <span v-if="orderRemark">备注：{{ orderRemark }}</span>
-  <span v-else class="add-remark" @click="openRemarkDialog">+ 添加备注</span>
-  <span v-if="orderRemark" class="edit-remark" @click="openRemarkDialog">✎ 修改</span>
+  <div class="remark-content">
+    <span v-if="orderRemark">备注：{{ orderRemark }}</span>
+    <span v-else class="add-remark" @click="openRemarkDialog">+ 添加备注</span>
+  </div>
+  <div v-if="orderRemark" class="edit-btn-wrapper">
+    <span class="edit-remark" @click="openRemarkDialog">✎ 修改</span>
+  </div>
 </div>
+
 
       </div>
   
@@ -259,7 +265,7 @@ function confirmRemark() {
     color: white;
   }
 
-  .order-remark-row {
+  /* .order-remark-row {
   margin-top: 16px;
   font-size: 14px;
   color: #7b5500;
@@ -278,7 +284,39 @@ function confirmRemark() {
   margin-left: 12px;
   color: #a07c49;
   cursor: pointer;
+} */
+.order-remark-row {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #7b5500;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 12px;
+  word-break: break-word;
 }
+
+.remark-content {
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.edit-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.add-remark {
+  color: #fefdfb;
+  cursor: pointer;
+}
+
+.edit-remark {
+  color: #a07c49;
+  cursor: pointer;
+}
+
 
 .remark-modal {
   position: fixed;
