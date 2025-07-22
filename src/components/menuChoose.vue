@@ -70,7 +70,12 @@
     <!-- 右侧购物车面板 -->
     <div class="cart-drawer" v-if="cartVisible" @click.stop>
       <h3>已选择({{ totalCount }})</h3>
-      <div class="cart-clear" @click="clearCart">清空列表</div>
+      <div class="cart-clear" @click="clearCart">
+  <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
+  清空列表
+</div>
+
+      <!-- <div class="cart-clear" @click="clearCart">清空列表</div> -->
       <!-- <div class="cart-list">
         <div class="cart-item" v-for="dish in selectedItems" :key="dish.name">
           <img :src="dish.img" />
@@ -716,4 +721,12 @@ async function fetchDishGroups() {
   align-items: center;
   line-height: 1.6;
 }
+
+.trash-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
 </style>
