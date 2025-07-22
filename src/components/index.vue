@@ -1,30 +1,37 @@
 <template>
-  <div
-    class="landing-page"
-    :class="{ 'bg-loaded': bgLoaded }"
-  >
-    <!-- Logo 图标 -->
-    <div class="logo-container">
-      <img src="@/assets/logo.svg" alt="Club Logo" class="logo" />
-    </div>
+  <div class="landing-wrapper">
+    <!-- 背景图淡入层 -->
+    <div class="background" :class="{ 'bg-loaded': bgLoaded }"></div>
 
-    <!-- 标题区 -->
-    <div class="title-group">
-      <h1 class="main-title">克来姆国际商务会所</h1>
-      <h2 class="subtitle">Clement International Business Club</h2>
-    </div>
+    <!-- 页面主体内容 -->
+    <div class="landing-page">
+      <div class="content-wrapper">
+        <!-- Logo 图标 -->
+        <div class="logo-container">
+          <img src="@/assets/logo.svg" alt="Club Logo" class="logo" />
+        </div>
 
-    <!-- 底部滑动提示 -->
-    <div class="swipe-tip" @click="goToMenu">
-      <div class="arrow">&#x25B2;</div>
-      <div class="text">点击屏幕开始点餐</div>
-      <div class="text-en">Swipe the screen to start ordering</div>
-    </div>
+        <!-- 标题区 -->
+        <div class="title-group">
+          <h1 class="main-title">克来姆国际商务会所</h1>
+          <h2 class="subtitle">Clement International Business Club</h2>
+        </div>
+      </div>
 
-    <!-- 清除数据按钮 -->
-    <div class="clear-btn" @click="clearStorage">清除数据</div>
+      <!-- 滑动提示 -->
+      <div class="swipe-tip" @click="goToMenu">
+        <div class="arrow">&#x25B2;</div>
+        <div class="text">点击屏幕开始点餐</div>
+        <div class="text-en">Swipe the screen to start ordering</div>
+      </div>
+
+      <!-- 清除数据按钮 -->
+      <div class="clear-btn" @click="clearStorage">清除数据</div>
+    </div>
   </div>
 </template>
+
+
 
 <script setup>
 import { ref, onMounted } from 'vue'
@@ -52,33 +59,67 @@ onMounted(() => {
 })
 </script>
 
+
 <style scoped>
-.landing-page {
+.landing-wrapper {
   position: relative;
   min-height: 100vh;
   width: 100%;
+  overflow: hidden;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fdf9f1;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+}
+
+.background.bg-loaded {
+  background-image: url('@/assets/bg.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 1;
+}
+
+.landing-page {
+  position: relative;
+  z-index: 1;
   text-align: center;
   font-family: "Noto Serif SC", serif;
   color: #b68d41;
   padding: 10vh 5vw 6vh;
   box-sizing: border-box;
+  min-height: 100vh;
 
-  background-color: #fdf9f1; /* 初始底色 */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  transition: background-image 0.6s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-.landing-page.bg-loaded {
-  background-image: url('@/assets/bg.svg');
+/* ✅ 用于居中内容的包裹器 */
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* 标题 */
 .title-group {
-  text-align: center;
-  margin-top: 10vh;
+  margin-top: 4vh;
+  max-width: 90vw;
+  padding: 0 4vw;
 }
+
 
 .main-title {
   font-size: 10vw;
@@ -105,7 +146,6 @@ onMounted(() => {
   cursor: pointer;
   transition: transform 0.2s ease;
 }
-
 .swipe-tip:hover {
   transform: scale(1.05);
 }
@@ -125,7 +165,7 @@ onMounted(() => {
   font-size: 3.4vw;
 }
 
-/* 清除数据按钮 */
+/* 清除按钮 */
 .clear-btn {
   position: fixed;
   bottom: 12px;
@@ -185,3 +225,4 @@ onMounted(() => {
   }
 }
 </style>
+
