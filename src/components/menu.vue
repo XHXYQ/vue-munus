@@ -126,7 +126,7 @@ onMounted(() => {
   align-items: center;
   width: 100%;
   max-width: 600px;
-  background: rgba(177, 144, 101, 0.3);
+  background: rgba(64, 44, 13, 0.35);
   border-radius: 20px;
   padding: 28px 32px;
   cursor: pointer;
@@ -172,20 +172,22 @@ onMounted(() => {
 }
 
 .card-title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 44px;
+  font-weight: 900;
   margin-bottom: 8px;
-  color: #3c2a00;
+  color: #fff;
 }
 
 .card-subtitle {
-  font-size: 18px;
-  color: #9b7e4e;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  color: #fff;
 }
 
 .card-arrow {
-  font-size: 26px;
-  color: #b68d41;
+  font-size: 32px;
+  color: #fff;
 }
 
 .back-btn {
