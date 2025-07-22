@@ -46,22 +46,6 @@ function goHome() {
   router.push("/index");
 }
 
-// async function fetchMenuList() {
-//   try {
-//     const res = await listCategory() // ✅ 返回的是 rows 数组
-//     console.log("⚠️ listCategory 返回值是：", res);
-//     const rows = res || []
-
-//     menuList.value = rows.map((item): typeof menuList.value[0] => ({
-//       title: item.name,
-//       subtitle: item.nameEn,
-//       img: item.imageUrl || defaultImg,
-//       code: String(item.id)
-//     }))
-//   } catch (err) {
-//     console.error('获取菜系失败', err)
-//   }
-// }
 async function fetchMenuList() {
   try {
     const res = await listCategory()
@@ -73,7 +57,7 @@ async function fetchMenuList() {
     menuList.value = rows.map((item) => ({
       title: item.name,          // 使用 item.name 作为 title
       subtitle: item.nameEn,    // 使用 item.nameEn 作为 subtitle
-      img: item.imageUrl || defaultImg,  // 使用 item.imageUrl 或默认图片
+      img: item.image || defaultImg,  // 使用 item.imageUrl 或默认图片
       code: String(item.id)      // 使用 item.id 作为 code（转换为字符串）
     }))
   } catch (err) {
