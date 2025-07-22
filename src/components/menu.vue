@@ -93,12 +93,24 @@ onMounted(() => {
   letter-spacing: 6px;
 }
 
-.menu-grid {
+/* .menu-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 48px;
   margin-bottom: 6vh;
+  justify-content: center;
+} */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 88px;
+  margin-bottom: 6vh;
+
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
+
 
 .menu-card {
   display: grid;
@@ -190,17 +202,20 @@ onMounted(() => {
 
 .back-btn {
   font-size: 18px;
-  /* color: #a07417; */
+  color: #a07417;
   cursor: pointer;
-  margin-top: 4vh;
 
   background: rgba(255, 255, 255, 0.15);
   padding: 10px 24px;
   border-radius: 999px;
-  display: inline-block;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
   backdrop-filter: blur(4px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  /* ✅ 关键居中属性 */
+  display: inline-block;
+  margin: 4vh auto 0;
 }
+
 
 .back-btn:hover {
   transform: scale(1.05);
