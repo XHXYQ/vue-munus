@@ -33,7 +33,12 @@
                 </div>
               </td>
               <td>
-                <span class="delete-btn" @click="remove(index)">🗑 删除</span>
+                <!-- <span class="delete-btn" @click="remove(index)">🗑 删除</span> -->
+                <span class="delete-btn" @click="remove(index)">
+  <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
+  删除
+</span>
+
               </td>
             </tr>
           </tbody>
@@ -202,9 +207,12 @@ function confirmRemark() {
   }
   
   .dish-name-cn {
-    font-weight: bold;
-    font-size: 16px;
+    font-weight: 700;
+    font-size: 20px;
     color: #fefdfb;
+    line-height: 24px;
+    letter-spacing: 3px;
+    font-style: normal;
   }
   
   .dish-name-en {
@@ -222,9 +230,9 @@ function confirmRemark() {
   .quantity-control button {
     width: 28px;
     height: 28px;
-    font-size: 16px;
+    font-size: 13px;
     background: none;
-    border: 1px solid #fff;
+    border: 2px solid #fff;
     color: #fff;
     border-radius: 4px;
     cursor: pointer;
@@ -256,7 +264,7 @@ function confirmRemark() {
   }
   
   .back-btn {
-    background: #ccb89a;
+    background: rgba(136,100,23,0.50);
     color: white;
   }
   
@@ -370,6 +378,13 @@ function confirmRemark() {
 .remark-footer .confirm {
   background: #b68d41;
   color: white;
+}
+
+.trash-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
   </style>
