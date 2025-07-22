@@ -58,20 +58,25 @@ function truncate(str: string, maxLength: number): string {
 async function fetchMenuList() {
   try {
     const res = await listCategory()
-    const rows = res?.rows || []
-
-    menuList.value = rows.map((item) => ({
+    console.log("listCategory response:", res)
+    
+    // 处理类型问题：res可能是CategoryVO[]或包含rows的对象
+    const data = Array.isArray(res) ? res : res?.rows || []
+    
+    menuList.value = data.map((item: any) => ({
       title: truncate(item.name || '', 20),
       subtitle: truncate(item.nameEn || '', 30),
-      img: item.image || defaultImg,
+      img: item.image || item.imageUrl || defaultImg, // 兼容两种可能的字段名
       code: String(item.id)
     }))
 
     await nextTick()
     const imgs = document.querySelectorAll('.card-img')
-    imgs.forEach((img: HTMLImageElement) => {
-      img.onload = () => {
-        img.classList.add('loaded')
+    imgs.forEach((img) => {
+      if (img instanceof HTMLImageElement) {
+        img.onload = () => {
+          img.classList.add('loaded')
+        }
       }
     })
   } catch (err) {

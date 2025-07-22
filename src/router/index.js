@@ -9,7 +9,7 @@ import confirmMenu from '../components/confirmMenu.vue'
 import orderInfo from '../components/orderInfo.vue'
 
 const routes = [
-  { path: '/', component: HelloWorld },
+  { path: '/', component: Menu },
   { path: '/welcome', component: TheWelcome },
   { path: '/index', component: Index },
   { path: '/menu', component: Menu },
