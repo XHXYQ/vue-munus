@@ -106,7 +106,7 @@
   }
   
   .order-box {
-    background: rgba(160, 132, 94, 0.25);
+    background: rgba(160, 132, 94, 0.65);
     border-radius: 16px;
     padding: 40px 32px;
     text-align: center;
