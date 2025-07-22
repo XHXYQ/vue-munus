@@ -44,9 +44,14 @@
                 <div class="dish-en">{{ dish.en }}</div>
               </div>
               <div class="quantity-control">
-                <button @click="decrease(dish)">－</button>
-                <span>{{ dish.count }}</span>
-                <button @click="increase(dish)">＋</button>
+                <template v-if="dish.count > 0">
+                  <button @click="decrease(dish)">－</button>
+                  <span>{{ dish.count }}</span>
+                  <button @click="increase(dish)">＋</button>
+                </template>
+                <template v-else>
+                  <button @click="increase(dish)">＋</button>
+                </template>
               </div>
             </div>
           </div>
@@ -235,7 +240,6 @@ function confirmMenu() {
   });
 }
 
-
 // 页面加载时调用接口
 // onMounted(async () => {
 //   await fetchDishGroups();
@@ -262,8 +266,6 @@ onMounted(async () => {
     updateAllCounts();
   }
 });
-
-
 
 async function fetchDishGroups() {
   try {
@@ -652,7 +654,6 @@ async function fetchDishGroups() {
   -webkit-backdrop-filter: blur(6px); /* Safari 兼容 */
   z-index: 998;
 }
-
 
 /* 右侧当前分类标题 */
 /* .menu-title {
