@@ -207,12 +207,26 @@ const selectedItems = computed(() => {
 //     },
 //   });
 // }
+// function confirmMenu() {
+//   if (selectedItems.value.length === 0) {
+//     ElMessage.warning("请先选择菜品再确认");
+//     return;
+//   }
+
+//   router.push({
+//     path: "/confirmMenu",
+//     query: {
+//       items: JSON.stringify(selectedItems.value),
+//     },
+//   });
+// }
 function confirmMenu() {
   if (selectedItems.value.length === 0) {
     ElMessage.warning("请先选择菜品再确认");
     return;
   }
 
+  sessionStorage.setItem("cachedDishes", JSON.stringify(selectedItems.value));
   router.push({
     path: "/confirmMenu",
     query: {
@@ -221,10 +235,35 @@ function confirmMenu() {
   });
 }
 
+
 // 页面加载时调用接口
+// onMounted(async () => {
+//   await fetchDishGroups();
+// });
 onMounted(async () => {
   await fetchDishGroups();
+
+  // 恢复购物车数据
+  const cached = sessionStorage.getItem("cachedDishes");
+  if (cached) {
+    const savedItems = JSON.parse(cached);
+    savedItems.forEach((savedDish) => {
+      categories.value.forEach((cat) => {
+        cat.groups.forEach((group) => {
+          group.items?.forEach((dish) => {
+            if (dish.name === savedDish.name) {
+              dish.count = savedDish.count;
+            }
+          });
+        });
+      });
+    });
+
+    updateAllCounts();
+  }
 });
+
+
 
 async function fetchDishGroups() {
   try {

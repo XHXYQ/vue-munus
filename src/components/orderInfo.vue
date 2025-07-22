@@ -66,7 +66,12 @@
   })
   
   const goHome = () => router.push('/index')
-  const continueAdd = () => router.push('/menu')
+  // const continueAdd = () => router.push('/menu')
+  const continueAdd = () => {
+  const category = route.query.category || 'chinese'  // 默认中文菜系
+  router.push({ path: '/menuChoose', query: { type: category } })
+}
+
   const viewOrder = () => {
     showDialog.value = true
   }

@@ -172,12 +172,6 @@ function confirmRemark() {
     margin-bottom: 24px;
   }
   
-  /* .table-wrapper {
-    background: rgba(102, 66, 33, 0.25);
-    border-radius: 12px;
-    padding: 24px;
-    box-sizing: border-box;
-  } */
   .table-wrapper {
   background: rgba(102, 66, 33, 0.25);
   border-radius: 12px;
