@@ -81,25 +81,23 @@
         </div>
       </div> -->
       <div class="cart-list">
-  <template v-if="selectedItems.length > 0">
-    <div class="cart-item" v-for="dish in selectedItems" :key="dish.name">
-      <img :src="dish.img" />
-      <div class="cart-info">
-        <div class="cart-name">{{ dish.name }}</div>
-        <div class="cart-en">{{ dish.en }}</div>
-      </div>
-      <div class="quantity-control">
-        <button @click="decrease(dish)">－</button>
-        <span>{{ dish.count }}</span>
-        <button @click="increase(dish)">＋</button>
-      </div>
-    </div>
-  </template>
+        <template v-if="selectedItems.length > 0">
+          <div class="cart-item" v-for="dish in selectedItems" :key="dish.name">
+            <img :src="dish.img" />
+            <div class="cart-info">
+              <div class="cart-name">{{ dish.name }}</div>
+              <div class="cart-en">{{ dish.en }}</div>
+            </div>
+            <div class="quantity-control">
+              <button @click="decrease(dish)">－</button>
+              <span>{{ dish.count }}</span>
+              <button @click="increase(dish)">＋</button>
+            </div>
+          </div>
+        </template>
 
-  <div v-else class="cart-empty-tip">
-    暂无菜品，请添加
-  </div>
-</div>
+        <div v-else class="cart-empty-tip">暂无菜品，请添加</div>
+      </div>
 
       <div class="cart-actions">
         <button @click="toggleCart">返回</button>
@@ -115,9 +113,8 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { listDishGroup, groupWithDishes } from "@/api/system/dishGroup";
 import { listDish } from "@/api/system/dish";
-import { ArrowLeftBold } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-
+import { ArrowLeftBold } from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
 
 const router = useRouter();
 const route = useRoute();
@@ -344,6 +341,7 @@ async function fetchDishGroups() {
   line-height: 32px;
   font-weight: 700;
   color: #886417;
+  margin-bottom: 5px;
 }
 
 .name-en {
@@ -425,7 +423,7 @@ async function fetchDishGroups() {
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 12px 0;
+  padding: 16px 0;
   border-bottom: 1px dashed #c7b294;
 }
 
@@ -448,6 +446,7 @@ async function fetchDishGroups() {
   font-style: normal;
   line-height: 28px;
   letter-spacing: 4.2px;
+  margin-bottom: 5px;
 }
 
 .dish-en {
@@ -644,5 +643,4 @@ async function fetchDishGroups() {
   align-items: center;
   line-height: 1.6;
 }
-
 </style>
