@@ -36,6 +36,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+
 
 const router = useRouter()
 const bgLoaded = ref(false)
@@ -47,7 +49,7 @@ function goToMenu() {
 function clearStorage() {
   localStorage.clear()
   sessionStorage.clear()
-  alert('已清除本地数据')
+  ElMessage.success('已清除本地数据')
 }
 
 onMounted(() => {
