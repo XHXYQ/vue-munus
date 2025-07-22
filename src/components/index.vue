@@ -14,7 +14,7 @@
     <!-- 底部滑动提示 -->
     <div class="swipe-tip" @click="goToMenu">
       <div class="arrow">&#x25B2;</div>
-      <div class="text">滑动屏幕开始点餐</div>
+      <div class="text">点击屏幕开始点餐</div>
       <div class="text-en">Swipe the screen to start ordering</div>
     </div>
   </div>

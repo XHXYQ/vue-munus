@@ -2,7 +2,7 @@
     <div class="confirm-page">
       <!-- 返回选择菜品 -->
       <div class="top-bar" @click="router.back()">
-        <span class="back-icon">←</span>
+        <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
         返回选择菜品
       </div>
   
@@ -75,6 +75,7 @@
   <script setup>
   import { ref, onMounted } from "vue";
   import { useRoute, useRouter } from "vue-router";
+  import { ArrowLeftBold } from '@element-plus/icons-vue'
   
   const route = useRoute();
   const router = useRouter();

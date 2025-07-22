@@ -171,7 +171,7 @@ onMounted(() => {
 
 .back-btn {
   font-size: 18px;
-  color: #a07417;
+  /* color: #a07417; */
   cursor: pointer;
   margin-top: 4vh;
 }
@@ -206,7 +206,7 @@ onMounted(() => {
 
 .back-btn {
   font-size: 18px;
-  color: #a07417;
+  /* color: #a07417; */
   cursor: pointer;
   margin-top: 4vh;
 

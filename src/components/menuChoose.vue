@@ -3,7 +3,7 @@
     <!-- 左侧分类 -->
     <aside class="category-sidebar">
       <div class="back" @click="router.back()">
-        <span class="back-icon">←</span>
+        <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
         返回选择菜系
       </div>
 
@@ -94,6 +94,8 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { listDishGroup, groupWithDishes } from "@/api/system/dishGroup";
 import { listDish } from "@/api/system/dish";
+import { ArrowLeftBold } from '@element-plus/icons-vue'
+
 
 const router = useRouter();
 const route = useRoute();
@@ -312,7 +314,7 @@ async function fetchDishGroups() {
   color: white;
   font-size: 12px;
   border-radius: 999px;
-  padding: 2px 6px;
+  padding: 2px 8px;
 }
 
 .menu-content {
@@ -442,7 +444,7 @@ async function fetchDishGroups() {
   color: white;
   font-size: 14px;
   border-radius: 50%;
-  padding: 4px 8px;
+  padding: 2px 9px;
 }
 
 .cart-drawer {
