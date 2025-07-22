@@ -10,7 +10,12 @@
         @click="router.push({ name: 'menuChoose', query: { type: item.code } })"
       >
         <div class="card-img-wrapper">
-          <img :src="item.img" alt="image" class="card-img" />
+          <img
+            :src="item.img"
+            alt="image"
+            class="card-img"
+            loading="lazy"
+          />
         </div>
         <div class="card-text">
           <h2 class="card-title">{{ item.title }}</h2>
@@ -26,13 +31,12 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 import { listCategory } from '@/api/system/category'
 import type { CategoryVO } from '@/api/system/category/types'
 
 const router = useRouter();
 
-// 页面渲染所需结构
 const menuList = ref<Array<{
   title: string
   subtitle: string
@@ -46,31 +50,39 @@ function goHome() {
   router.push("/index");
 }
 
+// 截断文本（中文20字，英文30字符）
+function truncate(str: string, maxLength: number): string {
+  return str.length > maxLength ? str.slice(0, maxLength) + '…' : str
+}
+
 async function fetchMenuList() {
   try {
     const res = await listCategory()
-    console.log("⚠️ listCategory 返回值是：", res)
-    
-    // ✅ 从 res.rows 中提取数据，如果 res 或 res.rows 为空，则默认为空数组
     const rows = res?.rows || []
 
     menuList.value = rows.map((item) => ({
-      title: item.name,          // 使用 item.name 作为 title
-      subtitle: item.nameEn,    // 使用 item.nameEn 作为 subtitle
-      img: item.image || defaultImg,  // 使用 item.imageUrl 或默认图片
-      code: String(item.id)      // 使用 item.id 作为 code（转换为字符串）
+      title: truncate(item.name || '', 20),
+      subtitle: truncate(item.nameEn || '', 30),
+      img: item.image || defaultImg,
+      code: String(item.id)
     }))
+
+    await nextTick()
+    const imgs = document.querySelectorAll('.card-img')
+    imgs.forEach((img: HTMLImageElement) => {
+      img.onload = () => {
+        img.classList.add('loaded')
+      }
+    })
   } catch (err) {
     console.error('获取菜系失败', err)
   }
 }
 
-
 onMounted(() => {
   fetchMenuList()
 })
 </script>
-
 
 <style scoped>
 .menu-page {
@@ -93,24 +105,15 @@ onMounted(() => {
   letter-spacing: 6px;
 }
 
-/* .menu-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 48px;
-  margin-bottom: 6vh;
-  justify-content: center;
-} */
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 88px;
   margin-bottom: 6vh;
-
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 }
-
 
 .menu-card {
   display: grid;
@@ -142,10 +145,25 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.card-img.loaded {
+  opacity: 1;
 }
 
 .card-text {
   text-align: left;
+}
+
+.card-title,
+.card-subtitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  max-width: 100%;
 }
 
 .card-title {
@@ -167,11 +185,23 @@ onMounted(() => {
 
 .back-btn {
   font-size: 18px;
-  /* color: #a07417; */
+  color: #a07417;
   cursor: pointer;
-  margin-top: 4vh;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10px 24px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: inline-block;
+  margin: 4vh auto 0;
 }
 
+.back-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式处理 */
 @media (max-width: 768px) {
   .menu-grid {
     grid-template-columns: 1fr;
@@ -198,27 +228,5 @@ onMounted(() => {
   .title {
     font-size: 24px;
   }
-}
-
-.back-btn {
-  font-size: 18px;
-  color: #a07417;
-  cursor: pointer;
-
-  background: rgba(255, 255, 255, 0.15);
-  padding: 10px 24px;
-  border-radius: 999px;
-  backdrop-filter: blur(4px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  /* ✅ 关键居中属性 */
-  display: inline-block;
-  margin: 4vh auto 0;
-}
-
-
-.back-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 </style>
