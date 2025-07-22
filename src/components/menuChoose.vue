@@ -298,14 +298,17 @@ async function fetchDishGroups() {
 }
 
 .back {
-  font-size: 16px;
+  font-size: 22px;
+  font-style: normal;
   margin-bottom: 24px;
-  color: #a07417;
+  color: #886417;
   cursor: pointer;
   display: flex;
+  line-height: 28px;
   align-items: center;
   gap: 6px;
-  font-weight: bold;
+  font-weight: 700;
+  letter-spacing: 3.6px;
 }
 
 .back-icon {
@@ -323,22 +326,29 @@ async function fetchDishGroups() {
 }
 
 .category-item.active {
-  background: rgba(177, 144, 101, 0.4);
+  background: rgba(64, 44, 13, 0.35);
   color: white;
 }
 
+.category-item.active .name-cn {
+  color: #fff;
+}
+
 .category-item.active .name-en {
-  color: #f5e8d5;
+  color: #fff;
 }
 
 .name-cn {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 28px;
+  font-style: normal;
+  line-height: 32px;
+  font-weight: 700;
+  color: #886417;
 }
 
 .name-en {
   font-size: 14px;
-  color: #9b7e4e;
+  color: #886417;
 }
 
 .badge {
@@ -396,16 +406,19 @@ async function fetchDishGroups() {
 }
 
 .group-title {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 32px;
+  letter-spacing: 3.6px;
   margin-top: 32px;
   margin-bottom: 16px;
   color: #5e4003;
 }
 
 .group-en {
-  font-size: 14px;
-  color: #9b7e4e;
+  font-size: 20px;
+  color: #fff;
   margin-left: 8px;
 }
 
@@ -430,13 +443,20 @@ async function fetchDishGroups() {
 }
 
 .dish-name {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 28px;
+  font-weight: 900;
+  font-style: normal;
+  line-height: 28px;
+  letter-spacing: 4.2px;
 }
 
 .dish-en {
-  font-size: 14px;
-  color: #a07c49;
+  font-size: 20px;
+  color: #fff;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 24px;
+  letter-spacing: 3px;
   margin-top: 4px;
 }
 
@@ -451,10 +471,19 @@ async function fetchDishGroups() {
   height: 28px;
   font-size: 16px;
   background: none;
-  border: 1px solid #b68d41;
-  color: #b68d41;
+  border: 1px solid #fff;
+  color: #fff;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.quantity-control span {
+  font-size: 20px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 24px;
+  letter-spacing: 3px;
+  color: #fff;
 }
 
 .cart-fab {
@@ -588,7 +617,7 @@ async function fetchDishGroups() {
 
 /* 当前分类下的小组英文名 */
 .group-title .group-en {
-  color: #f5e8d5 !important;
+  color: #fff !important;
 }
 
 /* 当前分类下的菜品名与英文名 */
