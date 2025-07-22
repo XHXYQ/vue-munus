@@ -191,8 +191,10 @@ onMounted(() => {
 }
 
 .back-btn {
-  font-size: 18px;
-  color: #a07417;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  color: #886417;
   cursor: pointer;
   background: rgba(255, 255, 255, 0.15);
   padding: 10px 24px;
