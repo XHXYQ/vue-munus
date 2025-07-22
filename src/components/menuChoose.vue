@@ -66,7 +66,7 @@
     <div class="cart-drawer" v-if="cartVisible" @click.stop>
       <h3>已选择({{ totalCount }})</h3>
       <div class="cart-clear" @click="clearCart">清空列表</div>
-      <div class="cart-list">
+      <!-- <div class="cart-list">
         <div class="cart-item" v-for="dish in selectedItems" :key="dish.name">
           <img :src="dish.img" />
           <div class="cart-info">
@@ -79,7 +79,28 @@
             <button @click="increase(dish)">＋</button>
           </div>
         </div>
+      </div> -->
+      <div class="cart-list">
+  <template v-if="selectedItems.length > 0">
+    <div class="cart-item" v-for="dish in selectedItems" :key="dish.name">
+      <img :src="dish.img" />
+      <div class="cart-info">
+        <div class="cart-name">{{ dish.name }}</div>
+        <div class="cart-en">{{ dish.en }}</div>
       </div>
+      <div class="quantity-control">
+        <button @click="decrease(dish)">－</button>
+        <span>{{ dish.count }}</span>
+        <button @click="increase(dish)">＋</button>
+      </div>
+    </div>
+  </template>
+
+  <div v-else class="cart-empty-tip">
+    暂无菜品，请添加
+  </div>
+</div>
+
       <div class="cart-actions">
         <button @click="toggleCart">返回</button>
         <!-- <button class="confirm-btn">确认</button> -->
@@ -95,6 +116,7 @@ import { useRouter, useRoute } from "vue-router";
 import { listDishGroup, groupWithDishes } from "@/api/system/dishGroup";
 import { listDish } from "@/api/system/dish";
 import { ArrowLeftBold } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 
 const router = useRouter();
@@ -180,7 +202,20 @@ const selectedItems = computed(() => {
   return items;
 });
 
+// function confirmMenu() {
+//   router.push({
+//     path: "/confirmMenu",
+//     query: {
+//       items: JSON.stringify(selectedItems.value),
+//     },
+//   });
+// }
 function confirmMenu() {
+  if (selectedItems.value.length === 0) {
+    ElMessage.warning("请先选择菜品再确认");
+    return;
+  }
+
   router.push({
     path: "/confirmMenu",
     query: {
@@ -569,4 +604,16 @@ async function fetchDishGroups() {
 .menu-content.activeCategory .dish-en {
   color: white !important;
 }
+
+.cart-empty-tip {
+  text-align: center;
+  color: #a07c49;
+  font-size: 16px;
+  padding: 320px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1.6;
+}
+
 </style>
