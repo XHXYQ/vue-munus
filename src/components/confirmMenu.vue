@@ -183,6 +183,7 @@ function confirmRemark() {
     padding: 12px;
     border-bottom: 1px solid #fcfcfc;
     text-align: center;
+    color: #fff;
   }
   
   .dish-name-cn {
