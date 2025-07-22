@@ -138,19 +138,22 @@ function confirmRemark() {
     min-height: 100vh;
     padding: 24px;
     font-family: "Noto Serif SC", serif;
-    color: #5e4003;
+    color: #886417;
     box-sizing: border-box;
     position: relative;
+    font-size: 16px;
   }
   
   .top-bar {
-    font-size: 16px;
-    color: #a07417;
+    font-size: 24px;
+    color: #886417;
     cursor: pointer;
     display: flex;
     align-items: center;
     margin-bottom: 16px;
-    font-weight: bold;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 2.4px;
   }
   
   .back-icon {
@@ -159,19 +162,31 @@ function confirmRemark() {
   }
   
   .title {
-    font-size: 28px;
+    font-size: 40px;
+    font-weight: 900;
+    font-style: normal;
+    line-height: 44px;
+    letter-spacing: 6px;
     text-align: center;
-    color: #7b5500;
-    letter-spacing: 4px;
+    color: #886417;
     margin-bottom: 24px;
   }
   
-  .table-wrapper {
+  /* .table-wrapper {
     background: rgba(102, 66, 33, 0.25);
     border-radius: 12px;
     padding: 24px;
     box-sizing: border-box;
-  }
+  } */
+  .table-wrapper {
+  background: rgba(102, 66, 33, 0.25);
+  border-radius: 12px;
+  padding: 24px;
+  box-sizing: border-box;
+  max-height: calc(100vh - 240px); /* 留出顶部和底部空间 */
+  overflow-y: auto;
+}
+
   
   .dish-table {
     width: 100%;
