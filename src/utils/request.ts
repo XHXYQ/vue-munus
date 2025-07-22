@@ -26,7 +26,8 @@ service.interceptors.response.use(
       console.warn('接口异常：', res.msg)
       return Promise.reject(new Error(res.msg || '请求失败'))
     }
-    return res.rows // ✅ 直接返回 rows！
+    // return res.rows; // ✅ 直接返回 rows！
+    return res;
   },
   (error: AxiosError) => {
     console.error('网络错误：', error.message)

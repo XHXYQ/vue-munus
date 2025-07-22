@@ -92,7 +92,8 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { listDishGroup } from "@/api/system/dishGroup";
+import { listDishGroup, groupWithDishes } from "@/api/system/dishGroup";
+import { listDish } from "@/api/system/dish";
 
 const router = useRouter();
 const route = useRoute();
@@ -117,50 +118,17 @@ const categoryData = computed(() => {
 });
 
 const categories = ref([]);
-// const categories = ref([
-//   { name: "精选套餐", en: "Simple meal", count: 0, groups: [] },
-//   { name: "家常臻选", en: "Home-style stir-fry", count: 0, groups: [] },
-//   {
-//     name: "特色火锅",
-//     en: "Hot pot",
-//     count: 3,
-//     groups: [
-//       {
-//         name: "肉韵醇香",
-//         en: "Meat",
-//         items: [
-//           {
-//             name: "鸡肉",
-//             en: "Chicken",
-//             img: "https://dummyimage.com/100x100/ddd/000&text=鸡肉",
-//             count: 1,
-//           },
-//           {
-//             name: "牛肉",
-//             en: "Beef",
-//             img: "https://dummyimage.com/100x100/ccc/000&text=牛肉",
-//             count: 0,
-//           },
-//           {
-//             name: "牛肉丸",
-//             en: "Stewed Beef Meatballs",
-//             img: "https://dummyimage.com/100x100/eee/000&text=丸",
-//             count: 0,
-//           },
-//         ],
-//       },
-//     ],
-//   },
-//   { name: "主食荟萃", en: "Staple food", count: 0, groups: [] },
-// ]);
 
-// const currentCategory = ref(categories.value[activeIndex.value]);
-const currentCategory = computed(() => categories.value[activeIndex.value] || { name: '', groups: [] });
+const currentCategory = computed(
+  () => categories.value[activeIndex.value] || { name: "", groups: [] }
+);
 
-
-function selectCategory(index) {
+// function selectCategory(index) {
+//   activeIndex.value = index;
+// }
+async function selectCategory(index) {
   activeIndex.value = index;
-  // currentCategory.value = categories.value[index];
+  await fetchDishesByCategory(categories.value[index]);
 }
 
 function increase(dish) {
@@ -220,46 +188,58 @@ function confirmMenu() {
 }
 
 // 页面加载时调用接口
-onMounted(() => {
-  fetchDishGroups();
+onMounted(async () => {
+  await fetchDishGroups();
 });
-
-
 
 async function fetchDishGroups() {
   try {
-    const rawType = route.query.type
-    console.log('route.query.type 是：', rawType)
-
+    const rawType = route.query.type;
     const categoryMap = {
       chinese: 1,
       western: 2,
       beverages: 3,
-      snacks: 4
+      snacks: 4,
+    };
+    const rootCategoryId = categoryMap[rawType] || Number(rawType) || 1;
+
+    const res = await groupWithDishes({ categoryId: rootCategoryId });
+
+    if (!res || typeof res !== "object") {
+      console.error("❌ res 是 undefined 或非对象", res);
+      throw new Error("接口响应格式不对");
     }
-    const categoryId = categoryMap[rawType] || Number(rawType) || 1
-    console.log('转换后的 categoryId 是：', categoryId)
 
-    const res = await listDishGroup({ categoryId })
-    console.log('接口返回结果：', res)
+    const rows = res.data; // ✅ 关键点在这里！
+    if (!Array.isArray(rows)) {
+      console.error("❌ rows 不是数组", res);
+      throw new Error("接口返回格式不正确");
+    }
 
-    // ✅ 正确解析 rows
-    const rows = Array.isArray(res) ? res : res.rows || []
-    console.log('rows是什么', rows)
-
-    categories.value = rows.map(row => ({
-      name: row.name,
-      en: row.nameEn,
+    categories.value = rows.map((group) => ({
+      id: group.groupId,
+      name: group.groupName,
+      en: group.groupEn,
       count: 0,
-      groups: []
-    }))
-    activeIndex.value = 0
+      groups: [
+        {
+          name: group.groupName,
+          en: group.groupEn,
+          items: (group.items || []).map((dish) => ({
+            ...dish,
+            en: dish.nameEn,
+            img: dish.imageUrl || dish.image || "",
+            count: 0,
+          })),
+        },
+      ],
+    }));
+
+    activeIndex.value = 0;
   } catch (err) {
-    console.error('获取失败', err)
+    console.error("加载分组菜品失败", err);
   }
 }
-
-
 </script>
 
 <style scoped>

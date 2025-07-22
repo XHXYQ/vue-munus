@@ -1,6 +1,6 @@
 import request from '@/utils/request';
 import { AxiosPromise } from 'axios';
-import { DishGroupVO, DishGroupForm, DishGroupQuery } from '@/api/system/dishGroup/types';
+import { DishGroupVO, DishGroupForm, DishGroupQuery, GroupWithDishesVO } from '@/api/system/dishGroup/types';
 
 /**
  * 查询菜品分类列表
@@ -71,3 +71,29 @@ export const delDishGroup = (id: string | number | Array<string | number>) => {
     method: 'delete'
   });
 };
+
+
+// export const groupWithDishes = (params: { categoryId: number }) => {
+//     return request({
+//       url: '/system/dishGroup/groupedList',
+//       method: 'get',
+//       params
+//     });
+//   };
+// export function groupWithDishes(params: { categoryId: number }): AxiosPromise<any> {
+//   return request({
+//     url: '/system/dishGroup/groupedList',
+//     method: 'get',
+//     params
+//   });
+// }
+export function groupWithDishes(params: { categoryId: number }) {
+  const result = request({
+    url: '/system/dishGroup/groupedList',
+    method: 'get',
+    params
+  });
+
+  console.log("⚠️ groupWithDishes 返回值是：", result);
+  return result;
+}

@@ -83,6 +83,25 @@ export interface DishGroupVO {
        */
       params?: any;
   }
+
+  export interface DishItem {
+    id: number;
+    name: string;
+    nameEn: string;
+    image?: string;
+    imageUrl?: string;
+    price?: number;
+    description?: string;
+    dishGroupId: number;
+  }
+
+  export interface GroupWithDishesVO {
+    groupId: number;
+    groupName: string;
+    groupEn: string;
+    items: DishItem[];
+  }
+
   
   
   
