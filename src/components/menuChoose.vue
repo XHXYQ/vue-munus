@@ -56,7 +56,7 @@
 
     <!-- 底部悬浮购物车图标 -->
     <div class="cart-fab" @click="toggleCart">
-      <img src="@/assets/menu/shopCar.svg" class="cart-icon" />
+      <img src="@/assets/menu/shopCar2.svg" class="cart-icon" />
       <div class="cart-badge" v-if="totalCount > 0">{{ totalCount }}</div>
     </div>
 
@@ -65,7 +65,7 @@
     <!-- 右侧购物车面板 -->
     <div class="cart-drawer" v-if="cartVisible" @click.stop>
       <h3>已选择({{ totalCount }})</h3>
-      <div class="cart-clear" @click="clearCart">🗑 清空列表</div>
+      <div class="cart-clear" @click="clearCart">清空列表</div>
       <div class="cart-list">
         <div class="cart-item" v-for="dish in selectedItems" :key="dish.name">
           <img :src="dish.img" />
