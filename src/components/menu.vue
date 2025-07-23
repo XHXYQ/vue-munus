@@ -198,19 +198,21 @@ onMounted(() => {
   font-weight: 700;
   color: #886417;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 10px 24px;
-  border-radius: 999px;
-  backdrop-filter: blur(4px);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: none; /* 移除背景 */
+  padding: 0; /* 移除内边距 */
+  border-radius: 0; /* 移除圆角 */
+  backdrop-filter: none; /* 取消毛玻璃效果 */
+  transition: color 0.3s ease;
   display: inline-block;
   margin: 4vh auto 0;
 }
 
 .back-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  color: #aa8533; /* 可选：悬停时字体颜色加深 */
+  transform: none;
+  box-shadow: none;
 }
+
 
 @media (max-width: 1024px) {
   .card-img-wrapper {

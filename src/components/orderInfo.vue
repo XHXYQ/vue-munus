@@ -117,22 +117,28 @@ const continueAdd = () => {
   .order-box {
     background: rgba(160, 132, 94, 0.65);
     border-radius: 16px;
-    padding: 40px 32px;
+    /* padding: 40px 32px; */
+    padding: 80px;
     text-align: center;
     color: #fff;
     width: 50%;
   }
   
   .check-icon {
-    width: 80px;
-    height: 80px;
+    width: 128px;
+    height: 128px;
     margin: 0 auto 24px;
     display: block;
+    aspect-ratio: 1/1;
   }
   
   .message {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 28px;
+    font-family: "Source Han Serif CN";
+    font-style: normal;
+    line-height: 32px;
+    letter-spacing: 4.2px;
+    font-weight: 700;
     margin-bottom: 32px;
     color: #ffffff;
   }
@@ -141,6 +147,9 @@ const continueAdd = () => {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   
   .btn {
@@ -155,11 +164,13 @@ const continueAdd = () => {
   .btn.light {
     background: #b39253;
     color: white;
+    width: 272px;
   }
   
   .btn.dark {
     background: #7a5700;
     color: white;
+    width: 272px;
   }
   
   .order-dialog {
