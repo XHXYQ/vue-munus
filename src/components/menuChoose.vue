@@ -738,10 +738,10 @@ watchEffect(() => {
   position: fixed;
   bottom: 0;
   right: 0;
-  width: 360px;
+  width: 706px;
   background: #f5e8d5;
   padding: 12px 24px;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1); */
   box-sizing: border-box;
   z-index: 1000;
   display: flex;
