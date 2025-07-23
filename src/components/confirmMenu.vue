@@ -389,61 +389,77 @@ backdrop-filter: blur(10px);
 }
 
 .remark-dialog {
-  background: #f5e0c6;
-  padding: 24px;
-  width: 440px;
+  background: #D4C0A8;
+  padding: 24px 32px;
+  width: 480px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  font-family: "Source Han Serif CN";
+  color: #5e4003;
+  position: relative;
 }
+
 
 .remark-header {
   display: flex;
   justify-content: space-between;
-  font-size: 18px;
+  align-items: center;
+  font-size: 20px;
   font-weight: bold;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   color: #5e4003;
 }
 
 .remark-header .close {
+  font-size: 20px;
+  font-weight: normal;
   cursor: pointer;
 }
 
+
 .remark-dialog textarea {
   width: 100%;
-  height: 100px;
+  height: 120px;
   padding: 12px;
-  border: 1px solid #b68d41;
-  border-radius: 6px;
+  font-size: 15px;
+  border: none; /* 去掉黑色边框 */
+  outline: none; /* 去掉点击后的黑色高亮框 */
+  border-radius: 8px;
+  background: #fffdf7;
+  color: #5e4003;
   resize: none;
-  font-size: 14px;
-  background: #fffaf0;
+  box-sizing: border-box;
+  box-shadow: inset 0 0 0 1px #d8c3a0; /* 可选：柔和内边框 */
 }
+
+
 
 .remark-footer {
   display: flex;
   justify-content: flex-end;
   gap: 16px;
-  margin-top: 16px;
+  margin-top: 20px;
 }
 
 .remark-footer button {
   padding: 8px 20px;
-  font-size: 14px;
+  font-size: 16px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: bold;
 }
 
 .remark-footer .cancel {
-  background: #ccb89a;
+  background: rgba(136, 100, 23, 0.5);
   color: white;
 }
 
 .remark-footer .confirm {
-  background: #b68d41;
+  background: #886417;
   color: white;
 }
+
 
 .trash-icon {
   width: 16px;

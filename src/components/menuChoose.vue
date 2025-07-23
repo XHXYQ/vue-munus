@@ -819,4 +819,15 @@ watchEffect(() => {
   margin-right: 6px;
   vertical-align: middle;
 }
+
+.cart-drawer .quantity-control button {
+  border-color: #886417;
+  color: #886417;
+}
+
+.cart-drawer .quantity-control span {
+  color: #886417;
+}
+
+
 </style>
