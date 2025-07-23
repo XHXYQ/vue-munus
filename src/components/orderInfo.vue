@@ -67,15 +67,7 @@
   })
   
   const goHome = () => router.push('/index')
-  // const continueAdd = () => router.push('/menu')
-//   const continueAdd = () => {
-//   const category = route.query.category || 'chinese'  // 默认中文菜系
-//   router.push({ path: '/menuChoose', query: { type: category } })
-// }
-// const continueAdd = () => {
-//   const category = route.query.category || 'chinese';
-//   router.push({ path: '/menuChoose', query: { type: category } });
-// };
+
 const continueAdd = () => {
   const category = route.query.category || 'chinese';
   const name = route.query.name || '中式佳肴'; // 默认值
@@ -86,22 +78,6 @@ const continueAdd = () => {
     showDialog.value = true
   }
   
-  // function copyContent() {
-  //   const now = new Date()
-  //   const datetime = now.toISOString().replace('T', ' ').substring(0, 19)
-  
-  //   let content = `订单：\n时间：${datetime}\n\n菜系\n`
-  
-  //   for (const item of dishes.value) {
-  //     content += `${item.name} x${item.count}\n`
-  //   }
-  
-  //   content += `\n备注：\n${remark.value || '无'}\n`
-  
-  //   navigator.clipboard.writeText(content).then(() => {
-  //     ElMessage.success('已复制订单内容')
-  //   })
-  // }
 
   function copyContent() {
   const now = new Date()
@@ -251,12 +227,24 @@ function fallbackCopyText(text) {
 }
 
   
-  .dialog-header {
+  /* .dialog-header {
     display: flex;
     justify-content: space-between;
     font-weight: bold;
     margin-bottom: 16px;
-  }
+  } */
+  .dialog-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 16px;
+  position: sticky;
+  top: 0;
+  background: #f5e3c6; /* 保持背景一致防止滚动时被遮盖 */
+  z-index: 1;
+  padding-top: 8px;
+}
+
   
   .dialog-header .close {
     cursor: pointer;
@@ -302,5 +290,19 @@ function fallbackCopyText(text) {
     border: none;
     cursor: pointer;
   }
+
+  .dialog-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dialog-box::-webkit-scrollbar-thumb {
+  background-color: #886417;
+  border-radius: 4px;
+}
+
+.dialog-box::-webkit-scrollbar-track {
+  background-color: #f5e3c6;
+}
+
   </style>
   
