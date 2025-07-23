@@ -90,10 +90,24 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.menu-page {
+/* .menu-page {
   width: 100%;
   height: 100vh;
-  overflow: hidden; /* 禁止滚动条 */
+  overflow: hidden;
+  background: url("@/assets/menu/menubg.svg") no-repeat center center;
+  background-size: cover;
+  padding: 8vh 6vw;
+  box-sizing: border-box;
+  font-family: "Source Han Serif CN";
+  color: #5e4003;
+  text-align: center;
+} */
+.menu-page {
+  width: 100%;
+  min-height: 100vh;
+  overflow-y: auto; /* ✅ 允许垂直滚动 */
+  scrollbar-width: none; /* ✅ Firefox 隐藏滚动条 */
+  -ms-overflow-style: none; /* ✅ IE/Edge 隐藏滚动条 */
   background: url("@/assets/menu/menubg.svg") no-repeat center center;
   background-size: cover;
   padding: 8vh 6vw;
@@ -102,6 +116,13 @@ onMounted(() => {
   color: #5e4003;
   text-align: center;
 }
+
+/* ✅ Chrome / Webkit 隐藏滚动条 */
+.menu-page::-webkit-scrollbar {
+  display: none;
+}
+
+
 
 
 .title {
@@ -224,17 +245,24 @@ onMounted(() => {
     font-size: 32px;
   }
 
+  .card-arrow{
+    margin-right: 6px;
+  }
+
   .card-subtitle {
     font-size: 18px;
   }
 
   .menu-card {
-    padding: 20px 24px;
+    padding: 30px 2px;
     gap: 20px;
   }
 
   .title {
     font-size: 32px;
+  }
+  .back-btn{
+    margin-top: 10vh;
   }
 }
 
@@ -246,24 +274,34 @@ onMounted(() => {
   }
 
   .card-img-wrapper {
-    width: 80px;
-    height: 80px;
+    width: 72px;
+    height: 72px;
   }
 
   .card-title {
-    font-size: 18px;
+    font-size: 20px;
+    line-height: 1.2;
   }
 
   .card-subtitle {
     font-size: 14px;
+    line-height: 1.2;
   }
 
   .menu-card {
-    padding: 16px 20px;
+    padding: 16px 16px;
+    gap: 16px;
   }
 
   .title {
     font-size: 24px;
+    margin-bottom: 32px;
+  }
+
+  .back-btn {
+    font-size: 18px;
+    margin-top: 24px;
   }
 }
+
 </style>

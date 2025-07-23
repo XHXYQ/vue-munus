@@ -86,22 +86,66 @@ const continueAdd = () => {
     showDialog.value = true
   }
   
+  // function copyContent() {
+  //   const now = new Date()
+  //   const datetime = now.toISOString().replace('T', ' ').substring(0, 19)
+  
+  //   let content = `订单：\n时间：${datetime}\n\n菜系\n`
+  
+  //   for (const item of dishes.value) {
+  //     content += `${item.name} x${item.count}\n`
+  //   }
+  
+  //   content += `\n备注：\n${remark.value || '无'}\n`
+  
+  //   navigator.clipboard.writeText(content).then(() => {
+  //     ElMessage.success('已复制订单内容')
+  //   })
+  // }
+
   function copyContent() {
-    const now = new Date()
-    const datetime = now.toISOString().replace('T', ' ').substring(0, 19)
-  
-    let content = `订单：\n时间：${datetime}\n\n菜系\n`
-  
-    for (const item of dishes.value) {
-      content += `${item.name} x${item.count}\n`
-    }
-  
-    content += `\n备注：\n${remark.value || '无'}\n`
-  
+  const now = new Date()
+  const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes()
+    .toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
+
+  let content = `订单：\n时间：${timeStr}\n\n菜系\n`
+
+  for (const item of dishes.value) {
+    content += `${item.name} x${item.count}\n`
+  }
+
+  content += `\n备注：\n${remark.value || '无'}\n`
+
+  // 支持 Clipboard API 和回退方案
+  if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(content).then(() => {
       ElMessage.success('已复制订单内容')
+    }).catch(() => {
+      fallbackCopyText(content)
     })
+  } else {
+    fallbackCopyText(content)
   }
+}
+
+// 回退方案（兼容 Safari、低版本浏览器）
+function fallbackCopyText(text) {
+  const textarea = document.createElement('textarea')
+  textarea.value = text
+  textarea.style.position = 'fixed'
+  textarea.style.opacity = '0'
+  document.body.appendChild(textarea)
+  textarea.focus()
+  textarea.select()
+  try {
+    const success = document.execCommand('copy')
+    ElMessage.success(success ? '已复制订单内容' : '复制失败，请手动复制')
+  } catch (err) {
+    ElMessage.error('复制失败，请手动复制')
+  }
+  document.body.removeChild(textarea)
+}
+
   </script>
   
   <style scoped>
