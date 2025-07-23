@@ -67,10 +67,19 @@
   
   const goHome = () => router.push('/index')
   // const continueAdd = () => router.push('/menu')
-  const continueAdd = () => {
-  const category = route.query.category || 'chinese'  // 默认中文菜系
-  router.push({ path: '/menuChoose', query: { type: category } })
-}
+//   const continueAdd = () => {
+//   const category = route.query.category || 'chinese'  // 默认中文菜系
+//   router.push({ path: '/menuChoose', query: { type: category } })
+// }
+// const continueAdd = () => {
+//   const category = route.query.category || 'chinese';
+//   router.push({ path: '/menuChoose', query: { type: category } });
+// };
+const continueAdd = () => {
+  const category = route.query.category || 'chinese';
+  const name = route.query.name || '中式佳肴'; // 默认值
+  router.push({ path: '/menuChoose', query: { type: category, name } });
+};
 
   const viewOrder = () => {
     showDialog.value = true

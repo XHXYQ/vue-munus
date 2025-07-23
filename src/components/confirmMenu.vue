@@ -94,6 +94,9 @@
   const orderRemark = ref(""); // 整个订单备注
 const tempRemark = ref(""); // 弹窗临时输入
 const showRemarkDialog = ref(false); // 添加这一行！！
+const type = ref(route.query.type || 'chinese');
+const categoryName = ref(route.query.name || '中式佳肴');
+
 
   
   const dishes = ref([]);
@@ -117,18 +120,39 @@ const showRemarkDialog = ref(false); // 添加这一行！！
     dishes.value.splice(index, 1);
   }
   
-  function submitOrder() {
+//   function submitOrder() {
+//   console.log("提交菜单：", dishes.value);
+//   console.log("备注：", orderRemark.value);
+
+//   router.push({
+//     path: '/orderInfo',
+//     query: {
+//       dishes: JSON.stringify(dishes.value),
+//       remark: orderRemark.value,
+//       category: type.value,
+//       name: categoryName.value,
+//     }
+//   })
+// }
+function submitOrder() {
   console.log("提交菜单：", dishes.value);
   console.log("备注：", orderRemark.value);
+
+  // ✅ 保存当前购物车数据到缓存（以便返回后恢复）
+  const cacheKey = `cachedDishes_${type.value}`;
+  sessionStorage.setItem(cacheKey, JSON.stringify(dishes.value)); // 👈 关键一步
 
   router.push({
     path: '/orderInfo',
     query: {
       dishes: JSON.stringify(dishes.value),
-      remark: orderRemark.value
+      remark: orderRemark.value,
+      category: type.value,
+      name: categoryName.value,
     }
-  })
+  });
 }
+
 
 
 function openRemarkDialog() {
@@ -183,13 +207,39 @@ function confirmRemark() {
     margin-bottom: 24px;
   }
   
-  .table-wrapper {
+  /* .table-wrapper {
   background: rgba(102, 66, 33, 0.25);
   border-radius: 12px;
   padding: 24px;
   box-sizing: border-box;
-  max-height: calc(100vh - 240px); /* 留出顶部和底部空间 */
+  max-height: calc(100vh - 240px);
   overflow-y: auto;
+} */
+.table-wrapper {
+  background: rgba(102, 66, 33, 0.25);
+  border-radius: 12px;
+  padding: 24px;
+  box-sizing: border-box;
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  /* 添加滚动条样式 */
+  scrollbar-width: thin; /* 对于 Firefox */
+  scrollbar-color: #886417 rgba(102, 66, 33, 0.25); /* 对于 Firefox */
+}
+
+/* 针对 Webkit 浏览器 (Chrome, Safari) 的滚动条样式 */
+.table-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: rgba(102, 66, 33, 0.25);
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background-color: #886417;
+  border-radius: 4px;
 }
 
   

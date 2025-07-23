@@ -124,17 +124,27 @@ onMounted(() => {
 
 
 .main-title {
-  font-size: 10vw;
-  font-weight: 600;
-  color: #a07417;
-  letter-spacing: 0.4vw;
+  font-size: 98px;
+  font-style: normal;
+  font-weight: 900;
+  color: #886417;
+  letter-spacing: 14.7px;
+  font-family: "Source Han Serif CN";
+  background: linear-gradient(95deg, #DBB24B 2.83%, #B48B32 57.68%, #7D5616 100.1%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .subtitle {
-  font-size: 3.6vw;
+  font-size: 28px;
   margin-top: 2vh;
-  color: #c5a768;
-  letter-spacing: 0.2vw;
+  color: #C8A264;
+  letter-spacing: 7.84px;
+  font-weight: 500;
+  font-style: normal;
+  line-height: normal;
+  font-family: "Source Han Serif CN";
 }
 
 /* 滑动提示 */
@@ -160,11 +170,22 @@ onMounted(() => {
 
 .text {
   margin-bottom: 0.5vh;
-  font-size: 5vw;
+  font-size: 24px;
+  font-weight: 700;
+  font-style: normal;
+  font-family: "Source Han Serif CN";
+  color: #C8A264;
+  letter-spacing: 3.6px;
 }
 
 .text-en {
-  font-size: 3.4vw;
+  font-size: 16px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 20px;
+  font-family: "Source Han Serif CN";
+  color: #C8A264;
+  letter-spacing: 2.4px;
 }
 
 /* 清除按钮 */
@@ -173,13 +194,13 @@ onMounted(() => {
   bottom: 12px;
   right: 16px;
   font-size: 14px;
-  color: #a07417;
+  color: #886417;
   cursor: pointer;
   padding: 6px 14px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 999px;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  /* background: rgba(255, 255, 255, 0.3); */
+  /* border-radius: 999px;
+  backdrop-filter: blur(4px); */
+  /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); */
   z-index: 1000;
   transition: transform 0.2s ease;
 }

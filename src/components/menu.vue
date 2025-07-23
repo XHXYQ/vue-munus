@@ -91,16 +91,18 @@ onMounted(() => {
 
 <style scoped>
 .menu-page {
-  min-height: 100vh;
-  width: 100vw;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden; /* 禁止滚动条 */
   background: url("@/assets/menu/menubg.svg") no-repeat center center;
   background-size: cover;
   padding: 8vh 6vw;
   box-sizing: border-box;
-  font-family: "Noto Serif SC", serif;
+  font-family: "Source Han Serif CN";
   color: #5e4003;
   text-align: center;
 }
+
 
 .title {
   font-size: 42px;
@@ -208,6 +210,30 @@ onMounted(() => {
 .back-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 1024px) {
+  .card-img-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .card-title {
+    font-size: 32px;
+  }
+
+  .card-subtitle {
+    font-size: 18px;
+  }
+
+  .menu-card {
+    padding: 20px 24px;
+    gap: 20px;
+  }
+
+  .title {
+    font-size: 32px;
+  }
 }
 
 /* 响应式处理 */

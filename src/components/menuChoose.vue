@@ -71,25 +71,10 @@
     <div class="cart-drawer" v-if="cartVisible" @click.stop>
       <h3>已选择({{ totalCount }})</h3>
       <div class="cart-clear" @click="clearCart">
-  <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
-  清空列表
-</div>
+        <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
+        清空列表
+      </div>
 
-      <!-- <div class="cart-clear" @click="clearCart">清空列表</div> -->
-      <!-- <div class="cart-list">
-        <div class="cart-item" v-for="dish in selectedItems" :key="dish.name">
-          <img :src="dish.img" />
-          <div class="cart-info">
-            <div class="cart-name">{{ dish.name }}</div>
-            <div class="cart-en">{{ dish.en }}</div>
-          </div>
-          <div class="quantity-control">
-            <button @click="decrease(dish)">－</button>
-            <span>{{ dish.count }}</span>
-            <button @click="increase(dish)">＋</button>
-          </div>
-        </div>
-      </div> -->
       <div class="cart-list">
         <template v-if="selectedItems.length > 0">
           <div class="cart-item" v-for="dish in selectedItems" :key="dish.name">
@@ -119,7 +104,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watchEffect } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { listDishGroup, groupWithDishes } from "@/api/system/dishGroup";
 import { listDish } from "@/api/system/dish";
@@ -133,7 +118,9 @@ const activeIndex = ref(0);
 const type = computed(() => route.query.type || "chinese");
 
 //接收菜系名
-const categoryName = computed(() => decodeURIComponent(route.query.name || '菜系'));
+const categoryName = computed(() =>
+  decodeURIComponent(route.query.name || "菜系")
+);
 
 // 根据 type 加载对应分类数据
 const categoryData = computed(() => {
@@ -157,54 +144,45 @@ const currentCategory = computed(
   () => categories.value[activeIndex.value] || { name: "", groups: [] }
 );
 
-// function selectCategory(index) {
-//   activeIndex.value = index;
-// }
 async function selectCategory(index) {
   activeIndex.value = index;
   await fetchDishesByCategory(categories.value[index]);
 }
 
-function increase(dish) {
-  dish.count++;
-  categories.value[activeIndex.value].count++;
-}
+// function increase(dish) {
+//   dish.count++;
+//   categories.value[activeIndex.value].count++;
+// }
 
-function decrease(dish) {
-  if (dish.count > 0) {
-    dish.count--;
-    categories.value[activeIndex.value].count--;
-  }
-}
+// function decrease(dish) {
+//   if (dish.count > 0) {
+//     dish.count--;
+//     categories.value[activeIndex.value].count--;
+//   }
+// }
 
 const cartVisible = ref(false);
 function toggleCart() {
   cartVisible.value = !cartVisible.value;
 }
+
 // function clearCart() {
-//   categories.value.forEach((cat) =>
-//     cat.groups.forEach((g) => g.items?.forEach((item) => (item.count = 0)))
-//   );
-//   updateAllCounts();
+//   categories.value = categories.value.map((cat) => {
+//     const updatedGroups = cat.groups.map((group) => {
+//       const updatedItems = group.items.map((item) => ({
+//         ...item,
+//         count: 0,
+//       }));
+//       return { ...group, items: updatedItems };
+//     });
+
+//     return {
+//       ...cat,
+//       groups: updatedGroups,
+//       count: 0,
+//     };
+//   });
 // }
-function clearCart() {
-  categories.value = categories.value.map((cat) => {
-    const updatedGroups = cat.groups.map((group) => {
-      const updatedItems = group.items.map((item) => ({
-        ...item,
-        count: 0,
-      }));
-      return { ...group, items: updatedItems };
-    });
-
-    return {
-      ...cat,
-      groups: updatedGroups,
-      count: 0,
-    };
-  });
-}
-
 
 function updateAllCounts() {
   categories.value.forEach((cat) => {
@@ -231,27 +209,6 @@ const selectedItems = computed(() => {
   return items;
 });
 
-// function confirmMenu() {
-//   router.push({
-//     path: "/confirmMenu",
-//     query: {
-//       items: JSON.stringify(selectedItems.value),
-//     },
-//   });
-// }
-// function confirmMenu() {
-//   if (selectedItems.value.length === 0) {
-//     ElMessage.warning("请先选择菜品再确认");
-//     return;
-//   }
-
-//   router.push({
-//     path: "/confirmMenu",
-//     query: {
-//       items: JSON.stringify(selectedItems.value),
-//     },
-//   });
-// }
 function confirmMenu() {
   if (selectedItems.value.length === 0) {
     ElMessage.warning("请先选择菜品再确认");
@@ -267,32 +224,31 @@ function confirmMenu() {
   });
 }
 
-// 页面加载时调用接口
+
 // onMounted(async () => {
 //   await fetchDishGroups();
+
+//   // 恢复购物车数据
+//   const cached = sessionStorage.getItem("cachedDishes");
+//   if (cached) {
+//     const savedItems = JSON.parse(cached);
+//     savedItems.forEach((savedDish) => {
+//       categories.value.forEach((cat) => {
+//         cat.groups.forEach((group) => {
+//           group.items?.forEach((dish) => {
+//             if (dish.name === savedDish.name) {
+//               dish.count = savedDish.count;
+//             }
+//           });
+//         });
+//       });
+//     });
+
+//     updateAllCounts();
+//   }
 // });
-onMounted(async () => {
-  await fetchDishGroups();
 
-  // 恢复购物车数据
-  const cached = sessionStorage.getItem("cachedDishes");
-  if (cached) {
-    const savedItems = JSON.parse(cached);
-    savedItems.forEach((savedDish) => {
-      categories.value.forEach((cat) => {
-        cat.groups.forEach((group) => {
-          group.items?.forEach((dish) => {
-            if (dish.name === savedDish.name) {
-              dish.count = savedDish.count;
-            }
-          });
-        });
-      });
-    });
 
-    updateAllCounts();
-  }
-});
 
 async function fetchDishGroups() {
   try {
@@ -342,6 +298,141 @@ async function fetchDishGroups() {
     console.error("加载分组菜品失败", err);
   }
 }
+
+const CART_KEY = computed(() => `cachedDishes_${type.value}`);
+
+function saveCartToCache() {
+  sessionStorage.setItem(CART_KEY.value, JSON.stringify(selectedItems.value));
+}
+
+
+function increase(dish) {
+  dish.count++;
+  categories.value[activeIndex.value].count++;
+  saveCartToCache();
+}
+
+function decrease(dish) {
+  if (dish.count > 0) {
+    dish.count--;
+    categories.value[activeIndex.value].count--;
+    saveCartToCache();
+  }
+}
+
+function clearCart() {
+  categories.value = categories.value.map((cat) => {
+    const updatedGroups = cat.groups.map((group) => {
+      const updatedItems = group.items.map((item) => ({
+        ...item,
+        count: 0,
+      }));
+      return { ...group, items: updatedItems };
+    });
+
+    return {
+      ...cat,
+      groups: updatedGroups,
+      count: 0,
+    };
+  });
+
+  sessionStorage.removeItem(CART_KEY.value);
+}
+
+// onMounted(async () => {
+//   await fetchDishGroups();
+
+//   const cached = sessionStorage.getItem(CART_KEY.value);
+//   if (cached) {
+//     const savedItems = JSON.parse(cached);
+//     savedItems.forEach((savedDish) => {
+//       categories.value.forEach((cat) => {
+//         cat.groups.forEach((group) => {
+//           group.items?.forEach((dish) => {
+//             if (dish.name === savedDish.name) {
+//               dish.count = savedDish.count;
+//             }
+//           });
+//         });
+//       });
+//     });
+
+//     updateAllCounts();
+//   }
+//   console.log("🛒 当前缓存key为：", CART_KEY.value);
+
+// });
+onMounted(async () => {
+  await fetchDishGroups(); // 加载菜单项
+  restoreCartFromCache();
+
+  // ✅ 确保 type 已准备好再读取缓存
+  const cached = sessionStorage.getItem(`cachedDishes_${type.value}`);
+  if (cached) {
+    const savedItems = JSON.parse(cached);
+    savedItems.forEach((savedDish) => {
+      categories.value.forEach((cat) => {
+        cat.groups.forEach((group) => {
+          group.items?.forEach((dish) => {
+            if (dish.name === savedDish.name) {
+              dish.count = savedDish.count;
+            }
+          });
+        });
+      });
+    });
+
+    updateAllCounts();
+    console.log("✅ 购物车恢复成功:", savedItems);
+  }
+});
+
+function restoreCartFromCache() {
+  const cached = sessionStorage.getItem(CART_KEY.value);
+  if (!cached) return;
+
+  const savedItems = JSON.parse(cached);
+  savedItems.forEach((savedDish) => {
+    categories.value.forEach((cat) => {
+      cat.groups.forEach((group) => {
+        group.items?.forEach((dish) => {
+          if (dish.name === savedDish.name) {
+            dish.count = savedDish.count;
+          }
+        });
+      });
+    });
+  });
+
+  updateAllCounts();
+  console.log("✅ 购物车数据已恢复", savedItems);
+}
+
+
+watchEffect(() => {
+  if (categories.value.length > 0) {
+    const cached = sessionStorage.getItem(CART_KEY.value);
+    if (cached) {
+      const savedItems = JSON.parse(cached);
+      savedItems.forEach((savedDish) => {
+        categories.value.forEach((cat) => {
+          cat.groups.forEach((group) => {
+            group.items?.forEach((dish) => {
+              if (dish.name === savedDish.name) {
+                dish.count = savedDish.count;
+              }
+            });
+          });
+        });
+      });
+
+      updateAllCounts();
+      console.log("✅ 购物车已恢复", savedItems);
+    }
+  }
+});
+
 </script>
 
 <style scoped>
@@ -592,7 +683,7 @@ async function fetchDishGroups() {
   position: fixed;
   right: 0;
   top: 0;
-  width: 360px;
+  width: 706px;
   height: 100vh;
   background: #f5e8d5;
   box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
@@ -728,5 +819,4 @@ async function fetchDishGroups() {
   margin-right: 6px;
   vertical-align: middle;
 }
-
 </style>
