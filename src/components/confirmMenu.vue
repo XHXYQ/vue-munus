@@ -176,12 +176,12 @@ function confirmRemark() {
 }
 
 .header-row {
-  display: flex;
-  align-items: center; /* 关键：让图标+文字与标题垂直居中对齐 */
-  gap: 16px;
+  position: relative; /* 让标题可以绝对定位在这行中 */
   padding: 0 24px;
   margin-bottom: 24px;
+  height: 48px; /* 你可以根据视觉需要调整 */
 }
+
 
 .top-bar {
   font-size: 24px;
@@ -191,6 +191,7 @@ function confirmRemark() {
   align-items: center;
   font-weight: 700;
   letter-spacing: 2.4px;
+  height: 100%;
 }
 
 .back-icon {
@@ -199,16 +200,20 @@ function confirmRemark() {
 }
 
 .title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 40px;
   font-weight: 900;
   color: #886417;
   font-family: "Source Han Serif CN";
-  font-style: normal;
-  line-height: 44px;
   letter-spacing: 6px;
-  margin: auto;
-  line-height: 1; /* 避免字体撑高 */
+  line-height: 1;
+  margin: 0;
+  white-space: nowrap;
+  margin-top: -46px;
 }
+
 
 
 /* .table-wrapper {
@@ -321,11 +326,19 @@ backdrop-filter: blur(10px);
 .back-btn {
   background: rgba(136, 100, 23, 0.5);
   color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20%;
 }
 
 .submit-btn {
-  background: #b68d41;
+  background: #886417;
   color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20%;
 }
 
 .order-remark-row {
