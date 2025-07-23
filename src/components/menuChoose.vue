@@ -698,6 +698,7 @@ watchEffect(() => {
   color: red;
   cursor: pointer;
   margin-bottom: 16px;
+  margin-top: -22px;
 }
 
 .cart-list {
