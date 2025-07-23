@@ -52,6 +52,7 @@
   <script setup>
   import { ref, onMounted } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
+  import { ElMessage } from 'element-plus'
   
   const route = useRoute()
   const router = useRouter()
@@ -98,7 +99,7 @@ const continueAdd = () => {
     content += `\n备注：\n${remark.value || '无'}\n`
   
     navigator.clipboard.writeText(content).then(() => {
-      alert('已复制订单内容')
+      ElMessage.success('已复制订单内容')
     })
   }
   </script>
