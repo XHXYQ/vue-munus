@@ -850,5 +850,50 @@ watchEffect(() => {
   color: #886417;
 }
 
+/* 🎯 自定义滚动条样式（WebKit 浏览器：Chrome / Edge / Safari） */
+.cart-drawer::-webkit-scrollbar {
+  width: 8px;
+}
+
+.cart-drawer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cart-drawer::-webkit-scrollbar-thumb {
+  background-color: #886417;      /* ✅ 滚动条颜色 */
+  border-radius: 4px;
+}
+
+/* 可选：鼠标悬停时加深颜色 */
+.cart-drawer::-webkit-scrollbar-thumb:hover {
+  background-color: #6d4f13;
+}
+
+/* 🎯 Firefox 浏览器支持滚动条颜色（较少控制力） */
+.cart-drawer {
+  scrollbar-color: #886417 transparent;
+  scrollbar-width: thin;
+}
+
+.menu-choose-page::-webkit-scrollbar {
+  width: 8px;
+}
+.menu-choose-page::-webkit-scrollbar-track {
+  background: transparent;
+}
+.menu-choose-page::-webkit-scrollbar-thumb {
+  background-color: #886417;
+  border-radius: 4px;
+}
+.menu-choose-page::-webkit-scrollbar-thumb:hover {
+  background-color: #6d4f13;
+}
+
+/* Firefox 支持 */
+.menu-choose-page {
+  scrollbar-color: #886417 transparent;
+  scrollbar-width: thin;
+}
+
 
 </style>
