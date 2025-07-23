@@ -2,10 +2,15 @@
   <div class="menu-choose-page">
     <!-- 左侧分类 -->
     <aside class="category-sidebar">
-      <div class="back" @click="router.back()">
+      <!-- <div class="back" @click="router.back()">
         <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
         返回选择菜系
-      </div>
+      </div> -->
+      <div class="back" @click="router.push('/menu')">
+  <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
+  返回选择菜系
+</div>
+
 
       <div
         v-for="(item, index) in categories"
@@ -725,12 +730,23 @@ watchEffect(() => {
 }
 
 .cart-name {
-  font-weight: bold;
+  font-size: 24px;
+  color: #886417;
+  font-weight: 700;
+  font-family: "Source Han Serif CN";
+  letter-spacing: 3.6px;
+  line-height: 28px;
+  font-style: normal;
 }
 
 .cart-en {
-  font-size: 14px;
-  color: #a07c49;
+  font-size: 16px;
+  color: #886417;
+  font-weight: 700;
+  font-family: "Source Han Serif CN";
+  letter-spacing: 2.4px;
+  line-height: 20px;
+  font-style: normal;
 }
 
 /* 固定底部操作栏 */

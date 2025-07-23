@@ -155,7 +155,7 @@ const continueAdd = () => {
   
   .btn {
     padding: 12px 0;
-    font-size: 16px;
+    font-size: 20px;
     border-radius: 8px;
     border: none;
     cursor: pointer;
