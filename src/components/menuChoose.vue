@@ -445,12 +445,11 @@ watchEffect(() => {
   display: flex;
   background: url("@/assets/menu/menubg.svg") no-repeat center center;
   background-size: cover;
-  font-family: "Noto Serif SC", serif;
+  font-family: "Source Han Serif CN";
   color: #5e4003;
   display: flex;
-  min-height: 100vh; /* ✅ 自动适应内容 */
-  overflow: hidden;  /* ✅ 防止外层也滚动 */
-
+  height: 100vh;       /* ✅ 固定为视口高度 */
+  overflow: hidden;    /* ✅ 禁止整个页面滚动，避免外部滚动条 */
 }
 
 /* 左侧分类栏 */
