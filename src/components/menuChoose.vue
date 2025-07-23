@@ -709,6 +709,8 @@ watchEffect(() => {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
+  padding: 16px 0; 
+  border-bottom: 2px solid rgba(136, 100, 23, 0.3);
 }
 
 .cart-item img {
