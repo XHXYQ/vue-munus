@@ -448,9 +448,12 @@ watchEffect(() => {
   font-family: "Source Han Serif CN";
   color: #5e4003;
   display: flex;
-  height: 100vh;       /* ✅ 固定为视口高度 */
-  overflow: hidden;    /* ✅ 禁止整个页面滚动，避免外部滚动条 */
+  height: 100vh;
+  overflow: auto;
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
 }
+
 
 /* 左侧分类栏 */
 .category-sidebar {
@@ -607,6 +610,9 @@ watchEffect(() => {
   object-fit: cover;
   border-radius: 8px;
   margin-right: 16px;
+  user-select: none;        /* 禁止选中图片 */
+  -webkit-user-drag: none;  /* 禁止图片被拖动 */
+  pointer-events: none;     /* 可选：禁用鼠标事件（仅适用于纯展示图） */
 }
 
 .dish-info {
@@ -725,6 +731,9 @@ watchEffect(() => {
   height: 64px;
   border-radius: 8px;
   margin-right: 12px;
+  user-select: none;        /* 禁止选中图片 */
+  -webkit-user-drag: none;  /* 禁止图片被拖动 */
+  pointer-events: none;     /* 可选：禁用鼠标事件（仅适用于纯展示图） */
 }
 
 .cart-info {

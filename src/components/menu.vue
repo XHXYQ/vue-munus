@@ -167,6 +167,9 @@ onMounted(() => {
   height: 120px;
   border-radius: 50%;
   overflow: hidden;
+  user-select: none;        /* 禁止选中图片 */
+  -webkit-user-drag: none;  /* 禁止图片被拖动 */
+  pointer-events: none;     /* 可选：禁用鼠标事件（仅适用于纯展示图） */
 }
 
 .card-img {

@@ -8,7 +8,8 @@ import axios, {
 // 创建 axios 实例
 const service: AxiosInstance = axios.create({
   // baseURL: import.meta.env.VITE_APP_BASE_API,
-  baseURL: 'http://120.77.169.224:9088',
+  // baseURL: 'http://120.77.169.224:9088',
+  baseURL: 'https://api.supply.erp.corporate-advisory.cn',
   timeout: 10000
 })
 

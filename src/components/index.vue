@@ -31,13 +31,10 @@
   </div>
 </template>
 
-
-
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-
 
 const router = useRouter()
 const bgLoaded = ref(false)
@@ -61,13 +58,13 @@ onMounted(() => {
 })
 </script>
 
-
 <style scoped>
 .landing-wrapper {
   position: relative;
   min-height: 100vh;
   width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .background {
@@ -80,13 +77,13 @@ onMounted(() => {
   z-index: 0;
   opacity: 0;
   transition: opacity 1s ease-in-out;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .background.bg-loaded {
   background-image: url('@/assets/bg.svg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   opacity: 1;
 }
 
@@ -97,16 +94,13 @@ onMounted(() => {
   font-family: "Noto Serif SC", serif;
   color: #b68d41;
   padding: 10vh 5vw 6vh;
-  box-sizing: border-box;
   min-height: 100vh;
-
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
+  box-sizing: border-box;
 }
 
-/* ✅ 用于居中内容的包裹器 */
 .content-wrapper {
   flex: 1;
   display: flex;
@@ -115,20 +109,17 @@ onMounted(() => {
   justify-content: center;
 }
 
-/* 标题 */
 .title-group {
   margin-top: 4vh;
   max-width: 90vw;
   padding: 0 4vw;
 }
 
-
 .main-title {
-  font-size: 98px;
+  font-size: clamp(32px, 10vw, 98px);
   font-style: normal;
   font-weight: 900;
-  color: #886417;
-  letter-spacing: 14.7px;
+  letter-spacing: 0.15em;
   font-family: "Source Han Serif CN";
   background: linear-gradient(95deg, #DBB24B 2.83%, #B48B32 57.68%, #7D5616 100.1%);
   background-clip: text;
@@ -137,24 +128,21 @@ onMounted(() => {
 }
 
 .subtitle {
-  font-size: 28px;
+  font-size: clamp(14px, 3vw, 28px);
   margin-top: 2vh;
   color: #C8A264;
-  letter-spacing: 7.84px;
+  letter-spacing: 0.3em;
   font-weight: 500;
-  font-style: normal;
-  line-height: normal;
   font-family: "Source Han Serif CN";
 }
 
-/* 滑动提示 */
 .swipe-tip {
   text-align: center;
   font-size: 5vw;
   color: #b68d41;
   animation: fadeInUp 1.2s ease-in-out;
+  margin-top: clamp(40px, 15vh, 150px);
   margin-bottom: 2vh;
-  margin-top: 20vh;
   cursor: pointer;
   transition: transform 0.2s ease;
 }
@@ -170,37 +158,29 @@ onMounted(() => {
 
 .text {
   margin-bottom: 0.5vh;
-  font-size: 24px;
+  font-size: clamp(16px, 3vw, 24px);
   font-weight: 700;
-  font-style: normal;
   font-family: "Source Han Serif CN";
   color: #C8A264;
-  letter-spacing: 3.6px;
+  letter-spacing: 0.2em;
 }
 
 .text-en {
-  font-size: 16px;
+  font-size: clamp(12px, 2.2vw, 16px);
   font-weight: 700;
-  font-style: normal;
-  line-height: 20px;
   font-family: "Source Han Serif CN";
   color: #C8A264;
-  letter-spacing: 2.4px;
+  letter-spacing: 0.15em;
 }
 
-/* 清除按钮 */
 .clear-btn {
   position: fixed;
-  bottom: 12px;
-  right: 16px;
-  font-size: 14px;
+  bottom: 2vh;
+  right: 2vw;
+  font-size: clamp(12px, 2vw, 16px);
   color: #886417;
   cursor: pointer;
   padding: 6px 14px;
-  /* background: rgba(255, 255, 255, 0.3); */
-  /* border-radius: 999px;
-  backdrop-filter: blur(4px); */
-  /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); */
   z-index: 1000;
   transition: transform 0.2s ease;
 }
@@ -208,7 +188,6 @@ onMounted(() => {
   transform: scale(1.05);
 }
 
-/* 动画 */
 @keyframes bounce {
   0%, 100% {
     transform: translateY(0);
@@ -228,24 +207,4 @@ onMounted(() => {
     transform: translateY(0);
   }
 }
-
-/* 大屏适配 */
-@media (min-width: 768px) {
-  .main-title {
-    font-size: 66px;
-  }
-  .subtitle {
-    font-size: 18px;
-  }
-  .text {
-    font-size: 14px;
-  }
-  .text-en {
-    font-size: 12px;
-  }
-  .arrow {
-    font-size: 20px;
-  }
-}
 </style>
-

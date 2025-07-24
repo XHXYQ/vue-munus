@@ -31,7 +31,8 @@ export default defineConfig({
     proxy: {
       // 以 /api 开头的请求将被代理到目标地址
       '/api': {
-        target: 'http://120.77.169.224:9088',
+        // target: 'http://120.77.169.224:9088',
+        target: 'https://api.supply.erp.corporate-advisory.cn',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, '')  // 去掉 /api 前缀
       }
