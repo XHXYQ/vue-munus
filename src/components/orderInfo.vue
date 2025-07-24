@@ -361,4 +361,15 @@ function copyContent() {
   background-color: #f5e3c6;
 }
 
+.dialog-header-row-tr th:first-child {
+  border-top-left-radius: 8px;
+  overflow: hidden;
+}
+
+.dialog-header-row-tr th:last-child {
+  border-top-right-radius: 8px;
+  overflow: hidden;
+}
+
+
 </style>
