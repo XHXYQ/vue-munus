@@ -2,11 +2,24 @@
   <div class="confirm-page">
     <!-- 返回选择菜品 -->
     <div class="header-row">
-  <div class="top-bar" @click="router.back()">
+  <!-- <div class="top-bar" @click="router.back()">
     <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
     返回选择菜品
+  </div> -->
+  <div class="top-bar" @click="router.back()">
+  <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
+  <div class="top-bar-text">
+    <div class="zh">返回选择菜品</div>
+    <div class="en">Back</div>
   </div>
-  <h1 class="title">确认菜单</h1>
+</div>
+
+  <!-- <h1 class="title">确认菜单</h1> -->
+  <h1 class="title">
+  <div class="zh">确认菜单</div>
+  <div class="en">Confirm Menu</div>
+</h1>
+
 </div>
 
 
@@ -61,10 +74,21 @@
     </div>
 
     <!-- 固定底部操作栏 -->
-    <div class="bottom-actions">
+    <!-- <div class="bottom-actions">
       <button class="back-btn" @click="router.back()">返回</button>
       <button class="submit-btn" @click="submitOrder">提交</button>
-    </div>
+    </div> -->
+    <div class="bottom-actions">
+  <button class="back-btn" @click="router.back()">
+    <div class="zh">返回</div>
+    <div class="en">Back</div>
+  </button>
+  <button class="submit-btn" @click="submitOrder">
+    <div class="zh">提交</div>
+    <div class="en">Submit</div>
+  </button>
+</div>
+
   </div>
 
   <!-- 添加备注弹窗 -->
@@ -118,20 +142,6 @@ function remove(index) {
   dishes.value.splice(index, 1);
 }
 
-//   function submitOrder() {
-//   console.log("提交菜单：", dishes.value);
-//   console.log("备注：", orderRemark.value);
-
-//   router.push({
-//     path: '/orderInfo',
-//     query: {
-//       dishes: JSON.stringify(dishes.value),
-//       remark: orderRemark.value,
-//       category: type.value,
-//       name: categoryName.value,
-//     }
-//   })
-// }
 function submitOrder() {
   console.log("提交菜单：", dishes.value);
   console.log("备注：", orderRemark.value);
@@ -214,16 +224,6 @@ function confirmRemark() {
   margin-top: -46px;
 }
 
-
-
-/* .table-wrapper {
-  background: rgba(102, 66, 33, 0.25);
-  border-radius: 12px;
-  padding: 24px;
-  box-sizing: border-box;
-  max-height: calc(100vh - 240px);
-  overflow-y: auto;
-} */
 .table-wrapper {
   background: rgba(102, 66, 33, 0.25);
   border-radius: 12px;
@@ -327,6 +327,9 @@ backdrop-filter: blur(10px);
   border-radius: 8px;
   border: none;
   cursor: pointer;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: end;
 }
 
 .back-btn {
@@ -473,4 +476,48 @@ backdrop-filter: blur(10px);
   margin-right: 4px;
   vertical-align: middle;
 }
+
+.top-bar-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 32px;
+  font-weight: 900;
+  color: #886417;
+  font-family: "Source Han Serif CN";
+  letter-spacing: 6px;
+  line-height: 1.1;
+  margin: 0;
+  white-space: nowrap;
+  margin-top: -46px;
+  text-align: center;
+}
+
+.title .zh {
+  font-size: 40px;
+}
+
+.title .en {
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.7;
+  letter-spacing: 2px;
+}
+
+.bottom-actions button .zh {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.bottom-actions button .en {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
 </style>
