@@ -13,7 +13,7 @@
 
     <!-- 订单详情弹窗 -->
     <div class="order-dialog" v-if="showDialog">
-      <div class="dialog-box">
+      <!-- <div class="dialog-box">
         <div class="dialog-header">
           <span>查看订单</span>
           <span class="close" @click="showDialog = false">✕</span>
@@ -45,7 +45,44 @@
         <div class="dialog-footer">
           <button @click="copyContent">复制内容</button>
         </div>
-      </div>
+      </div> -->
+      <!-- ✅ 修改后的结构：将 scroll 区域包裹在 .dialog-content 中 -->
+<div class="dialog-box">
+  <div class="dialog-header">
+    <span>查看订单</span>
+    <span class="close" @click="showDialog = false">✕</span>
+  </div>
+
+  <div class="dialog-content">
+    <table class="dialog-table">
+          <thead class="dialog-header-row">
+            <tr class="dialog-header-row-tr">
+              <th>序号</th>
+              <th>菜品名称</th>
+              <th>数量</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr v-for="(item, idx) in dishes" :key="idx">
+              <td>{{ idx + 1 }}</td>
+              <td>
+                <div class="name-cn">{{ item.name }}</div>
+                <div class="name-en">{{ item.en }}</div>
+              </td>
+              <td>{{ item.count }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+    <div class="remark">备注：{{ remark || "无" }}</div>
+
+    <div class="dialog-footer">
+      <button @click="copyContent">复制内容</button>
+    </div>
+  </div>
+</div>
+
     </div>
   </div>
 </template>
@@ -188,16 +225,16 @@ function copyContent() {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     color: #7a5700;
   } */
-.dialog-box {
+/* .dialog-box {
   background: #f5e3c6;
   width: 500px;
-  max-height: 80vh; /* 限制最大高度 */
-  overflow-y: auto; /* 超出滚动 */
+  max-height: 80vh;
+  overflow-y: auto;
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   color: #7a5700;
-}
+} */
 
 /* .dialog-header {
     display: flex;
@@ -205,17 +242,48 @@ function copyContent() {
     font-weight: bold;
     margin-bottom: 16px;
   } */
-.dialog-header {
+/* .dialog-header {
   display: flex;
   justify-content: space-between;
   font-weight: bold;
   margin-bottom: 16px;
   position: sticky;
   top: 0;
-  background: #f5e3c6; /* 保持背景一致防止滚动时被遮盖 */
+  background: #f5e3c6;
   z-index: 1;
   padding-top: 8px;
+} */
+.dialog-box {
+  background: #f5e3c6;
+  width: 500px;
+  max-height: 80vh;
+  border-radius: 12px;
+  padding: 0; /* ❗取消原 padding */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  color: #7a5700;
+  display: flex;
+  flex-direction: column;
 }
+
+.dialog-header {
+  position: sticky;
+  top: 0;
+  background: #f5e3c6;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 2;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.dialog-content {
+  padding: 16px 24px 24px;
+  overflow-y: auto;
+  flex: 1; /* 占满剩余高度 */
+  max-height: 80vh; /* 限高，触发滚动 */
+}
+
 
 .dialog-header .close {
   cursor: pointer;
@@ -280,16 +348,17 @@ function copyContent() {
   cursor: pointer;
 }
 
-.dialog-box::-webkit-scrollbar {
+.dialog-content::-webkit-scrollbar {
   width: 8px;
 }
 
-.dialog-box::-webkit-scrollbar-thumb {
+.dialog-content::-webkit-scrollbar-thumb {
   background-color: #886417;
   border-radius: 4px;
 }
 
-.dialog-box::-webkit-scrollbar-track {
+.dialog-content::-webkit-scrollbar-track {
   background-color: #f5e3c6;
 }
+
 </style>

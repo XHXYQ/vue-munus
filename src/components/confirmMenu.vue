@@ -265,6 +265,7 @@ backdrop-filter: blur(10px);
   border-bottom: 1px solid #fcfcfc;
   text-align: center;
   color: #fff;
+  font-size: 16px;
 }
 
 .dish-name-cn {

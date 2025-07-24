@@ -207,4 +207,17 @@ onMounted(() => {
     transform: translateY(0);
   }
 }
+
+@media (max-width: 900px) and (min-width: 800px) {
+  .main-title {
+    font-size: 8vw;
+    letter-spacing: 0.05em;
+  }
+
+  .subtitle {
+    font-size: 2vw;
+    letter-spacing: 0.3em;
+  }
+}
+
 </style>

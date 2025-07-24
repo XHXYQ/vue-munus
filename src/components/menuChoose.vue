@@ -7,10 +7,9 @@
         返回选择菜系
       </div> -->
       <div class="back" @click="router.push('/menu')">
-  <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
-  返回选择菜系
-</div>
-
+        <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
+        返回选择菜系
+      </div>
 
       <div
         v-for="(item, index) in categories"
@@ -65,7 +64,8 @@
     </main>
 
     <!-- 底部悬浮购物车图标 -->
-    <div class="cart-fab" @click="toggleCart">
+    <!-- 底部悬浮购物车图标（购物车打开时隐藏） -->
+    <div v-if="!cartVisible" class="cart-fab" @click="toggleCart">
       <img src="@/assets/menu/shopCar2.svg" class="cart-icon" />
       <div class="cart-badge" v-if="totalCount > 0">{{ totalCount }}</div>
     </div>
@@ -229,7 +229,6 @@ function confirmMenu() {
   });
 }
 
-
 // onMounted(async () => {
 //   await fetchDishGroups();
 
@@ -252,8 +251,6 @@ function confirmMenu() {
 //     updateAllCounts();
 //   }
 // });
-
-
 
 async function fetchDishGroups() {
   try {
@@ -309,7 +306,6 @@ const CART_KEY = computed(() => `cachedDishes_${type.value}`);
 function saveCartToCache() {
   sessionStorage.setItem(CART_KEY.value, JSON.stringify(selectedItems.value));
 }
-
 
 function increase(dish) {
   dish.count++;
@@ -414,7 +410,6 @@ function restoreCartFromCache() {
   console.log("✅ 购物车数据已恢复", savedItems);
 }
 
-
 watchEffect(() => {
   if (categories.value.length > 0) {
     const cached = sessionStorage.getItem(CART_KEY.value);
@@ -437,7 +432,6 @@ watchEffect(() => {
     }
   }
 });
-
 </script>
 
 <style scoped>
@@ -450,10 +444,9 @@ watchEffect(() => {
   display: flex;
   height: 100vh;
   overflow: auto;
-  -ms-overflow-style: none;  /* IE/Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
 }
-
 
 /* 左侧分类栏 */
 .category-sidebar {
@@ -556,6 +549,9 @@ watchEffect(() => {
   height: 92%;
   margin-left: 0; /* 贴近左侧分类栏 */
   box-sizing: border-box;
+  border-radius: 8px;
+  background: rgba(64, 44, 13, 0.35);
+  backdrop-filter: blur(10px);
 }
 
 .menu-wrapper {
@@ -610,9 +606,9 @@ watchEffect(() => {
   object-fit: cover;
   border-radius: 8px;
   margin-right: 16px;
-  user-select: none;        /* 禁止选中图片 */
-  -webkit-user-drag: none;  /* 禁止图片被拖动 */
-  pointer-events: none;     /* 可选：禁用鼠标事件（仅适用于纯展示图） */
+  user-select: none; /* 禁止选中图片 */
+  -webkit-user-drag: none; /* 禁止图片被拖动 */
+  pointer-events: none; /* 可选：禁用鼠标事件（仅适用于纯展示图） */
 }
 
 .dish-info {
@@ -722,7 +718,7 @@ watchEffect(() => {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
-  padding: 16px 0; 
+  padding: 16px 0;
   border-bottom: 2px solid rgba(136, 100, 23, 0.3);
 }
 
@@ -731,9 +727,9 @@ watchEffect(() => {
   height: 64px;
   border-radius: 8px;
   margin-right: 12px;
-  user-select: none;        /* 禁止选中图片 */
-  -webkit-user-drag: none;  /* 禁止图片被拖动 */
-  pointer-events: none;     /* 可选：禁用鼠标事件（仅适用于纯展示图） */
+  user-select: none; /* 禁止选中图片 */
+  -webkit-user-drag: none; /* 禁止图片被拖动 */
+  pointer-events: none; /* 可选：禁用鼠标事件（仅适用于纯展示图） */
 }
 
 .cart-info {
@@ -869,7 +865,7 @@ watchEffect(() => {
 }
 
 .cart-drawer::-webkit-scrollbar-thumb {
-  background-color: #886417;      /* ✅ 滚动条颜色 */
+  background-color: #886417; /* ✅ 滚动条颜色 */
   border-radius: 4px;
 }
 
@@ -903,6 +899,4 @@ watchEffect(() => {
   scrollbar-color: #886417 transparent;
   scrollbar-width: thin;
 }
-
-
 </style>
