@@ -146,13 +146,14 @@ function copyContent() {
 }
 
 .order-box {
-  background: rgba(160, 132, 94, 0.65);
+  background: rgba(145, 118, 81, 0.65);
   border-radius: 16px;
   /* padding: 40px 32px; */
   padding: 80px;
   text-align: center;
   color: #fff;
   width: 50%;
+
 }
 
 .check-icon {
@@ -282,6 +283,7 @@ function copyContent() {
   overflow-y: auto;
   flex: 1; /* 占满剩余高度 */
   max-height: 80vh; /* 限高，触发滚动 */
+  border-bottom-right-radius: 6px;
 }
 
 
@@ -337,6 +339,8 @@ function copyContent() {
 
 .dialog-footer {
   text-align: right;
+  border-bottom-left-radius: 6px;  /* ✅ 添加圆角 */
+  border-bottom-right-radius: 6px; /* ✅ 添加圆角 */
 }
 
 .dialog-footer button {

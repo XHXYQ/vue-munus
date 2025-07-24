@@ -2,14 +2,18 @@
   <div class="menu-choose-page">
     <!-- 左侧分类 -->
     <aside class="category-sidebar">
-      <!-- <div class="back" @click="router.back()">
+
+      <!-- <div class="back" @click="router.push('/menu')">
         <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
         返回选择菜系
       </div> -->
       <div class="back" @click="router.push('/menu')">
-        <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
-        返回选择菜系
-      </div>
+  <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
+  <div class="back-text">
+    <div class="zh">返回选择菜系</div>
+    <div class="en">Back</div>
+  </div>
+</div>
 
       <div
         v-for="(item, index) in categories"
@@ -26,8 +30,12 @@
     <!-- 右侧菜单列表 -->
     <main class="menu-content">
       <!-- 标题在外部，居中显示 -->
-      <!-- <h1 class="menu-title">{{ currentCategory.name }}</h1> -->
-      <h1 class="menu-title">{{ categoryName }}</h1>
+      <!-- <h1 class="menu-title">{{ categoryName }}</h1> -->
+      <h1 class="menu-title">
+  <div class="zh">{{ categoryName }}</div>
+  <div class="en">{{ categoryNameEn }}</div>
+</h1>
+
       <!-- 内部遮罩框 -->
       <div class="menu-overlay-wrapper">
         <div class="menu-wrapper">
@@ -63,7 +71,6 @@
       </div>
     </main>
 
-    <!-- 底部悬浮购物车图标 -->
     <!-- 底部悬浮购物车图标（购物车打开时隐藏） -->
     <div v-if="!cartVisible" class="cart-fab" @click="toggleCart">
       <img src="@/assets/menu/shopCar2.svg" class="cart-icon" />
@@ -74,11 +81,21 @@
     <div v-if="cartVisible" class="cart-mask" @click="toggleCart" />
     <!-- 右侧购物车面板 -->
     <div class="cart-drawer" v-if="cartVisible" @click.stop>
-      <h3>已选择({{ totalCount }})</h3>
-      <div class="cart-clear" @click="clearCart">
-        <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
-        清空列表
-      </div>
+      <div class="cart-header">
+  <div class="cart-selected">
+    <div class="zh">已选择({{ totalCount }})</div>
+    <div class="en">Selected</div>
+  </div>
+
+  <div class="cart-clear" @click="clearCart">
+    <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
+    <div class="clear-text">
+      <div class="zh">清空列表</div>
+      <div class="en">Clear</div>
+    </div>
+  </div>
+</div>
+
 
       <div class="cart-list">
         <template v-if="selectedItems.length > 0">
@@ -99,11 +116,21 @@
         <div v-else class="cart-empty-tip">暂无菜品，请添加</div>
       </div>
 
-      <div class="cart-actions">
+      <!-- <div class="cart-actions">
         <button @click="toggleCart">返回</button>
-        <!-- <button class="confirm-btn">确认</button> -->
         <button class="confirm-btn" @click="confirmMenu">确认</button>
-      </div>
+      </div> -->
+      <div class="cart-actions">
+  <button @click="toggleCart">
+    <div class="zh">返回</div>
+    <div class="en">Back</div>
+  </button>
+  <button class="confirm-btn" @click="confirmMenu">
+    <div class="zh">确认</div>
+    <div class="en">Confirm</div>
+  </button>
+</div>
+
     </div>
   </div>
 </template>
@@ -125,6 +152,10 @@ const type = computed(() => route.query.type || "chinese");
 //接收菜系名
 const categoryName = computed(() =>
   decodeURIComponent(route.query.name || "菜系")
+);
+
+const categoryNameEn = computed(() =>
+  decodeURIComponent(route.query.nameEn || "Cuisine")
 );
 
 // 根据 type 加载对应分类数据
@@ -154,40 +185,10 @@ async function selectCategory(index) {
   await fetchDishesByCategory(categories.value[index]);
 }
 
-// function increase(dish) {
-//   dish.count++;
-//   categories.value[activeIndex.value].count++;
-// }
-
-// function decrease(dish) {
-//   if (dish.count > 0) {
-//     dish.count--;
-//     categories.value[activeIndex.value].count--;
-//   }
-// }
-
 const cartVisible = ref(false);
 function toggleCart() {
   cartVisible.value = !cartVisible.value;
 }
-
-// function clearCart() {
-//   categories.value = categories.value.map((cat) => {
-//     const updatedGroups = cat.groups.map((group) => {
-//       const updatedItems = group.items.map((item) => ({
-//         ...item,
-//         count: 0,
-//       }));
-//       return { ...group, items: updatedItems };
-//     });
-
-//     return {
-//       ...cat,
-//       groups: updatedGroups,
-//       count: 0,
-//     };
-//   });
-// }
 
 function updateAllCounts() {
   categories.value.forEach((cat) => {
@@ -228,29 +229,6 @@ function confirmMenu() {
     },
   });
 }
-
-// onMounted(async () => {
-//   await fetchDishGroups();
-
-//   // 恢复购物车数据
-//   const cached = sessionStorage.getItem("cachedDishes");
-//   if (cached) {
-//     const savedItems = JSON.parse(cached);
-//     savedItems.forEach((savedDish) => {
-//       categories.value.forEach((cat) => {
-//         cat.groups.forEach((group) => {
-//           group.items?.forEach((dish) => {
-//             if (dish.name === savedDish.name) {
-//               dish.count = savedDish.count;
-//             }
-//           });
-//         });
-//       });
-//     });
-
-//     updateAllCounts();
-//   }
-// });
 
 async function fetchDishGroups() {
   try {
@@ -341,29 +319,6 @@ function clearCart() {
   sessionStorage.removeItem(CART_KEY.value);
 }
 
-// onMounted(async () => {
-//   await fetchDishGroups();
-
-//   const cached = sessionStorage.getItem(CART_KEY.value);
-//   if (cached) {
-//     const savedItems = JSON.parse(cached);
-//     savedItems.forEach((savedDish) => {
-//       categories.value.forEach((cat) => {
-//         cat.groups.forEach((group) => {
-//           group.items?.forEach((dish) => {
-//             if (dish.name === savedDish.name) {
-//               dish.count = savedDish.count;
-//             }
-//           });
-//         });
-//       });
-//     });
-
-//     updateAllCounts();
-//   }
-//   console.log("🛒 当前缓存key为：", CART_KEY.value);
-
-// });
 onMounted(async () => {
   await fetchDishGroups(); // 加载菜单项
   restoreCartFromCache();
@@ -525,8 +480,9 @@ watchEffect(() => {
 .menu-content {
   flex: 1;
   padding: 24px 16px;
-  overflow-y: auto;
   position: relative;
+  height: 100%; /* ✅ 新增 */
+  max-height: 100vh; /* ✅ 限制最大高度 */
 }
 
 .menu-title {
@@ -541,17 +497,41 @@ watchEffect(() => {
 }
 
 /* 包裹商品列表的浅棕色背景区域 */
-.menu-overlay-wrapper {
+/* .menu-overlay-wrapper {
   background: rgba(102, 66, 33, 0.25);
   border-radius: 12px;
   padding: 24px 32px;
   width: 96%;
   height: 92%;
-  margin-left: 0; /* 贴近左侧分类栏 */
+  margin-left: 0;
   box-sizing: border-box;
   border-radius: 8px;
   background: rgba(64, 44, 13, 0.35);
   backdrop-filter: blur(10px);
+} */
+.menu-overlay-wrapper {
+  background: rgba(64, 44, 13, 0.35);
+  border-radius: 12px;
+  padding: 24px 32px;
+  width: 96%;
+  margin-left: 0;
+  box-sizing: border-box;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+
+  /* 🔧 移除 height 固定高度 */
+  /* height: 92%; ❌ 删除 */
+
+  /* ✅ 改为自动撑满且支持滚动 */
+  overflow-y: auto;
+  max-height: calc(100vh - 100px); /* 留出顶部标题与边距空间，可调 */
+}
+
+@media (max-height: 600px) {
+  .menu-overlay-wrapper {
+    max-height: calc(100vh - 60px); /* 更紧凑 */
+    padding: 16px;
+  }
 }
 
 .menu-wrapper {
@@ -707,7 +687,6 @@ watchEffect(() => {
   color: red;
   cursor: pointer;
   margin-bottom: 16px;
-  margin-top: -22px;
 }
 
 .cart-list {
@@ -798,11 +777,6 @@ watchEffect(() => {
   -webkit-backdrop-filter: blur(6px); /* Safari 兼容 */
   z-index: 998;
 }
-
-/* 右侧当前分类标题 */
-/* .menu-title {
-  color: white !important;
-} */
 
 /* 当前分类下的小组中文名 */
 .group-title {
@@ -899,4 +873,70 @@ watchEffect(() => {
   scrollbar-color: #886417 transparent;
   scrollbar-width: thin;
 }
+
+.menu-title .zh {
+  font-size: 40px;
+  font-weight: 900;
+  color: #886417;
+  letter-spacing: 6px;
+  line-height: 44px;
+}
+
+.back-text en,
+.menu-title .en {
+  font-size: 20px;
+  color: #886417;
+  margin-top: 4px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.cart-selected {
+  font-size: 20px;
+  color: #886417;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.cart-selected .en {
+  font-size: 14px;
+  font-weight: 500;
+  color: #886417;
+  opacity: 0.85;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.cart-clear {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.clear-text .zh {
+  font-size: 14px;
+  color: red;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.clear-text .en {
+  font-size: 12px;
+  color: red;
+  font-weight: 500;
+  opacity: 0.8;
+  line-height: 1.2;
+  margin-top: 2px;
+  text-align: center;
+}
+
+
 </style>

@@ -1,13 +1,18 @@
 <template>
   <div class="menu-page">
-    <h1 class="title">选择菜系</h1>
+    <img class="bg-image" src="@/assets/menu/menubg.svg" alt="背景图" />
+    <!-- <h1 class="title">选择菜系</h1> -->
+    <h1 class="title">
+  选择菜系
+  <div class="title-en">Choose Category</div>
+</h1>
 
     <div class="menu-grid">
       <div
         class="menu-card"
         v-for="item in menuList"
         :key="item.title"
-        @click="router.push({ name: 'menuChoose', query: { type: item.code, name: item.title } })"
+        @click="router.push({ name: 'menuChoose', query: { type: item.code, name: item.title, nameEn: item.subtitle } })"
       >
         <div class="card-img-wrapper">
           <img
@@ -25,7 +30,11 @@
       </div>
     </div>
 
-    <div class="back-btn" @click="goHome">返回首页</div>
+    <!-- <div class="back-btn" @click="goHome">返回首页</div> -->
+    <div class="back-btn" @click="goHome">
+  返回首页
+  <div class="back-btn-en">Back to Home</div>
+</div>
   </div>
 </template>
 
@@ -66,7 +75,7 @@ async function fetchMenuList() {
     menuList.value = data.map((item: any) => ({
       title: truncate(item.name || '', 20),
       subtitle: truncate(item.nameEn || '', 30),
-      img: item.image || item.imageUrl || defaultImg, // 兼容两种可能的字段名
+      img: item.imageUrl || item.imageUrl || defaultImg, // 兼容两种可能的字段名
       code: String(item.id)
     }))
 
@@ -90,25 +99,14 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* .menu-page {
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background: url("@/assets/menu/menubg.svg") no-repeat center center;
-  background-size: cover;
-  padding: 8vh 6vw;
-  box-sizing: border-box;
-  font-family: "Source Han Serif CN";
-  color: #5e4003;
-  text-align: center;
-} */
+
 .menu-page {
   width: 100%;
   min-height: 100vh;
   overflow-y: auto; /* ✅ 允许垂直滚动 */
   scrollbar-width: none; /* ✅ Firefox 隐藏滚动条 */
   -ms-overflow-style: none; /* ✅ IE/Edge 隐藏滚动条 */
-  background: url("@/assets/menu/menubg.svg") no-repeat center center;
+  /* background: url("@/assets/menu/menubg.svg") no-repeat center center; */
   background-size: cover;
   padding: 8vh 6vw;
   box-sizing: border-box;
@@ -117,13 +115,21 @@ onMounted(() => {
   text-align: center;
 }
 
+.bg-image {
+  position: fixed;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+}
+
+
 /* ✅ Chrome / Webkit 隐藏滚动条 */
 .menu-page::-webkit-scrollbar {
   display: none;
 }
-
-
-
 
 .title {
   font-size: 42px;
@@ -258,7 +264,8 @@ onMounted(() => {
 
   .menu-card {
     padding: 30px 2px;
-    gap: 20px;
+    /* gap: 20px; */
+    gap: 0px;
   }
 
   .title {
@@ -306,5 +313,24 @@ onMounted(() => {
     margin-top: 24px;
   }
 }
+
+.title-en {
+  font-size: 20px;
+  color: #fff; /* 浅白色 */
+  margin-top: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-family: "Source Han Serif CN";
+}
+
+.back-btn-en {
+  font-size: 16px;
+  color: #fff;
+  font-weight: 700;
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+  font-family: "Source Han Serif CN";
+}
+
 
 </style>
