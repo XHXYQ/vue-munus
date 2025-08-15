@@ -937,6 +937,4 @@ watchEffect(() => {
   margin-top: 2px;
   text-align: center;
 }
-
-
 </style>

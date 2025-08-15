@@ -153,7 +153,6 @@ function copyContent() {
   text-align: center;
   color: #fff;
   width: 50%;
-
 }
 
 .check-icon {
@@ -259,7 +258,7 @@ function copyContent() {
   width: 500px;
   max-height: 80vh;
   border-radius: 12px;
-  padding: 0; /* ❗取消原 padding */
+  padding: 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   color: #7a5700;
   display: flex;

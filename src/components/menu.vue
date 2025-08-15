@@ -71,6 +71,8 @@ async function fetchMenuList() {
     
     // 处理类型问题：res可能是CategoryVO[]或包含rows的对象
     const data = Array.isArray(res) ? res : res?.rows || []
+    // ✅ 按照 sort 从小到大排序（字段名需确保后端返回中有）
+    data.sort((a:any, b:any) => (a.sort || 0) - (b.sort || 0))
     
     menuList.value = data.map((item: any) => ({
       title: truncate(item.name || '', 20),
