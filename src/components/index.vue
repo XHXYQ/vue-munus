@@ -154,7 +154,7 @@ onBeforeUnmount(() => {
   background-repeat: no-repeat;
 }
 .background.bg-loaded {
-  background-image: url('@/assets/bg.svg');
+  background-image: url('@/assets/index1.png');
   opacity: 1;
 }
 
@@ -295,4 +295,51 @@ onBeforeUnmount(() => {
   .title-group { margin-top: 2vh; }
   .swipe-tip { margin-top: clamp(24px, 8vh, 120px); }
 }
+
+/* 1) 整页高度仍然保留（lvh 更稳，没就用 dvh，再兜底 100vh） */
+.landing-wrapper,
+.landing-page {
+  min-height: 100vh; /* 兜底 */
+}
+@supports (height: 100lvh) {
+  .landing-wrapper, .landing-page { min-height: 100lvh; }
+}
+@supports (height: 100dvh) {
+  .landing-wrapper, .landing-page { min-height: 100dvh; }
+}
+
+/* 2) 核心：把所有“竖向间距”的 vh 改成 clamp(px, vw, px) —— 不再抖 */
+.landing-page {
+  /* 原来：padding: 10vh 5vw 6vh; */
+  padding:
+    clamp(24px, 8vw, 120px)   /* 顶部 */
+    5vw
+    clamp(16px, 6vw, 72px);   /* 底部 */
+}
+
+.title-group {
+  /* 原来：margin-top: 4vh; */
+  margin-top: clamp(12px, 4vw, 40px);
+}
+
+.swipe-tip {
+  /* 原来：margin-top: clamp(40px, 15vh, 150px); margin-bottom: 2vh; */
+  margin-top: clamp(40px, 10vw, 150px);
+  margin-bottom: clamp(8px, 2.5vw, 24px);
+}
+
+/* 3) 小高屏（很矮的横屏）下再紧一点（可选） */
+@media (max-height: 600px) {
+  .landing-page {
+    padding:
+      clamp(16px, 6vw, 64px)
+      5vw
+      clamp(12px, 4vw, 48px);
+  }
+  .title-group { margin-top: clamp(8px, 3vw, 24px); }
+  .swipe-tip  { margin-top: clamp(24px, 8vw, 120px); }
+}
+
+.background { transition: opacity 0.8s ease-in-out; }
+
 </style>
