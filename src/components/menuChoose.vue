@@ -937,4 +937,59 @@ watchEffect(() => {
   margin-top: 2px;
   text-align: center;
 }
+
+/* 1) 容器用 dvh 兜底，建立定位上下文 */
+.menu-choose-page {
+  position: relative;
+  min-height: 100vh;
+}
+@supports (height: 100dvh) {
+  .menu-choose-page { min-height: 100dvh; }
+}
+
+/* 2) 用 ::before 在“容器层”画一条固定的左侧淡白色背景条
+      这样页面再长、再滚，这条背景都铺到底 */
+.menu-choose-page::before {
+  content: "";
+  position: fixed;       /* 关键：跟随视口铺满到底部 */
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 220px;          /* 和 .category-sidebar 的宽度一致 */
+  background: rgba(255, 255, 255, 0.2);
+  pointer-events: none;  /* 不挡点击 */
+  z-index: 0;            /* 置底，内容在上 */
+}
+
+/* 3) 让 sidebar/右侧内容在背景条之上即可 */
+.category-sidebar,
+.menu-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* 4) sidebar 自身背景可以透明（保留你原有 hover/active 视觉不变） */
+.category-sidebar {
+  background: transparent; /* 原来是 rgba(255,255,255,0.2)，交给 ::before 画 */
+}
+
+/* 5) 右侧内部区域的最大高度用 dvh，更稳（横屏地址栏不会压缩） */
+@supports (height: 100dvh) {
+  .menu-overlay-wrapper {
+    max-height: calc(100dvh - 100px); /* 你原来是 100vh - 100px */
+  }
+}
+
+/* 6) 如果你在窄屏想把侧栏变窄，可加这个断点（可选） */
+@media (max-width: 1024px) {
+  .menu-choose-page::before { width: 200px; }
+  .category-sidebar { width: 200px; }
+}
+@media (max-width: 768px) {
+  .menu-choose-page::before { width: 180px; }
+  .category-sidebar { width: 180px; }
+}
+.category-sidebar { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+.cart-fab { bottom: max(32px, calc(env(safe-area-inset-bottom) + 12px)); }
+
 </style>
