@@ -112,7 +112,7 @@ function handleResize() {
 
 onMounted(async () => {
   const img = new Image()
-  img.src = new URL('@/assets/bg.svg', import.meta.url).href
+  img.src = new URL('@/assets/index.png', import.meta.url).href
   img.onload = () => { bgLoaded.value = true }
 
   await nextTick()

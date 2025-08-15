@@ -174,7 +174,7 @@ function confirmRemark() {
 
 <style scoped>
 .confirm-page {
-  background: url("@/assets/menu/menubg.svg") no-repeat center center;
+  background: url("@/assets/index2.png") no-repeat center center;
   background-size: cover;
   min-height: 100vh;
   padding: 24px;
@@ -375,6 +375,7 @@ backdrop-filter: blur(10px);
 .add-remark {
   color: #fefdfb;
   cursor: pointer;
+  font-size: 23px;
 }
 
 .edit-remark {

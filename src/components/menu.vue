@@ -1,6 +1,6 @@
 <template>
   <div class="menu-page">
-    <img class="bg-image" src="@/assets/menu/menubg.svg" alt="背景图" />
+    <img class="bg-image" src="@/assets/index2.png" alt="背景图" />
     <!-- <h1 class="title">选择菜系</h1> -->
     <h1 class="title">
   选择菜系

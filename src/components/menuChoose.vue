@@ -2,18 +2,17 @@
   <div class="menu-choose-page">
     <!-- 左侧分类 -->
     <aside class="category-sidebar">
-
       <!-- <div class="back" @click="router.push('/menu')">
         <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
         返回选择菜系
       </div> -->
       <div class="back" @click="router.push('/menu')">
-  <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
-  <div class="back-text">
-    <div class="zh">返回选择菜系</div>
-    <div class="en">Back</div>
-  </div>
-</div>
+        <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
+        <div class="back-text">
+          <div class="zh">返回选择菜系</div>
+          <div class="en">Back</div>
+        </div>
+      </div>
 
       <div
         v-for="(item, index) in categories"
@@ -32,9 +31,9 @@
       <!-- 标题在外部，居中显示 -->
       <!-- <h1 class="menu-title">{{ categoryName }}</h1> -->
       <h1 class="menu-title">
-  <div class="zh">{{ categoryName }}</div>
-  <div class="en">{{ categoryNameEn }}</div>
-</h1>
+        <div class="zh">{{ categoryName }}</div>
+        <div class="en">{{ categoryNameEn }}</div>
+      </h1>
 
       <!-- 内部遮罩框 -->
       <div class="menu-overlay-wrapper">
@@ -82,20 +81,19 @@
     <!-- 右侧购物车面板 -->
     <div class="cart-drawer" v-if="cartVisible" @click.stop>
       <div class="cart-header">
-  <div class="cart-selected">
-    <div class="zh">已选择({{ totalCount }})</div>
-    <div class="en">Selected</div>
-  </div>
+        <div class="cart-selected">
+          <div class="zh">已选择({{ totalCount }})</div>
+          <div class="en">Selected</div>
+        </div>
 
-  <div class="cart-clear" @click="clearCart">
-    <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
-    <div class="clear-text">
-      <div class="zh">清空列表</div>
-      <div class="en">Clear</div>
-    </div>
-  </div>
-</div>
-
+        <div class="cart-clear" @click="clearCart">
+          <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
+          <div class="clear-text">
+            <div class="zh">清空列表</div>
+            <div class="en">Clear</div>
+          </div>
+        </div>
+      </div>
 
       <div class="cart-list">
         <template v-if="selectedItems.length > 0">
@@ -121,16 +119,15 @@
         <button class="confirm-btn" @click="confirmMenu">确认</button>
       </div> -->
       <div class="cart-actions">
-  <button @click="toggleCart">
-    <div class="zh">返回</div>
-    <div class="en">Back</div>
-  </button>
-  <button class="confirm-btn" @click="confirmMenu">
-    <div class="zh">确认</div>
-    <div class="en">Confirm</div>
-  </button>
-</div>
-
+        <button @click="toggleCart">
+          <div class="zh">返回</div>
+          <div class="en">Back</div>
+        </button>
+        <button class="confirm-btn" @click="confirmMenu">
+          <div class="zh">确认</div>
+          <div class="en">Confirm</div>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -392,7 +389,7 @@ watchEffect(() => {
 <style scoped>
 .menu-choose-page {
   display: flex;
-  background: url("@/assets/menu/menubg.svg") no-repeat center center;
+  background: url("@/assets/index2.png") no-repeat center center;
   background-size: cover;
   font-family: "Source Han Serif CN";
   color: #5e4003;
@@ -944,21 +941,23 @@ watchEffect(() => {
   min-height: 100vh;
 }
 @supports (height: 100dvh) {
-  .menu-choose-page { min-height: 100dvh; }
+  .menu-choose-page {
+    min-height: 100dvh;
+  }
 }
 
 /* 2) 用 ::before 在“容器层”画一条固定的左侧淡白色背景条
       这样页面再长、再滚，这条背景都铺到底 */
 .menu-choose-page::before {
   content: "";
-  position: fixed;       /* 关键：跟随视口铺满到底部 */
+  position: fixed; /* 关键：跟随视口铺满到底部 */
   left: 0;
   top: 0;
   bottom: 0;
-  width: 220px;          /* 和 .category-sidebar 的宽度一致 */
+  width: 220px; /* 和 .category-sidebar 的宽度一致 */
   background: rgba(255, 255, 255, 0.2);
-  pointer-events: none;  /* 不挡点击 */
-  z-index: 0;            /* 置底，内容在上 */
+  pointer-events: none; /* 不挡点击 */
+  z-index: 0; /* 置底，内容在上 */
 }
 
 /* 3) 让 sidebar/右侧内容在背景条之上即可 */
@@ -982,6 +981,114 @@ watchEffect(() => {
 
 /* 6) 如果你在窄屏想把侧栏变窄，可加这个断点（可选） */
 @media (max-width: 1024px) {
+  .menu-choose-page::before {
+    width: 200px;
+  }
+  .category-sidebar {
+    width: 200px;
+  }
+}
+@media (max-width: 768px) {
+  .menu-choose-page::before {
+    width: 180px;
+  }
+  .category-sidebar {
+    width: 180px;
+  }
+}
+.category-sidebar {
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+.cart-fab {
+  bottom: max(32px, calc(env(safe-area-inset-bottom) + 12px));
+}
+
+/* === A. 返回选择菜系：一行显示 + 轻量响应 === */
+.back {                    /* 容器不换行、不挤压 */
+  white-space: nowrap;
+  overflow: hidden;
+}
+.back-text {               /* 让文本区域可缩 */
+  min-width: 0;
+}
+.back-text .zh {           /* 中文一行 + 自适应字号与字距 */
+  white-space: nowrap;
+  font-size: clamp(16px, 1.9vw, 22px);       /* 小屏略缩 */
+  letter-spacing: clamp(1.2px, 0.28vw, 3.6px);
+  line-height: 1.25;
+}
+.back-text .en {           /* 英文副文更克制一点 */
+  font-size: clamp(12px, 1.2vw, 14px);
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+/* 避免图标与文字挤压，确保一行容纳 */
+.back {
+  gap: 8px;                /* 原 6px -> 8px，空间更均衡 */
+}
+
+/* === B. 左侧分类项字号轻量响应（保持你原风格）=== */
+.name-cn {
+  font-size: clamp(20px, 2.2vw, 28px);
+  line-height: 1.15;
+  white-space: nowrap;     /* 防止两字一行的断行 */
+}
+.name-en {
+  font-size: clamp(12px, 1.2vw, 14px);
+}
+
+/* === C. 数量徽标：严格居中 & 1~3 位自适应 === */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;          /* 单个数字圆点直径 */
+  height: 20px;
+  padding: 0 6px;           /* 两位数会变椭圆胶囊 */
+  line-height: 20px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #d64040;
+  color: #fff;
+
+  /* 你的原始定位保持不变： */
+  position: absolute;
+  top: 28px;
+  right: 12px;
+}
+
+/* === D. （可选）横屏更紧凑：进一步压一点字距与字号 === */
+@media (orientation: landscape) and (max-height: 600px) {
+  .back-text .zh {
+    font-size: clamp(14px, 1.6vw, 20px);
+    letter-spacing: clamp(1px, 0.22vw, 3px);
+  }
+}
+
+/* === E. 仍然保留你之前的左侧背景铺满补丁，不需要 JS === */
+/* 如果已经有了这段，可以忽略；没有就保留 */
+.menu-choose-page {
+  position: relative;
+  min-height: 100vh;
+}
+@supports (height: 100dvh) {
+  .menu-choose-page { min-height: 100dvh; }
+}
+.menu-choose-page::before {
+  content: "";
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 220px;                      /* 同步 sidebar 宽度 */
+  background: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+  z-index: 0;
+}
+.category-sidebar,
+.menu-content { position: relative; z-index: 1; }
+
+/* 宽度断点同步（你之前也可加过，保留一致即可） */
+@media (max-width: 1024px) {
   .menu-choose-page::before { width: 200px; }
   .category-sidebar { width: 200px; }
 }
@@ -989,7 +1096,5 @@ watchEffect(() => {
   .menu-choose-page::before { width: 180px; }
   .category-sidebar { width: 180px; }
 }
-.category-sidebar { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
-.cart-fab { bottom: max(32px, calc(env(safe-area-inset-bottom) + 12px)); }
 
 </style>
