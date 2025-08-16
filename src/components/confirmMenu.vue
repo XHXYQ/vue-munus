@@ -110,14 +110,15 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { ElMessage } from "element-plus"; // ✅ 引入提示
 import { ArrowLeftBold } from "@element-plus/icons-vue";
 
 const route = useRoute();
 const router = useRouter();
 
-const orderRemark = ref(""); // 整个订单备注
-const tempRemark = ref(""); // 弹窗临时输入
-const showRemarkDialog = ref(false); // 添加这一行！！
+const orderRemark = ref("");
+const tempRemark = ref("");
+const showRemarkDialog = ref(false);
 const type = ref(route.query.type || "chinese");
 const categoryName = ref(route.query.name || "中式佳肴");
 
@@ -143,12 +144,17 @@ function remove(index) {
 }
 
 function submitOrder() {
+  // ❌ 如果没有菜品，阻止提交
+  if (dishes.value.length === 0) {
+    ElMessage.warning("请至少选择一个菜品再提交"); 
+    return;
+  }
+
   console.log("提交菜单：", dishes.value);
   console.log("备注：", orderRemark.value);
 
-  // ✅ 保存当前购物车数据到缓存（以便返回后恢复）
   const cacheKey = `cachedDishes_${type.value}`;
-  sessionStorage.setItem(cacheKey, JSON.stringify(dishes.value)); // 👈 关键一步
+  sessionStorage.setItem(cacheKey, JSON.stringify(dishes.value));
 
   router.push({
     path: "/orderInfo",
@@ -171,6 +177,7 @@ function confirmRemark() {
   showRemarkDialog.value = false;
 }
 </script>
+
 
 <style scoped>
 .confirm-page {
