@@ -274,7 +274,7 @@ function confirmMenu() {
   // 直接使用全局购物车（所有菜系汇总）
   router.push({
     path: "/confirmMenu",
-    // 这里不再需要传 items，确认页从全局缓存读取；保留也可
+    
     query: {
       items: JSON.stringify(globalCartList.value),
       type: type.value,
