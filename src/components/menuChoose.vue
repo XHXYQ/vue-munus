@@ -2,10 +2,6 @@
   <div class="menu-choose-page">
     <!-- 左侧分类 -->
     <aside class="category-sidebar">
-      <!-- <div class="back" @click="router.push('/menu')">
-        <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
-        返回选择菜系
-      </div> -->
       <div class="back" @click="router.push('/menu')">
         <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
         <div class="back-text">
@@ -28,27 +24,20 @@
 
     <!-- 右侧菜单列表 -->
     <main class="menu-content">
-      <!-- 标题在外部，居中显示 -->
-      <!-- <h1 class="menu-title">{{ categoryName }}</h1> -->
       <h1 class="menu-title">
         <div class="zh">{{ categoryName }}</div>
         <div class="en">{{ categoryNameEn }}</div>
       </h1>
 
-      <!-- 内部遮罩框 -->
       <div class="menu-overlay-wrapper">
         <div class="menu-wrapper">
-          <div
-            class="menu-section"
-            v-for="group in currentCategory.groups"
-            :key="group.name"
-          >
+          <div class="menu-section" v-for="group in currentCategory.groups" :key="group.name">
             <h2 class="group-title">
               <div class="group-cn">{{ group.name }}</div>
               <div class="group-en">{{ group.en }}</div>
             </h2>
 
-            <div class="menu-item" v-for="dish in group.items" :key="dish.name">
+            <div class="menu-item" v-for="dish in group.items" :key="dishKey(dish)">
               <img :src="dish.img" class="dish-img" />
               <div class="dish-info">
                 <div class="dish-name">{{ dish.name }}</div>
@@ -76,9 +65,10 @@
       <div class="cart-badge" v-if="totalCount > 0">{{ totalCount }}</div>
     </div>
 
-    <!-- 遮罩层（点击空白关闭购物车） -->
+    <!-- 遮罩层 -->
     <div v-if="cartVisible" class="cart-mask" @click="toggleCart" />
-    <!-- 右侧购物车面板 -->
+
+    <!-- 右侧购物车面板（展示全局已选） -->
     <div class="cart-drawer" v-if="cartVisible" @click.stop>
       <div class="cart-header">
         <div class="cart-selected">
@@ -96,8 +86,8 @@
       </div>
 
       <div class="cart-list">
-        <template v-if="selectedItems.length > 0">
-          <div class="cart-item" v-for="dish in selectedItems" :key="dish.name">
+        <template v-if="globalCartList.length > 0">
+          <div class="cart-item" v-for="dish in globalCartList" :key="dishKey(dish)">
             <img :src="dish.img" />
             <div class="cart-info">
               <div class="cart-name">{{ dish.name }}</div>
@@ -114,10 +104,6 @@
         <div v-else class="cart-empty-tip">暂无菜品，请添加</div>
       </div>
 
-      <!-- <div class="cart-actions">
-        <button @click="toggleCart">返回</button>
-        <button class="confirm-btn" @click="confirmMenu">确认</button>
-      </div> -->
       <div class="cart-actions">
         <button @click="toggleCart">
           <div class="zh">返回</div>
@@ -133,123 +119,128 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watchEffect } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { listDishGroup, groupWithDishes } from "@/api/system/dishGroup";
-import { listDish } from "@/api/system/dish";
+import { groupWithDishes } from "@/api/system/dishGroup";
 import { ArrowLeftBold } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 
 const router = useRouter();
 const route = useRoute();
+
 const activeIndex = ref(0);
+const cartVisible = ref(false);
+
+/** ---------- 全局购物车（跨菜系共享） ---------- */
+const CART_KEY = 'cachedDishesAll';
+const cartMap = ref({}); // { [key]: dishObjWithCount }
+
+function loadCart() {
+  try {
+    const raw = sessionStorage.getItem(CART_KEY);
+    cartMap.value = raw ? JSON.parse(raw) : {};
+  } catch {
+    cartMap.value = {};
+  }
+}
+function saveCart() {
+  sessionStorage.setItem(CART_KEY, JSON.stringify(cartMap.value));
+}
+function dishKey(dish) {
+  return dish.id ?? dish.dishId ?? dish.code ?? dish.name;
+}
+const globalCartList = computed(() => Object.values(cartMap.value));
+const totalCount = computed(() =>
+  Object.values(cartMap.value).reduce((s, d) => s + (d.count || 0), 0)
+);
+/** ------------------------------------------------- */
 
 const type = computed(() => route.query.type || "chinese");
+const categoryName = computed(() => decodeURIComponent(route.query.name || "菜系"));
+const categoryNameEn = computed(() => decodeURIComponent(route.query.nameEn || "Cuisine"));
 
-//接收菜系名
-const categoryName = computed(() =>
-  decodeURIComponent(route.query.name || "菜系")
-);
+const categories = ref([]); // [{ name, en, count, groups:[{ name,en, items:[dish] }] }]
+const currentCategory = computed(() => categories.value[activeIndex.value] || { name: "", groups: [] });
 
-const categoryNameEn = computed(() =>
-  decodeURIComponent(route.query.nameEn || "Cuisine")
-);
-
-// 根据 type 加载对应分类数据
-const categoryData = computed(() => {
-  switch (type.value) {
-    case "chinese":
-      return chineseData;
-    case "western":
-      return westernData;
-    case "beverages":
-      return beverageData;
-    case "snacks":
-      return snacksData;
-    default:
-      return [];
-  }
-});
-
-const categories = ref([]);
-
-const currentCategory = computed(
-  () => categories.value[activeIndex.value] || { name: "", groups: [] }
-);
-
-async function selectCategory(index) {
-  activeIndex.value = index;
-  await fetchDishesByCategory(categories.value[index]);
-}
-
-const cartVisible = ref(false);
 function toggleCart() {
   cartVisible.value = !cartVisible.value;
 }
 
-function updateAllCounts() {
+/** 根据全局购物车回灌当前分类中所有菜品的数量，并统计分类count */
+function syncCountsFromCart() {
   categories.value.forEach((cat) => {
-    cat.count = cat.groups.reduce(
-      (total, g) => total + g.items?.reduce((sum, item) => sum + item.count, 0),
-      0
-    );
+    let catCount = 0;
+    cat.groups.forEach((group) => {
+      group.items?.forEach((dish) => {
+        const key = dishKey(dish);
+        const inCart = cartMap.value[key];
+        dish.count = inCart ? inCart.count : 0;
+        catCount += dish.count;
+      });
+    });
+    cat.count = catCount;
   });
 }
-const totalCount = computed(() =>
-  categories.value.reduce((sum, cat) => sum + cat.count, 0)
-);
 
-// 获取所有已选择的商品
-const selectedItems = computed(() => {
-  const items = [];
-  categories.value.forEach((cat) =>
-    cat.groups.forEach((group) =>
-      group.items?.forEach((dish) => {
-        if (dish.count > 0) items.push(dish);
-      })
-    )
-  );
-  return items;
-});
+function increase(dish) {
+  const key = dishKey(dish);
+  const next = (cartMap.value[key]?.count || 0) + 1;
+  const newDish = { ...dish, count: next };
+  cartMap.value = { ...cartMap.value, [key]: newDish };
+  saveCart();
 
-function confirmMenu() {
-  if (selectedItems.value.length === 0) {
-    ElMessage.warning("请先选择菜品再确认");
-    return;
+  // 如果这个菜在当前分类中，回写它的 count；分类计数整体更新
+  dish.count = next;
+  syncCountsFromCart();
+}
+
+function decrease(dish) {
+  const key = dishKey(dish);
+  const cur = cartMap.value[key]?.count || 0;
+  if (cur <= 1) {
+    // 归零则从全局购物车移除
+    const { [key]: _, ...rest } = cartMap.value;
+    cartMap.value = rest;
+    saveCart();
+    dish.count = 0;
+  } else {
+    const next = cur - 1;
+    cartMap.value = { ...cartMap.value, [key]: { ...dish, count: next } };
+    saveCart();
+    dish.count = next;
   }
+  syncCountsFromCart();
+}
 
-  sessionStorage.setItem("cachedDishes", JSON.stringify(selectedItems.value));
-  router.push({
-    path: "/confirmMenu",
-    query: {
-      items: JSON.stringify(selectedItems.value),
-    },
+function clearCart() {
+  // 清空全局
+  cartMap.value = {};
+  saveCart();
+  // 清空当前页面所有菜的数量
+  categories.value.forEach((cat) => {
+    cat.count = 0;
+    cat.groups.forEach((group) => {
+      group.items.forEach((item) => (item.count = 0));
+    });
   });
+}
+
+async function selectCategory(index) {
+  activeIndex.value = index;
+  // 切换分类后，把全局购物车数量回灌
+  syncCountsFromCart();
 }
 
 async function fetchDishGroups() {
   try {
+    // 你的后端：根据“菜系根分类ID”取分组与菜品
     const rawType = route.query.type;
-    const categoryMap = {
-      chinese: 1,
-      western: 2,
-      beverages: 3,
-      snacks: 4,
-    };
+    const categoryMap = { chinese: 1, western: 2, beverages: 3, snacks: 4 };
     const rootCategoryId = categoryMap[rawType] || Number(rawType) || 1;
 
     const res = await groupWithDishes({ categoryId: rootCategoryId });
-
-    if (!res || typeof res !== "object") {
-      console.error("❌ res 是 undefined 或非对象", res);
-      throw new Error("接口响应格式不对");
-    }
-
-    const rows = res.data; // ✅ 关键点在这里！
-    if (!Array.isArray(rows)) {
-      console.error("❌ rows 不是数组", res);
-      throw new Error("接口返回格式不正确");
-    }
+    const rows = res?.data || [];
+    if (!Array.isArray(rows)) throw new Error("接口返回格式不正确");
 
     categories.value = rows.map((group) => ({
       id: group.groupId,
@@ -271,120 +262,35 @@ async function fetchDishGroups() {
     }));
 
     activeIndex.value = 0;
-  } catch (err) {
-    console.error("加载分组菜品失败", err);
+  } catch (e) {
+    console.error("加载分组菜品失败", e);
   }
 }
 
-const CART_KEY = computed(() => `cachedDishes_${type.value}`);
-
-function saveCartToCache() {
-  sessionStorage.setItem(CART_KEY.value, JSON.stringify(selectedItems.value));
-}
-
-function increase(dish) {
-  dish.count++;
-  categories.value[activeIndex.value].count++;
-  saveCartToCache();
-}
-
-function decrease(dish) {
-  if (dish.count > 0) {
-    dish.count--;
-    categories.value[activeIndex.value].count--;
-    saveCartToCache();
+function confirmMenu() {
+  if (globalCartList.value.length === 0) {
+    ElMessage.warning("请先选择菜品再确认");
+    return;
   }
-}
-
-function clearCart() {
-  categories.value = categories.value.map((cat) => {
-    const updatedGroups = cat.groups.map((group) => {
-      const updatedItems = group.items.map((item) => ({
-        ...item,
-        count: 0,
-      }));
-      return { ...group, items: updatedItems };
-    });
-
-    return {
-      ...cat,
-      groups: updatedGroups,
-      count: 0,
-    };
+  // 直接使用全局购物车（所有菜系汇总）
+  router.push({
+    path: "/confirmMenu",
+    // 这里不再需要传 items，确认页从全局缓存读取；保留也可
+    query: {
+      items: JSON.stringify(globalCartList.value),
+      type: type.value,
+      name: categoryName.value,
+    },
   });
-
-  sessionStorage.removeItem(CART_KEY.value);
 }
 
 onMounted(async () => {
-  await fetchDishGroups(); // 加载菜单项
-  restoreCartFromCache();
-
-  // ✅ 确保 type 已准备好再读取缓存
-  const cached = sessionStorage.getItem(`cachedDishes_${type.value}`);
-  if (cached) {
-    const savedItems = JSON.parse(cached);
-    savedItems.forEach((savedDish) => {
-      categories.value.forEach((cat) => {
-        cat.groups.forEach((group) => {
-          group.items?.forEach((dish) => {
-            if (dish.name === savedDish.name) {
-              dish.count = savedDish.count;
-            }
-          });
-        });
-      });
-    });
-
-    updateAllCounts();
-    console.log("✅ 购物车恢复成功:", savedItems);
-  }
-});
-
-function restoreCartFromCache() {
-  const cached = sessionStorage.getItem(CART_KEY.value);
-  if (!cached) return;
-
-  const savedItems = JSON.parse(cached);
-  savedItems.forEach((savedDish) => {
-    categories.value.forEach((cat) => {
-      cat.groups.forEach((group) => {
-        group.items?.forEach((dish) => {
-          if (dish.name === savedDish.name) {
-            dish.count = savedDish.count;
-          }
-        });
-      });
-    });
-  });
-
-  updateAllCounts();
-  console.log("✅ 购物车数据已恢复", savedItems);
-}
-
-watchEffect(() => {
-  if (categories.value.length > 0) {
-    const cached = sessionStorage.getItem(CART_KEY.value);
-    if (cached) {
-      const savedItems = JSON.parse(cached);
-      savedItems.forEach((savedDish) => {
-        categories.value.forEach((cat) => {
-          cat.groups.forEach((group) => {
-            group.items?.forEach((dish) => {
-              if (dish.name === savedDish.name) {
-                dish.count = savedDish.count;
-              }
-            });
-          });
-        });
-      });
-
-      updateAllCounts();
-      console.log("✅ 购物车已恢复", savedItems);
-    }
-  }
+  loadCart();          // 读全局购物车
+  await fetchDishGroups();   // 拉取当前菜系的分组与菜
+  syncCountsFromCart(); // 回灌数量
 });
 </script>
+
 
 <style scoped>
 .menu-choose-page {

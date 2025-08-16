@@ -1,27 +1,19 @@
 <template>
   <div class="confirm-page">
-    <!-- 返回选择菜品 -->
     <div class="header-row">
-  <!-- <div class="top-bar" @click="router.back()">
-    <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
-    返回选择菜品
-  </div> -->
-  <div class="top-bar" @click="router.back()">
-  <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
-  <div class="top-bar-text">
-    <div class="zh">返回选择菜品</div>
-    <div class="en">Back</div>
-  </div>
-</div>
+      <div class="top-bar" @click="router.back()">
+        <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
+        <div class="top-bar-text">
+          <div class="zh">返回选择菜品</div>
+          <div class="en">Back</div>
+        </div>
+      </div>
 
-  <!-- <h1 class="title">确认菜单</h1> -->
-  <h1 class="title">
-  <div class="zh">确认菜单</div>
-  <div class="en">Confirm Menu</div>
-</h1>
-
-</div>
-
+      <h1 class="title">
+        <div class="zh">确认菜单</div>
+        <div class="en">Confirm Menu</div>
+      </h1>
+    </div>
 
     <div class="table-wrapper">
       <table class="dish-table">
@@ -34,7 +26,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(dish, index) in dishes" :key="dish.name">
+          <tr v-for="(dish, index) in dishes" :key="dishKey(dish)">
             <td>{{ index + 1 }}</td>
             <td>
               <div class="dish-name-cn">{{ dish.name }}</div>
@@ -48,8 +40,7 @@
               </div>
             </td>
             <td>
-              <!-- <span class="delete-btn" @click="remove(index)">🗑 删除</span> -->
-              <span class="delete-btn" @click="remove(index)">
+              <span class="delete-btn" @click="removeDish(dish)">
                 <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
                 删除
               </span>
@@ -58,14 +49,11 @@
         </tbody>
       </table>
 
-      <!-- 添加订单备注 -->
-      <!-- 添加订单备注 -->
+      <!-- 订单备注 -->
       <div class="order-remark-row">
         <div class="remark-content">
           <span v-if="orderRemark">备注：{{ orderRemark }}</span>
-          <span v-else class="add-remark" @click="openRemarkDialog"
-            >+ 添加备注</span
-          >
+          <span v-else class="add-remark" @click="openRemarkDialog">+ 添加备注</span>
         </div>
         <div v-if="orderRemark" class="edit-btn-wrapper">
           <span class="edit-remark" @click="openRemarkDialog">✎ 修改</span>
@@ -73,96 +61,124 @@
       </div>
     </div>
 
-    <!-- 固定底部操作栏 -->
-    <!-- <div class="bottom-actions">
-      <button class="back-btn" @click="router.back()">返回</button>
-      <button class="submit-btn" @click="submitOrder">提交</button>
-    </div> -->
     <div class="bottom-actions">
-  <button class="back-btn" @click="router.back()">
-    <div class="zh">返回</div>
-    <div class="en">Back</div>
-  </button>
-  <button class="submit-btn" @click="submitOrder">
-    <div class="zh">提交</div>
-    <div class="en">Submit</div>
-  </button>
-</div>
+      <button class="back-btn" @click="router.back()">
+        <div class="zh">返回</div><div class="en">Back</div>
+      </button>
+      <button class="submit-btn" @click="submitOrder">
+        <div class="zh">提交</div><div class="en">Submit</div>
+      </button>
+    </div>
 
-  </div>
-
-  <!-- 添加备注弹窗 -->
-  <div class="remark-modal" v-if="showRemarkDialog">
-    <div class="remark-dialog">
-      <div class="remark-header">
-        <span>添加备注</span>
-        <span class="close" @click="showRemarkDialog = false">✕</span>
-      </div>
-      <textarea v-model="tempRemark" placeholder="请输入备注内容" />
-      <div class="remark-footer">
-        <button class="cancel" @click="showRemarkDialog = false">取消</button>
-        <button class="confirm" @click="confirmRemark">确认并提交</button>
+    <!-- 备注弹窗 -->
+    <div class="remark-modal" v-if="showRemarkDialog">
+      <div class="remark-dialog">
+        <div class="remark-header">
+          <span>添加备注</span>
+          <span class="close" @click="showRemarkDialog = false">✕</span>
+        </div>
+        <textarea v-model="tempRemark" placeholder="请输入备注内容" />
+        <div class="remark-footer">
+          <button class="cancel" @click="showRemarkDialog = false">取消</button>
+          <button class="confirm" @click="confirmRemark">确认并提交</button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ElMessage } from "element-plus"; // ✅ 引入提示
+import { ElMessage } from "element-plus";
 import { ArrowLeftBold } from "@element-plus/icons-vue";
 
-const route = useRoute();
 const router = useRouter();
+const route = useRoute();
 
+const CART_KEY = 'cachedDishesAll';
 const orderRemark = ref("");
 const tempRemark = ref("");
 const showRemarkDialog = ref(false);
-const type = ref(route.query.type || "chinese");
-const categoryName = ref(route.query.name || "中式佳肴");
 
-const dishes = ref([]);
+const dishes = ref([]); // 此页展示用（数组）
+const cartMap = ref({}); // 全局购物车镜像（对象）
+
+function dishKey(dish) {
+  return dish.id ?? dish.dishId ?? dish.code ?? dish.name;
+}
+
+function loadCart() {
+  try {
+    const raw = sessionStorage.getItem(CART_KEY);
+    cartMap.value = raw ? JSON.parse(raw) : {};
+  } catch {
+    cartMap.value = {};
+  }
+}
+function saveCart() {
+  sessionStorage.setItem(CART_KEY, JSON.stringify(cartMap.value));
+}
+function syncListFromMap() {
+  dishes.value = Object.values(cartMap.value);
+}
 
 onMounted(() => {
-  const items = route.query.items;
-  if (items) {
-    dishes.value = JSON.parse(items);
+  loadCart();
+  // 兼容从菜单页 query 传来的 items，但以全局购物车为准
+  const fromQuery = route.query.items ? JSON.parse(route.query.items) : null;
+  if (fromQuery && fromQuery.length && Object.keys(cartMap.value).length === 0) {
+    const tmp = {};
+    fromQuery.forEach(d => (tmp[dishKey(d)] = d));
+    cartMap.value = tmp;
+    saveCart();
   }
+  syncListFromMap();
 });
 
 function increase(dish) {
-  dish.count++;
+  const key = dishKey(dish);
+  const next = (cartMap.value[key]?.count || 0) + 1;
+  cartMap.value[key] = { ...dish, count: next };
+  saveCart();
+  syncListFromMap();
 }
 
 function decrease(dish) {
-  if (dish.count > 1) dish.count--;
+  const key = dishKey(dish);
+  const cur = cartMap.value[key]?.count || 0;
+  if (cur <= 1) {
+    const { [key]: _, ...rest } = cartMap.value;
+    cartMap.value = rest;
+  } else {
+    cartMap.value[key] = { ...dish, count: cur - 1 };
+  }
+  saveCart();
+  syncListFromMap();
 }
 
-function remove(index) {
-  dishes.value.splice(index, 1);
+function removeDish(dish) {
+  const key = dishKey(dish);
+  const { [key]: _, ...rest } = cartMap.value;
+  cartMap.value = rest;
+  saveCart();
+  syncListFromMap();
 }
 
 function submitOrder() {
-  // ❌ 如果没有菜品，阻止提交
   if (dishes.value.length === 0) {
-    ElMessage.warning("请至少选择一个菜品再提交"); 
+    ElMessage.warning("请至少选择一个菜品再提交");
     return;
   }
-
-  console.log("提交菜单：", dishes.value);
-  console.log("备注：", orderRemark.value);
-
-  const cacheKey = `cachedDishes_${type.value}`;
-  sessionStorage.setItem(cacheKey, JSON.stringify(dishes.value));
-
+  // 此处可根据业务封装为后端需要的提交结构
+  // 仍然保持你的原路由跳转
   router.push({
     path: "/orderInfo",
     query: {
       dishes: JSON.stringify(dishes.value),
       remark: orderRemark.value,
-      category: type.value,
-      name: categoryName.value,
+      category: route.query.type || "",
+      name: route.query.name || "",
     },
   });
 }
@@ -171,12 +187,12 @@ function openRemarkDialog() {
   tempRemark.value = orderRemark.value;
   showRemarkDialog.value = true;
 }
-
 function confirmRemark() {
   orderRemark.value = tempRemark.value;
   showRemarkDialog.value = false;
 }
 </script>
+
 
 
 <style scoped>
