@@ -131,7 +131,6 @@ const route = useRoute();
 const activeIndex = ref(0);
 const cartVisible = ref(false);
 
-/** ---------- 全局购物车（跨菜系共享） ---------- */
 const CART_KEY = 'cachedDishesAll';
 const cartMap = ref({}); // { [key]: dishObjWithCount }
 
