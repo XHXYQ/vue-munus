@@ -170,8 +170,7 @@ function submitOrder() {
     ElMessage.warning("请至少选择一个菜品再提交");
     return;
   }
-  // 此处可根据业务封装为后端需要的提交结构
-  // 仍然保持你的原路由跳转
+
   router.push({
     path: "/orderInfo",
     query: {
@@ -209,10 +208,10 @@ function confirmRemark() {
 }
 
 .header-row {
-  position: relative; /* 让标题可以绝对定位在这行中 */
+  position: relative;
   padding: 0 24px;
   margin-bottom: 24px;
-  height: 48px; /* 你可以根据视觉需要调整 */
+  height: 48px;
 }
 
 
