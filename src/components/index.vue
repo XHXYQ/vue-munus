@@ -1,5 +1,5 @@
 <template>
-  <div class="landing-wrapper">
+  <div class="landing-wrapper" @click="goToMenu">
     <!-- 背景图淡入层 -->
     <div class="background" :class="{ 'bg-loaded': bgLoaded }"></div>
 
@@ -21,7 +21,7 @@
       </div>
 
       <!-- 滑动提示 -->
-      <div class="swipe-tip" @click="goToMenu">
+      <div class="swipe-tip">
         <div class="arrow">&#x25B2;</div>
         <div class="text">点击屏幕开始点餐</div>
         <div class="text-en">Click on the screen to start ordering</div>
@@ -52,7 +52,7 @@ function goToMenu() {
 
 function clearStorage() {
   localStorage.clear()
-  sessionStorage.clear()
+  localStorage.clear()
   ElMessage.success('已清除本地数据')
 }
 
@@ -132,14 +132,14 @@ onBeforeUnmount(() => {
 
 .landing-wrapper {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
 }
 /* 移动端高度单位补丁，避免地址栏导致的跳动 */
 @supports (height: 100dvh) {
-  .landing-wrapper { min-height: 100dvh; }
+  .landing-wrapper { height: 100dvh; }
 }
 
 .background {
@@ -165,14 +165,14 @@ onBeforeUnmount(() => {
   font-family: "Noto Serif SC", serif;
   color: #b68d41;
   padding: 10vh 5vw 6vh;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   box-sizing: border-box;
 }
 @supports (height: 100dvh) {
-  .landing-page { min-height: 100dvh; }
+  .landing-page { height: 100dvh; }
 }
 
 .content-wrapper {
@@ -218,14 +218,18 @@ onBeforeUnmount(() => {
 }
 
 .swipe-tip {
+  flex: 1;
   text-align: center;
   font-size: 5vw;
   color: #b68d41;
   animation: fadeInUp 1.2s ease-in-out;
-  margin-top: clamp(40px, 15vh, 150px);
+  /* margin-top: clamp(40px, 15vh, 150px); */
   margin-bottom: 2vh;
   cursor: pointer;
   transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
 }
 @media (hover: hover) and (pointer: fine) {
   .swipe-tip:hover { transform: scale(1.05); }
@@ -293,19 +297,19 @@ onBeforeUnmount(() => {
 @media (max-height: 600px) {
   .landing-page { padding: 6vh 5vw 4vh; }
   .title-group { margin-top: 2vh; }
-  .swipe-tip { margin-top: clamp(24px, 8vh, 120px); }
+  /* .swipe-tip { margin-top: clamp(24px, 8vh, 120px); } */
 }
 
 /* 1) 整页高度仍然保留（lvh 更稳，没就用 dvh，再兜底 100vh） */
 .landing-wrapper,
 .landing-page {
-  min-height: 100vh; /* 兜底 */
+  height: 100vh; /* 兜底 */
 }
 @supports (height: 100lvh) {
-  .landing-wrapper, .landing-page { min-height: 100lvh; }
+  .landing-wrapper, .landing-page { height: 100lvh; }
 }
 @supports (height: 100dvh) {
-  .landing-wrapper, .landing-page { min-height: 100dvh; }
+  .landing-wrapper, .landing-page { height: 100dvh; }
 }
 
 /* 2) 核心：把所有“竖向间距”的 vh 改成 clamp(px, vw, px) —— 不再抖 */
@@ -324,7 +328,7 @@ onBeforeUnmount(() => {
 
 .swipe-tip {
   /* 原来：margin-top: clamp(40px, 15vh, 150px); margin-bottom: 2vh; */
-  margin-top: clamp(40px, 10vw, 150px);
+  /* margin-top: clamp(40px, 10vw, 150px); */
   margin-bottom: clamp(8px, 2.5vw, 24px);
 }
 
@@ -337,7 +341,7 @@ onBeforeUnmount(() => {
       clamp(12px, 4vw, 48px);
   }
   .title-group { margin-top: clamp(8px, 3vw, 24px); }
-  .swipe-tip  { margin-top: clamp(24px, 8vw, 120px); }
+  /* .swipe-tip  { margin-top: clamp(24px, 8vw, 120px); } */
 }
 
 .background { transition: opacity 0.8s ease-in-out; }

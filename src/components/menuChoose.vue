@@ -5,20 +5,21 @@
       <div class="back" @click="router.push('/menu')">
         <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
         <div class="back-text">
-          <div class="zh">返回选择菜系</div>
-          <div class="en">Back</div>
+          <p class="zh">返回选择菜系</p>
+          <p class="en">Back</p>
         </div>
       </div>
-
-      <div
-        v-for="(item, index) in categories"
-        :key="item.name"
-        :class="['category-item', { active: index === activeIndex }]"
-        @click="selectCategory(index)"
-      >
-        <div class="name-cn">{{ item.name }}</div>
-        <div class="name-en">{{ item.en }}</div>
-        <div class="badge" v-if="item.count > 0">{{ item.count }}</div>
+      <div class="category-list" ref="categoryListRef">
+        <div
+          v-for="(item, index) in categories"
+          :key="item.name"
+          :class="['category-item', { active: index === activeIndex }]"
+          @click="selectCategory(index)"
+        >
+          <div class="name-cn">{{ item.name }}</div>
+          <div class="name-en">{{ item.en }}</div>
+          <div class="badge" v-if="item.count > 0">{{ item.count }}</div>
+        </div>
       </div>
     </aside>
 
@@ -36,22 +37,28 @@
               <div class="group-cn">{{ group.name }}</div>
               <div class="group-en">{{ group.en }}</div>
             </h2>
-
-            <div class="menu-item" v-for="dish in group.items" :key="dishKey(dish)">
-              <img :src="dish.img" class="dish-img" />
-              <div class="dish-info">
-                <div class="dish-name">{{ dish.name }}</div>
-                <div class="dish-en">{{ dish.en }}</div>
-              </div>
-              <div class="quantity-control">
-                <template v-if="dish.count > 0">
-                  <button @click="decrease(dish)">－</button>
-                  <span>{{ dish.count }}</span>
-                  <button @click="increase(dish)">＋</button>
-                </template>
-                <template v-else>
-                  <button @click="increase(dish)">＋</button>
-                </template>
+            <div class="menu-list" 
+                 @scroll.passive="onMenuListScroll"
+                 @touchstart.passive="onTouchStart"
+                 @touchmove.passive="onTouchMove"
+                 @touchend.passive="onTouchEnd"
+                 :ref="(el) => { if (el) menuListRefs[index] = el }">
+              <div class="menu-item" v-for="dish in group.items" :key="dishKey(dish)">
+                <img :src="dish.img" class="dish-img" />
+                <div class="dish-info">
+                  <div class="dish-name">{{ dish.name }}</div>
+                  <div class="dish-en">{{ dish.en }}</div>
+                </div>
+                <div class="quantity-control">
+                  <template v-if="dish.count > 0">
+                    <button @click="decrease(dish)">-</button>
+                    <div class="count">{{ dish.count }}</div>
+                    <button @click="increase(dish)">+</button>
+                  </template>
+                  <template v-else>
+                    <button @click="increase(dish)">+</button>
+                  </template>
+                </div>
               </div>
             </div>
           </div>
@@ -72,12 +79,15 @@
     <div class="cart-drawer" v-if="cartVisible" @click.stop>
       <div class="cart-header">
         <div class="cart-selected">
-          <div class="zh">已选择({{ totalCount }})</div>
-          <div class="en">Selected</div>
+          <div>
+            <div class="zh">已选择</div>
+            <div class="en">Selected</div>
+          </div>
+          <div class="count">({{ totalCount }})</div>
         </div>
 
         <div class="cart-clear" @click="clearCart">
-          <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
+          <img src="@/assets/trash.svg" class="trash-icon" />
           <div class="clear-text">
             <div class="zh">清空列表</div>
             <div class="en">Clear</div>
@@ -87,16 +97,22 @@
 
       <div class="cart-list">
         <template v-if="globalCartList.length > 0">
-          <div class="cart-item" v-for="dish in globalCartList" :key="dishKey(dish)">
-            <img :src="dish.img" />
-            <div class="cart-info">
-              <div class="cart-name">{{ dish.name }}</div>
-              <div class="cart-en">{{ dish.en }}</div>
-            </div>
-            <div class="quantity-control">
-              <button @click="decrease(dish)">－</button>
-              <span>{{ dish.count }}</span>
-              <button @click="increase(dish)">＋</button>
+          <div v-for="(group, groupIndex) in globalCartList" :key="groupIndex">
+            <h3 class="cart-group-name" v-if="group.cartCategoryName">
+              <div class="cart-group-name-cn">{{ group.cartCategoryName }}</div>
+              <div class="cart-group-name-en">{{ group.cartCategoryNameEn }}</div>
+            </h3>
+            <div class="cart-item" v-for="dish in group.children" :key="dishKey(dish)">
+              <img :src="dish.img" />
+              <div class="cart-info">
+                <div class="cart-name">{{ dish.name }}</div>
+                <div class="cart-en">{{ dish.en }}</div>
+              </div>
+              <div class="quantity-control">
+                <button @click="decrease(dish)">－</button>
+                <div class="count">{{ dish.count }}</div>
+                <button @click="increase(dish)">＋</button>
+              </div>
             </div>
           </div>
         </template>
@@ -119,11 +135,11 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { groupWithDishes } from "@/api/system/dishGroup";
 import { ArrowLeftBold } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 
 const router = useRouter();
 const route = useRoute();
@@ -131,24 +147,59 @@ const route = useRoute();
 const activeIndex = ref(0);
 const cartVisible = ref(false);
 
+// 添加滚动联动相关的引用
+const categoryListRef = ref(null);
+const menuListRefs = ref([]);
+
+/** ---------- 全局购物车（跨菜系共享） ---------- */
 const CART_KEY = 'cachedDishesAll';
 const cartMap = ref({}); // { [key]: dishObjWithCount }
 
 function loadCart() {
   try {
-    const raw = sessionStorage.getItem(CART_KEY);
+    const raw = localStorage.getItem(CART_KEY);
     cartMap.value = raw ? JSON.parse(raw) : {};
   } catch {
     cartMap.value = {};
   }
 }
 function saveCart() {
-  sessionStorage.setItem(CART_KEY, JSON.stringify(cartMap.value));
+  localStorage.setItem(CART_KEY, JSON.stringify(cartMap.value));
 }
 function dishKey(dish) {
   return dish.id ?? dish.dishId ?? dish.code ?? dish.name;
 }
-const globalCartList = computed(() => Object.values(cartMap.value));
+
+const globalCartList = computed(() => {
+  const cartItems = Object.values(cartMap.value);
+  
+  // 按 groupName 分组
+  const grouped = {};
+  cartItems.forEach(item => {
+    console.log("🚀 ~ item:", item)
+    const cartCategoryName = item.categoryName || '未分组';
+    const cartCategoryNameEn = item.categoryNameEn || 'unknown';
+    if (!grouped[cartCategoryName]) {
+      grouped[cartCategoryName] = {
+        items: [],
+        en: cartCategoryNameEn
+      };
+    }
+    grouped[cartCategoryName].items.push(item);
+  });
+  
+  // 转换为 [{cartCategoryName: 'xxx', cartCategoryNameEn: 'xxx', children: [...]}, ...] 格式
+  return Object.entries(grouped).map(([cartCategoryName, groupData]) => ({
+    cartCategoryName,
+    cartCategoryNameEn: groupData.en,
+    children: groupData.items
+  }));
+});
+setTimeout(() => {
+  
+  console.log("🚀 ~ globalCartList:", globalCartList.value)
+}, 100);
+
 const totalCount = computed(() =>
   Object.values(cartMap.value).reduce((s, d) => s + (d.count || 0), 0)
 );
@@ -183,6 +234,7 @@ function syncCountsFromCart() {
 
 function increase(dish) {
   const key = dishKey(dish);
+  if(cartMap.value[key]?.count == 99) return;
   const next = (cartMap.value[key]?.count || 0) + 1;
   const newDish = { ...dish, count: next };
   cartMap.value = { ...cartMap.value, [key]: newDish };
@@ -212,15 +264,36 @@ function decrease(dish) {
 }
 
 function clearCart() {
-  // 清空全局
-  cartMap.value = {};
-  saveCart();
-  // 清空当前页面所有菜的数量
-  categories.value.forEach((cat) => {
-    cat.count = 0;
-    cat.groups.forEach((group) => {
-      group.items.forEach((item) => (item.count = 0));
+  ElMessageBox.confirm(
+    '确定要清空所有已选菜品吗？此操作不可撤销。',
+    '清空购物车',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+      center: true,
+      confirmButtonClass: 'confirm-button',
+      cancelButtonClass: 'cancel-button'
+    }
+  ).then(() => {
+    // 清空全局
+    cartMap.value = {};
+    saveCart();
+    // 清空当前页面所有菜的数量
+    categories.value.forEach((cat) => {
+      cat.count = 0;
+      cat.groups.forEach((group) => {
+        group.items.forEach((item) => (item.count = 0));
+      });
     });
+    
+    ElMessage({
+      type: 'success',
+      message: '购物车已清空'
+    });
+  }).catch(() => {
+    // 用户点击取消或关闭弹窗
+    // 不执行任何操作
   });
 }
 
@@ -228,6 +301,148 @@ async function selectCategory(index) {
   activeIndex.value = index;
   // 切换分类后，把全局购物车数量回灌
   syncCountsFromCart();
+  
+  // 滚动到对应的左侧分类项
+  await nextTick();
+  scrollToCategory(index);
+}
+
+// 滚动到指定的分类项
+function scrollToCategory(index) {
+  if (categoryListRef.value && categoryListRef.value.children[index]) {
+    const categoryItem = categoryListRef.value.children[index];
+    
+    // 使用 scrollIntoView 方法确保元素可见，调整参数使元素居中显示
+    categoryItem.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest'
+    });
+  }
+}
+
+// 处理右侧菜单列表滚动到底部或顶部的事件
+function handleMenuScroll(direction) {
+  if (direction === 'top' && activeIndex.value > 0) {
+    // 滚动到顶部，切换到上一个分类
+    selectCategory(activeIndex.value - 1);
+  } else if (direction === 'bottom' && activeIndex.value < categories.value.length - 1) {
+    // 滚动到底部，切换到下一个分类
+    selectCategory(activeIndex.value + 1);
+  }
+}
+
+// 右侧菜单列表滚动事件处理
+function onMenuListScroll(event) {
+  const element = event.target;
+  const { scrollTop, scrollHeight, clientHeight } = element;
+  
+  // 添加一些容差值，避免浮点数精度问题
+  const tolerance = 2;
+  
+  // 检查是否滚动到顶部
+  if (scrollTop <= tolerance && activeIndex.value > 0) {
+    handleMenuScroll('top');
+  }
+  // 检查是否滚动到底部
+  else if (scrollTop + clientHeight >= scrollHeight - tolerance && activeIndex.value < categories.value.length - 1) {
+    handleMenuScroll('bottom');
+  }
+  // 特殊处理：如果内容不足以滚动，也要能切换分类
+  else if (scrollHeight <= clientHeight) {
+    // 内容不足以滚动时，向上滑动切换到下一个分类，向下滑动切换到上一个分类
+    // 这种情况会在触摸事件中处理
+  }
+}
+
+function canScrollVertically(element) {
+  // 记录初始滚动位置
+  const initialScrollTop = element.scrollTop;
+  
+  // 尝试向下滚动1px
+  element.scrollTop += 1;
+  
+  // 检查是否真的滚动
+  const didScroll = element.scrollTop !== initialScrollTop;
+  
+  // 恢复原始位置
+  element.scrollTop = initialScrollTop;
+  
+  return didScroll;
+}
+
+// 触摸事件相关变量
+let touchStartY = 0;
+const isScrollable = ref(true);
+
+// 触摸开始事件
+function onTouchStart(event) {
+  const element = event.target.closest('.menu-list');
+  if (element) {
+    touchStartY = event.touches[0].clientY;
+
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    isScrollable.value = !(scrollHeight <= clientHeight);
+    console.log("🚀 ~ onTouchStart ~ event.touches[0]:", event.touches[0])
+  }
+}
+
+// 触摸移动事件
+function onTouchMove(event) {
+}
+
+// 触摸结束事件
+function onTouchEnd(event) {
+  isScrollable.value = true;
+  const element = event.target.closest('.menu-list');
+  if (element) {
+    const touchEndY = event.changedTouches[0].clientY;
+    const touchDiff = touchStartY - touchEndY;
+    
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    const tolerance = 15; // 触摸滑动的最小距离阈值
+    
+    // 检查是否可以切换分类
+    const canSwitchUp = activeIndex.value > 0;
+    const canSwitchDown = activeIndex.value < categories.value.length - 1;
+    
+    // 如果内容不足以滚动，根据滑动方向切换分类
+    if (scrollHeight <= clientHeight) {
+      if (touchDiff > tolerance && canSwitchDown) {
+        // 向上滑动，切换到下一个分类
+        handleMenuScroll('bottom');
+        return;
+      } else if (touchDiff < -tolerance && canSwitchUp) {
+        // 向下滑动，切换到上一个分类
+        handleMenuScroll('top');
+        return;
+      }
+    }
+    
+    // 如果在顶部向上滑动
+    if (scrollTop <= 5 && touchDiff > tolerance && canSwitchDown) {
+      // 向上滑动，切换到下一个分类
+      handleMenuScroll('bottom');
+      return;
+    }
+    // 如果在底部向下滑动
+    else if (scrollTop + clientHeight >= scrollHeight - 5 && touchDiff < -tolerance && canSwitchUp) {
+      // 向下滑动，切换到上一个分类
+      handleMenuScroll('top');
+      return;
+    }
+    
+    // 特殊处理：如果在顶部且向上拉（负值），切换到上一个分类
+    if (scrollTop <= 2 && touchDiff < -tolerance && canSwitchUp) {
+      handleMenuScroll('top');
+      return;
+    }
+    // 特殊处理：如果在底部且向下拉（正值），切换到下一个分类
+    else if (scrollTop + clientHeight >= scrollHeight - 2 && touchDiff > tolerance && canSwitchDown) {
+      handleMenuScroll('bottom');
+      return;
+    }
+  }
 }
 
 async function fetchDishGroups() {
@@ -252,6 +467,10 @@ async function fetchDishGroups() {
           en: group.groupEn,
           items: (group.items || []).map((dish) => ({
             ...dish,
+            groupName: group.groupName,
+            groupNameEn: group.groupEn,
+            categoryName: categoryName.value,
+            categoryNameEn: categoryNameEn.value,
             en: dish.nameEn,
             img: dish.imageUrl || dish.image || "",
             count: 0,
@@ -283,10 +502,34 @@ function confirmMenu() {
   });
 }
 
+// 阻止iOS橡皮筋效果，只在右侧列表区域特定条件下
+// 确保只在右侧列表无法滚动或在顶部时阻止橡皮筋效果，不影响正常滚动
+function preventPullToRefresh(e) {
+  // CSS样式已经通过 overscroll-behavior-y: contain 处理了橡皮筋效果
+  // 这里不需要额外的JavaScript处理
+  // 保留此函数以便将来扩展
+  if(!isScrollable.value) {
+    e.preventDefault()
+  }
+}
+
 onMounted(async () => {
+  document.addEventListener('touchmove', preventPullToRefresh, { passive: false })
+  // document.querySelector('body').style.overscrollBehavior = 'none';
+  // document.querySelector('html').style.overscrollBehavior = 'none';
+
   loadCart();          // 读全局购物车
   await fetchDishGroups();   // 拉取当前菜系的分组与菜
   syncCountsFromCart(); // 回灌数量
+  
+  // 初始化时确保第一个分类可见
+  await nextTick();
+  if (categories.value.length > 0) {
+    scrollToCategory(0);
+  }
+  
+  // 阻止页面被上拉下拉
+  preventPullToRefresh();
 });
 </script>
 
@@ -298,11 +541,31 @@ onMounted(async () => {
   background-size: cover;
   font-family: "Source Han Serif CN";
   color: #5e4003;
-  display: flex;
   height: 100vh;
-  overflow: auto;
-  -ms-overflow-style: none; /* IE/Edge */
-  scrollbar-width: none; /* Firefox */
+  width: 100vw;
+  box-sizing: border-box;
+  overflow: hidden; /* 禁止父容器滚动 */
+  user-select: none;
+  overscroll-behavior-y: contain; /* 禁止上拉刷新 */
+  -webkit-overscroll-behavior-y: contain; /* Safari 兼容 */
+}
+
+/* 菜单覆盖层容器 */
+.menu-overlay-wrapper {
+  overscroll-behavior-y: contain;
+  -webkit-overscroll-behavior-y: contain;
+}
+
+/* 菜单包装器 */
+.menu-wrapper {
+  overscroll-behavior-y: contain;
+  -webkit-overscroll-behavior-y: contain;
+}
+
+/* 右侧菜单列表容器 */
+.menu-list {
+  overscroll-behavior-y: contain;
+  -webkit-overscroll-behavior-y: contain;
 }
 
 /* 左侧分类栏 */
@@ -310,13 +573,26 @@ onMounted(async () => {
   width: 220px;
   background: rgba(255, 255, 255, 0.2);
   padding: 24px 16px;
+  padding-right: 0;
   box-sizing: border-box;
+  height: 100vh; /* 占满整个视口高度 */
+  display: flex;
+  flex-direction: column;
+}
+
+.category-list {
+  flex: 1;
+  overflow-y: auto; /* 允许左侧区域滚动 */
+  scroll-behavior: smooth; /* 平滑滚动 */
+  /* 隐藏滚动条 - Webkit 浏览器 (Chrome, Safari, Edge) */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }
 
 .back {
-  font-size: 22px;
-  font-style: normal;
-  margin-bottom: 24px;
+  font-size: 24px;
+  font-family: 'Source Han Serif CN Bold';
+  margin-bottom: 16px;
   color: #886417;
   cursor: pointer;
   display: flex;
@@ -325,6 +601,7 @@ onMounted(async () => {
   gap: 6px;
   font-weight: 700;
   letter-spacing: 3.6px;
+  height: 92px;
 }
 
 .back-icon {
@@ -334,15 +611,20 @@ onMounted(async () => {
 .category-item {
   padding: 12px 16px;
   margin-bottom: 12px;
-  border-radius: 12px;
+  /* border-radius: 12px; */
   background: transparent;
   transition: background 0.2s;
   position: relative;
   cursor: pointer;
 }
+.category-item:last-of-type {
+  margin-bottom: 0;
+}
 
 .category-item.active {
-  background: rgba(64, 44, 13, 0.35);
+  /* background: rgba(64, 44, 13, 0.35); */
+  background: #402C0D59;
+  border-left: 4px solid #FFFFFF;
   color: white;
 }
 
@@ -355,17 +637,20 @@ onMounted(async () => {
 }
 
 .name-cn {
+  font-family: 'Source Han Serif CN Bold';
   font-size: 28px;
   font-style: normal;
   line-height: 32px;
   font-weight: 700;
   color: #886417;
   margin-bottom: 5px;
+  text-align: center;
 }
 
 .name-en {
   font-size: 14px;
   color: #886417;
+  text-align: center;
 }
 
 .badge {
@@ -381,10 +666,13 @@ onMounted(async () => {
 
 .menu-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   padding: 24px 16px;
+  padding-left: 0;
   position: relative;
-  height: 100%; /* ✅ 新增 */
-  max-height: 100vh; /* ✅ 限制最大高度 */
+  height: 100vh; /* 占满整个视口高度 */
+  overflow: hidden; /* 隐藏溢出内容 */
 }
 
 .menu-title {
@@ -413,31 +701,48 @@ onMounted(async () => {
 } */
 .menu-overlay-wrapper {
   background: rgba(64, 44, 13, 0.35);
-  border-radius: 12px;
-  padding: 24px 32px;
-  width: 96%;
+  border-radius: 0px 8px 8px 0px;
+  /* padding: 24px 32px; */
+  padding-left: 24px;
+  padding-top: 20px;
+  width: 100%;
   margin-left: 0;
   box-sizing: border-box;
-  border-radius: 8px;
   backdrop-filter: blur(10px);
 
   /* 🔧 移除 height 固定高度 */
   /* height: 92%; ❌ 删除 */
 
   /* ✅ 改为自动撑满且支持滚动 */
-  overflow-y: auto;
-  max-height: calc(100vh - 100px); /* 留出顶部标题与边距空间，可调 */
+  overflow-y: hidden;
+  flex: 1;
 }
 
 @media (max-height: 600px) {
   .menu-overlay-wrapper {
-    max-height: calc(100vh - 60px); /* 更紧凑 */
+    /* height: calc(100vh - 60px);  */
     padding: 16px;
   }
 }
 
 .menu-wrapper {
   width: 100%;
+  height: 100%;
+}
+
+.menu-section {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-list {
+  padding-right: 24px;
+  flex: 1;
+  overflow-y: auto;
+  /* 隐藏滚动条 - Webkit 浏览器 (Chrome, Safari, Edge) */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
 }
 
 /* ✅ 响应式：小屏幕时可适当缩小字号和边距 */
@@ -456,7 +761,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column; /* ✅ 垂直排列 */
   align-items: flex-start;
-  margin-top: 32px;
+  /* margin-top: 32px; */
   margin-bottom: 16px;
 }
 
@@ -466,6 +771,7 @@ onMounted(async () => {
   line-height: 32px;
   color: #fff;
   letter-spacing: 3.6px;
+  font-family: 'Source Han Serif CN Heavy';
 }
 
 .group-en {
@@ -473,6 +779,7 @@ onMounted(async () => {
   color: #fff;
   margin-top: 7px; /* ✅ 增加上下间隔 */
   letter-spacing: 2px;
+  font-family: 'Source Han Serif CN Bold';
 }
 
 .menu-item {
@@ -499,6 +806,7 @@ onMounted(async () => {
 }
 
 .dish-name {
+  font-family: 'Source Han Serif CN Heavy';
   font-size: 28px;
   font-weight: 900;
   font-style: normal;
@@ -508,6 +816,7 @@ onMounted(async () => {
 }
 
 .dish-en {
+  font-family: 'Source Han Serif CN Bold';
   font-size: 20px;
   color: #fff;
   font-weight: 700;
@@ -526,21 +835,29 @@ onMounted(async () => {
 .quantity-control button {
   width: 28px;
   height: 28px;
-  font-size: 13px;
+  font-size: 26px;
+  line-height: 26px;
   background: none;
   border: 2px solid #fff;
   color: #fff;
   border-radius: 4px;
   cursor: pointer;
+  /* font-weight: bold; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.quantity-control span {
+.quantity-control .count {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
   font-size: 20px;
   font-weight: 700;
   font-style: normal;
-  line-height: 24px;
   letter-spacing: 3px;
   color: #fff;
+  text-align: center;
 }
 
 .cart-fab {
@@ -571,6 +888,7 @@ onMounted(async () => {
 .cart-drawer {
   /* 添加 padding-bottom 给按钮留空间 */
   padding: 24px 24px 80px;
+  padding-right: 0;
   position: fixed;
   right: 0;
   top: 0;
@@ -580,19 +898,29 @@ onMounted(async () => {
   box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
   z-index: 999;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .cart-clear {
+  padding-right: 24px;
   text-align: right;
   font-size: 14px;
   color: red;
   cursor: pointer;
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Source Han Serif CN Bold';
+  cursor: pointer;
 }
 
 .cart-list {
+  flex: 1;
+  overflow-y: auto;
   margin-bottom: 24px;
+  padding-right: 24px;
 }
 
 .cart-item {
@@ -600,7 +928,7 @@ onMounted(async () => {
   align-items: center;
   margin-bottom: 16px;
   padding: 16px 0;
-  border-bottom: 2px solid rgba(136, 100, 23, 0.3);
+  border-bottom: 2px solid #8864174D;
 }
 
 .cart-item img {
@@ -617,11 +945,35 @@ onMounted(async () => {
   flex: 1;
 }
 
+.cart-group-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #88641799;
+  margin: 16px 0 8px 0;
+  padding-bottom: 4px;
+  font-family: 'Source Han Serif CN Bold';
+  display: flex;
+  gap: 10px;
+}
+
+.cart-group-name .cart-group-name-cn {
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.cart-group-name .cart-group-name-en {
+  font-size: 16px;
+  font-weight: normal;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
 .cart-name {
   font-size: 24px;
   color: #886417;
   font-weight: 700;
-  font-family: "Source Han Serif CN";
+  font-family: "Source Han Serif CN Bold";
   letter-spacing: 3.6px;
   line-height: 28px;
   font-style: normal;
@@ -631,10 +983,11 @@ onMounted(async () => {
   font-size: 16px;
   color: #886417;
   font-weight: 700;
-  font-family: "Source Han Serif CN";
+  font-family: "Source Han Serif CN Bold";
   letter-spacing: 2.4px;
   line-height: 20px;
   font-style: normal;
+  margin-top: 8px;
 }
 
 /* 固定底部操作栏 */
@@ -716,8 +1069,8 @@ onMounted(async () => {
 }
 
 .trash-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   margin-right: 6px;
   vertical-align: middle;
 }
@@ -727,7 +1080,7 @@ onMounted(async () => {
   color: #886417;
 }
 
-.cart-drawer .quantity-control span {
+.cart-drawer .quantity-control .count {
   color: #886417;
 }
 
@@ -784,13 +1137,14 @@ onMounted(async () => {
   line-height: 44px;
 }
 
-.back-text en,
+/* .back-text en, */
 .menu-title .en {
   font-size: 20px;
   color: #886417;
   margin-top: 4px;
   font-weight: 500;
   letter-spacing: 1.5px;
+  text-align: center;
 }
 
 .cart-header {
@@ -801,10 +1155,14 @@ onMounted(async () => {
 }
 
 .cart-selected {
+  display: flex;
+  align-items: center;
+  gap: 18px;
   font-size: 20px;
   color: #886417;
   font-weight: 700;
   line-height: 1.2;
+  font-family: 'Source Han Serif CN Bold';
 }
 
 .cart-selected .en {
@@ -816,12 +1174,12 @@ onMounted(async () => {
   text-align: center;
 }
 
-.cart-clear {
-  display: flex;
-  align-items: flex-start;
-  gap: 4px;
-  cursor: pointer;
+.cart-selected .count {
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 4px;
 }
+
 
 .clear-text .zh {
   font-size: 14px;
@@ -831,12 +1189,12 @@ onMounted(async () => {
 }
 
 .clear-text .en {
-  font-size: 12px;
+  font-size: 14px;
   color: red;
   font-weight: 500;
   opacity: 0.8;
   line-height: 1.2;
-  margin-top: 2px;
+  margin-top: 4px;
   text-align: center;
 }
 
@@ -880,7 +1238,7 @@ onMounted(async () => {
 /* 5) 右侧内部区域的最大高度用 dvh，更稳（横屏地址栏不会压缩） */
 @supports (height: 100dvh) {
   .menu-overlay-wrapper {
-    max-height: calc(100dvh - 100px); /* 你原来是 100vh - 100px */
+    /* max-height: calc(100dvh - 100px); 你原来是 100vh - 100px */
   }
 }
 
@@ -921,11 +1279,13 @@ onMounted(async () => {
   font-size: clamp(16px, 1.9vw, 22px);       /* 小屏略缩 */
   letter-spacing: clamp(1.2px, 0.28vw, 3.6px);
   line-height: 1.25;
+  text-align: center;
 }
 .back-text .en {           /* 英文副文更克制一点 */
   font-size: clamp(12px, 1.2vw, 14px);
   letter-spacing: 0.5px;
   line-height: 1.1;
+  text-align: center;
 }
 /* 避免图标与文字挤压，确保一行容纳 */
 .back {
@@ -961,6 +1321,33 @@ onMounted(async () => {
   position: absolute;
   top: 28px;
   right: 12px;
+}
+
+/* 自定义确认弹窗按钮样式 */
+:deep(.el-message-box__btns .el-button--primary) {
+  background-color: #b68d41 !important;
+  border-color: #b68d41 !important;
+  color: white !important;
+}
+
+:deep(.el-message-box__btns .el-button) {
+  background-color: #f5f5f5 !important;
+  color: #666 !important;
+  border-color: #dcdfe6 !important;
+}
+
+/* 保留原有的类名样式，以防Element Plus版本差异 */
+:global(.confirm-button) {
+  background-color: #b68d41 !important;
+  border-color: #b68d41 !important;
+  color: white !important;
+  outline: none !important;
+}
+
+:global(.cancel-button) {
+  background-color: #f5f5f5 !important;
+  color: #666 !important;
+  border-color: #dcdfe6 !important;
 }
 
 /* === D. （可选）横屏更紧凑：进一步压一点字距与字号 === */

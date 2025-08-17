@@ -15,72 +15,87 @@
       </h1>
     </div>
 
-    <div class="table-wrapper">
-      <table class="dish-table">
-        <thead>
-          <tr>
-            <th>序号</th>
-            <th>菜品名称</th>
-            <th>数量</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(dish, index) in dishes" :key="dishKey(dish)">
-            <td>{{ index + 1 }}</td>
-            <td>
-              <div class="dish-name-cn">{{ dish.name }}</div>
-              <div class="dish-name-en">{{ dish.en }}</div>
-            </td>
-            <td>
-              <div class="quantity-control">
-                <button @click="decrease(dish)">－</button>
-                <span>{{ dish.count }}</span>
-                <button @click="increase(dish)">＋</button>
+    <div class="menu-container"> 
+      <div class="menu-list">
+        <div v-for="(group, groupIndex) in dishes" :key="groupIndex">
+          <div class="cart-group-name-cn">{{ group.cartCategoryName }}</div>
+          <div class="cart-group-name-en">{{ group.cartCategoryNameEn }}</div>
+          <div class="table-wrapper">
+            <table class="dish-table">
+              <thead>
+                <tr>
+                  <th>序号<div class="en">number</div></th>
+                  <th>菜品名称<div class="en">Dish name</div></th>
+                  <th>数量<div class="en">Quantity</div></th>
+                  <th>操作<div class="en">Operation</div></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="cart-item" v-for="(dish, index) in group.children" :key="dishKey(dish)">
+                  <td>{{ index + 1 }}</td>
+                  <td>
+                    <div class="dish-name-cn">{{ dish.name }}</div>
+                    <div class="dish-name-en">{{ dish.en }}</div>
+                  </td>
+                  <td>
+                    <div class="quantity-control">
+                      <button @click="decrease(dish)">-</button>
+                      <span>{{ dish.count }}</span>
+                      <button @click="increase(dish)">+</button>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="delete-btn" @click="removeDish(dish)">
+                      <img src="@/assets/trash.svg" class="trash-icon" />
+                      删除
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+      
+            <!-- 订单备注 -->
+            <!-- <div class="order-remark-row">
+              <div class="remark-content">
+                <span v-if="orderRemark">备注：{{ orderRemark }}</span>
+                <span v-else class="add-remark" @click="openRemarkDialog">+ 添加备注</span>
               </div>
-            </td>
-            <td>
-              <span class="delete-btn" @click="removeDish(dish)">
-                <img src="@/assets/menu/TrashSimple.svg" class="trash-icon" />
-                删除
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <!-- 订单备注 -->
-      <div class="order-remark-row">
-        <div class="remark-content">
-          <span v-if="orderRemark">备注：{{ orderRemark }}</span>
-          <span v-else class="add-remark" @click="openRemarkDialog">+ 添加备注</span>
-        </div>
-        <div v-if="orderRemark" class="edit-btn-wrapper">
-          <span class="edit-remark" @click="openRemarkDialog">✎ 修改</span>
+              <div v-if="orderRemark" class="edit-btn-wrapper">
+                <span class="edit-remark" @click="openRemarkDialog">✎ 修改</span>
+              </div>
+            </div> -->
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="bottom-actions">
-      <button class="back-btn" @click="router.back()">
-        <div class="zh">返回</div><div class="en">Back</div>
-      </button>
-      <button class="submit-btn" @click="submitOrder">
-        <div class="zh">提交</div><div class="en">Submit</div>
-      </button>
+  
+      <div class="bottom-actions">
+        <button class="back-btn" @click="router.back()">
+          <div class="zh">返回</div><div class="en">Back</div>
+        </button>
+        <button class="submit-btn" @click="openRemarkDialog">
+          <div class="zh">提交</div><div class="en">Submit</div>
+        </button>
+      </div>
     </div>
 
     <!-- 备注弹窗 -->
     <div class="remark-modal" v-if="showRemarkDialog">
       <div class="remark-dialog">
         <div class="remark-header">
-          <span>添加备注</span>
+          <div class="remark-title">
+            <div>添加备注</div>
+            <div class="en">Select specifications</div>
+          </div>
           <span class="close" @click="showRemarkDialog = false">✕</span>
         </div>
-        <textarea v-model="tempRemark" placeholder="请输入备注内容" />
+        <div class="remark-label">
+          <div>备注</div>
+          <div class="en">Remarks</div>
+        </div>
+        <textarea v-model="tempRemark" placeholder="请输入备注内容  Please enter the remarks" />
         <div class="remark-footer">
-          <button class="cancel" @click="showRemarkDialog = false">取消</button>
-          <button class="confirm" @click="confirmRemark">确认并提交</button>
+          <button class="cancel" @click="showRemarkDialog = false">取消 <span class="en">Cancel</span></button>
+          <button class="confirm" @click="submitOrder">提交 <span class="en">Submit</span></button>
         </div>
       </div>
     </div>
@@ -88,9 +103,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, h } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { ArrowLeftBold } from "@element-plus/icons-vue";
 
 const router = useRouter();
@@ -110,17 +125,40 @@ function dishKey(dish) {
 
 function loadCart() {
   try {
-    const raw = sessionStorage.getItem(CART_KEY);
+    const raw = localStorage.getItem(CART_KEY);
     cartMap.value = raw ? JSON.parse(raw) : {};
   } catch {
     cartMap.value = {};
   }
 }
 function saveCart() {
-  sessionStorage.setItem(CART_KEY, JSON.stringify(cartMap.value));
+  localStorage.setItem(CART_KEY, JSON.stringify(cartMap.value));
 }
 function syncListFromMap() {
-  dishes.value = Object.values(cartMap.value);
+
+  const cartItems = Object.values(cartMap.value);
+  
+  // 按 groupName 分组
+  const grouped = {};
+  cartItems.forEach(item => {
+    console.log("🚀 ~ item:", item)
+    const cartCategoryName = item.categoryName || '未分组';
+    const cartCategoryNameEn = item.categoryNameEn || 'unknown';
+    if (!grouped[cartCategoryName]) {
+      grouped[cartCategoryName] = {
+        items: [],
+        en: cartCategoryNameEn
+      };
+    }
+    grouped[cartCategoryName].items.push(item);
+  });
+  
+  // 转换为 [{cartCategoryName: 'xxx', cartCategoryNameEn: 'xxx', children: [...]}, ...] 格式
+  dishes.value = Object.entries(grouped).map(([cartCategoryName, groupData]) => ({
+    cartCategoryName,
+    cartCategoryNameEn: groupData.en,
+    children: groupData.items
+  }));
 }
 
 onMounted(() => {
@@ -158,18 +196,42 @@ function decrease(dish) {
 }
 
 function removeDish(dish) {
-  const key = dishKey(dish);
-  const { [key]: _, ...rest } = cartMap.value;
-  cartMap.value = rest;
-  saveCart();
-  syncListFromMap();
+  ElMessageBox.confirm(
+    '',
+    `确定删除${dish.name}吗`,
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+      center: true,
+      confirmButtonClass: 'confirm-button',
+      cancelButtonClass: 'cancel-button'
+    }
+  ).then(() => {
+    const key = dishKey(dish);
+    const { [key]: _, ...rest } = cartMap.value;
+    cartMap.value = rest;
+    saveCart();
+    syncListFromMap();
+  }).catch(() => {
+    // 用户点击取消或关闭弹窗
+    // 不执行任何操作
+  });
 }
 
 function submitOrder() {
-  if (dishes.value.length === 0) {
-    ElMessage.warning("请至少选择一个菜品再提交");
-    return;
-  }
+  orderRemark.value = tempRemark.value;
+  showRemarkDialog.value = false;
+
+  const now = new Date();
+  const datetime = now.toISOString().replace("T", " ").substring(0, 19);
+  const historyOrders = JSON.parse(localStorage.getItem('historyOrders') || '[]');
+  historyOrders.push({
+    datetime,
+    dishes: JSON.parse(JSON.stringify(dishes.value)),
+    remark: orderRemark.value,
+  });
+  localStorage.setItem('historyOrders', JSON.stringify(historyOrders))
 
   router.push({
     path: "/orderInfo",
@@ -183,6 +245,11 @@ function submitOrder() {
 }
 
 function openRemarkDialog() {
+  if (dishes.value.length === 0) {
+    ElMessage.warning("请至少选择一个菜品再提交");
+    return;
+  }
+
   tempRemark.value = orderRemark.value;
   showRemarkDialog.value = true;
 }
@@ -198,24 +265,34 @@ function confirmRemark() {
 .confirm-page {
   background: url("@/assets/index2.png") no-repeat center center;
   background-size: cover;
-  min-height: 100vh;
-  padding: 24px;
+  /* padding: 24px; */
   font-family: "Noto Serif SC", serif;
   color: #886417;
   box-sizing: border-box;
   position: relative;
   font-size: 16px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow: hidden;
+  font-family: 'Source Han Serif CN Bold';
 }
 
 .header-row {
   position: relative;
-  padding: 0 24px;
-  margin-bottom: 24px;
-  height: 48px;
+  /* padding: 0 24px; */
+  padding-top: 28px;
+  margin-bottom: 32px;
+  /* height: 48px; */
+  height: max-content;
+  flex: none;
 }
 
 
 .top-bar {
+  text-align: center;
+  font-family: 'Source Han Serif CN Bold';
   font-size: 24px;
   color: #886417;
   cursor: pointer;
@@ -223,7 +300,12 @@ function confirmRemark() {
   align-items: center;
   font-weight: 700;
   letter-spacing: 2.4px;
-  height: 100%;
+  height: auto;
+}
+
+.top-bar .en {
+  font-size: 16px;
+  margin-top: 4px;
 }
 
 .back-icon {
@@ -231,49 +313,70 @@ function confirmRemark() {
   margin-right: 6px;
 }
 
-.title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 40px;
-  font-weight: 900;
-  color: #886417;
-  font-family: "Source Han Serif CN";
-  letter-spacing: 6px;
-  line-height: 1;
-  margin: 0;
-  white-space: nowrap;
-  margin-top: -46px;
+.menu-container {
+  backdrop-filter: blur(10px);
+  background: rgba(64, 44, 13, 0.35);
+  border-radius: 8px;
+  /* height: 100%; */
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.table-wrapper {
-  background: rgba(102, 66, 33, 0.25);
-  border-radius: 12px;
-  padding: 24px;
-  box-sizing: border-box;
-  max-height: calc(100vh - 240px);
+/* 针对 Webkit 浏览器 (Chrome, Safari) 的滚动条样式 */
+.menu-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.menu-container::-webkit-scrollbar-track {
+  background: transparent; /* 滚动槽背景色设为透明 */
+  border-radius: 4px;
+}
+
+.menu-container::-webkit-scrollbar-thumb {
+  background-color: #886417;
+  border-radius: 4px;
+}
+
+/* 隐藏滚动条上下按钮 */
+.menu-container::-webkit-scrollbar-button {
+  display: none;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  padding: 16px;
   overflow-y: auto;
   /* 添加滚动条样式 */
   scrollbar-width: thin; /* 对于 Firefox */
   scrollbar-color: #886417 rgba(102, 66, 33, 0.25); /* 对于 Firefox */
+  color: white;
+}
+
+.menu-list .cart-group-name-cn {
+  font-size: 16px;
+}
+.menu-list .cart-group-name-en {
+  font-size: 14px;
+  font-family: 'Source Han Serif CN Medium';
+}
+
+.table-wrapper {
+  /* background: rgba(102, 66, 33, 0.25); */
+  border-radius: 12px;
+  /* padding: 24px; */
+  margin-top: 24px;
+  box-sizing: border-box;
+  max-height: calc(100vh - 240px);
+  overflow-y: auto;
+  
   border-radius: 8px;
-background: rgba(64, 44, 13, 0.35);
-backdrop-filter: blur(10px);
-}
-
-/* 针对 Webkit 浏览器 (Chrome, Safari) 的滚动条样式 */
-.table-wrapper::-webkit-scrollbar {
-  width: 8px;
-}
-
-.table-wrapper::-webkit-scrollbar-track {
-  background: rgba(102, 66, 33, 0.25);
-  border-radius: 4px;
-}
-
-.table-wrapper::-webkit-scrollbar-thumb {
-  background-color: #886417;
-  border-radius: 4px;
+  /* background: rgba(64, 44, 13, 0.35); */
+  /* backdrop-filter: blur(10px); */
 }
 
 .dish-table {
@@ -281,9 +384,30 @@ backdrop-filter: blur(10px);
   border-collapse: collapse;
 }
 
-.dish-table th,
+.dish-table th {
+  background: #88641766;
+  padding: 20px;
+  font-size: 20px;
+}
+.dish-table th .en {
+  font-size: 14px;
+  line-height: 14px;
+}
+.dish-table th:first-child {
+  border-radius: 8px 0 0 0;
+}
+.dish-table th:nth-child(2),
+.dish-table td:nth-child(2) {
+  text-align: left;
+  width: 40%;
+}
+.dish-table th:last-child {
+  border-radius: 0 8px 0 0;
+}
+
+/* .dish-table th, */
 .dish-table td {
-  padding: 12px;
+  padding: 20px;
   border-bottom: 1px solid #fcfcfc;
   text-align: center;
   color: #fff;
@@ -303,40 +427,64 @@ backdrop-filter: blur(10px);
   font-size: 16px;
   color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
-  font-family: "Source Han Serif CN";
+  font-family: "Source Han Serif CN Medium";
   letter-spacing: 2.4px;
   line-height: 20px;
   font-style: normal;
+  margin-top: 8px;
 }
 
-.quantity-control {
+/* .quantity-control {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
-}
-
-.quantity-control button {
-  width: 28px;
-  height: 28px;
-  font-size: 13px;
+  }
+  
+  .quantity-control button {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
   background: none;
   border: 2px solid #fff;
   color: #fff;
   border-radius: 4px;
   cursor: pointer;
+  } */
+  
+  .quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+.quantity-control button {
+  width: 28px;
+  height: 28px;
+  font-size: 26px;
+  line-height: 26px;
+  background: none;
+  border: 2px solid #fff;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  /* font-weight: bold; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .delete-btn {
   color: red;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bottom-actions {
-  position: fixed;
-  bottom: 24px;
-  left: 0;
-  right: 0;
+  flex: none;
   display: flex;
   justify-content: center;
   gap: 24px;
@@ -422,24 +570,31 @@ backdrop-filter: blur(10px);
 
 .remark-dialog {
   background: #D4C0A8;
-  padding: 24px 32px;
-  width: 480px;
-  border-radius: 12px;
+  padding: 24px;
+  width: 55vw;
+  border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-  font-family: "Source Han Serif CN";
-  color: #5e4003;
+  font-family: "Source Han Serif CN Bold";
+  color: #886417;
   position: relative;
+}
+
+.remark-dialog .en {
+  font-family: "Source Han Serif CN Medium";
 }
 
 
 .remark-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: start;
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 16px;
-  color: #5e4003;
+}
+
+.remark-header .remark-title .en{
+  font-size: 16px;
 }
 
 .remark-header .close {
@@ -448,6 +603,13 @@ backdrop-filter: blur(10px);
   cursor: pointer;
 }
 
+.remark-label {
+  font-size: 16px;
+}
+
+.remark-label .en {
+  font-size: 14px;
+}
 
 .remark-dialog textarea {
   width: 100%;
@@ -457,20 +619,46 @@ backdrop-filter: blur(10px);
   border: none; /* 去掉黑色边框 */
   outline: none; /* 去掉点击后的黑色高亮框 */
   border-radius: 8px;
-  background: #fffdf7;
+  background: transparent;
   color: #5e4003;
   resize: none;
   box-sizing: border-box;
   box-shadow: inset 0 0 0 1px #d8c3a0; /* 可选：柔和内边框 */
+  border: 1px solid #886417;
+  margin-top: 4px;
 }
 
+/* 修改 placeholder 的样式 */
+.remark-dialog textarea::placeholder {
+  color: #00000033; /* 设置 placeholder 颜色 */
+  font-size: 14px; /* 设置 placeholder 字体大小 */
+  opacity: 0.7; /* 可选：调整透明度 */
+}
 
+/* 兼容 Webkit 浏览器 */
+.remark-dialog textarea::-webkit-input-placeholder {
+  color: #00000033;
+  font-size: 14px;
+}
+
+/* 兼容 Mozilla 浏览器 */
+.remark-dialog textarea::-moz-placeholder {
+  color: #00000033;
+  font-size: 14px;
+}
+
+/* 兼容 IE 浏览器 */
+.remark-dialog textarea:-ms-input-placeholder {
+  color: #00000033;
+  font-size: 14px;
+}
 
 .remark-footer {
   display: flex;
   justify-content: flex-end;
   gap: 16px;
   margin-top: 20px;
+  font-family: 'Source Han Serif CN Bold';
 }
 
 .remark-footer button {
@@ -482,9 +670,17 @@ backdrop-filter: blur(10px);
   font-weight: bold;
 }
 
+.remark-footer button .en {
+  font-size: 14px;
+}
+
 .remark-footer .cancel {
   background: rgba(136, 100, 23, 0.5);
   color: white;
+}
+
+.remark-footer .cancel .en {
+  color: #DCDCDC;
 }
 
 .remark-footer .confirm {
@@ -494,8 +690,8 @@ backdrop-filter: blur(10px);
 
 
 .trash-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   margin-right: 4px;
   vertical-align: middle;
 }
@@ -509,28 +705,31 @@ backdrop-filter: blur(10px);
 .title {
   position: absolute;
   left: 50%;
+  top: 20%;
   transform: translateX(-50%);
-  font-size: 32px;
+  font-size: 40px;
   font-weight: 900;
   color: #886417;
-  font-family: "Source Han Serif CN";
   letter-spacing: 6px;
   line-height: 1.1;
   margin: 0;
   white-space: nowrap;
-  margin-top: -46px;
+  /* margin-top: -46px; */
   text-align: center;
 }
 
 .title .zh {
+  font-family: "Source Han Serif CN Heavy";
   font-size: 40px;
 }
 
 .title .en {
+  font-family: "Source Han Serif CN Bold";
   font-size: 18px;
   font-weight: 500;
   opacity: 0.7;
   letter-spacing: 2px;
+  margin-top: 6px;
 }
 
 .bottom-actions button .zh {
