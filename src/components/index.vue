@@ -8,7 +8,7 @@
       <div class="content-wrapper">
         <!-- Logo 图标 -->
         <div class="logo-container">
-          <img src="@/assets/logo.svg" alt="Club Logo" class="logo" />
+          <img src="@/assets/logo.png" alt="Club Logo" class="logo" />
         </div>
 
         <!-- 标题区 -->
@@ -136,6 +136,7 @@ onBeforeUnmount(() => {
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+  user-select: none;
 }
 /* 移动端高度单位补丁，避免地址栏导致的跳动 */
 @supports (height: 100dvh) {

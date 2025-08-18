@@ -176,7 +176,6 @@ const globalCartList = computed(() => {
   // 按 groupName 分组
   const grouped = {};
   cartItems.forEach(item => {
-    console.log("🚀 ~ item:", item)
     const cartCategoryName = item.categoryName || '未分组';
     const cartCategoryNameEn = item.categoryNameEn || 'unknown';
     if (!grouped[cartCategoryName]) {
@@ -195,10 +194,6 @@ const globalCartList = computed(() => {
     children: groupData.items
   }));
 });
-setTimeout(() => {
-  
-  console.log("🚀 ~ globalCartList:", globalCartList.value)
-}, 100);
 
 const totalCount = computed(() =>
   Object.values(cartMap.value).reduce((s, d) => s + (d.count || 0), 0)
@@ -206,6 +201,7 @@ const totalCount = computed(() =>
 /** ------------------------------------------------- */
 
 const type = computed(() => route.query.type || "chinese");
+const isContinue = computed(() => route.query.isContinue || "0");
 const categoryName = computed(() => decodeURIComponent(route.query.name || "菜系"));
 const categoryNameEn = computed(() => decodeURIComponent(route.query.nameEn || "Cuisine"));
 
@@ -246,8 +242,16 @@ function increase(dish) {
 }
 
 function decrease(dish) {
+  
   const key = dishKey(dish);
   const cur = cartMap.value[key]?.count || 0;
+  if(dish.submitted && cur <= dish.submitted) {
+    ElMessage({
+      type: 'warning',
+      message: '已点菜单无法减少'
+    });
+    return
+  }
   if (cur <= 1) {
     // 归零则从全局购物车移除
     const { [key]: _, ...rest } = cartMap.value;
@@ -383,7 +387,6 @@ function onTouchStart(event) {
 
     const { scrollTop, scrollHeight, clientHeight } = element;
     isScrollable.value = !(scrollHeight <= clientHeight);
-    console.log("🚀 ~ onTouchStart ~ event.touches[0]:", event.touches[0])
   }
 }
 
@@ -455,7 +458,7 @@ async function fetchDishGroups() {
     const res = await groupWithDishes({ categoryId: rootCategoryId });
     const rows = res?.data || [];
     if (!Array.isArray(rows)) throw new Error("接口返回格式不正确");
-
+    const currentCategoryCartList = globalCartList.value.find(item => item.cartCategoryName == categoryName.value)?.children || [];
     categories.value = rows.map((group) => ({
       id: group.groupId,
       name: group.groupName,
@@ -465,16 +468,23 @@ async function fetchDishGroups() {
         {
           name: group.groupName,
           en: group.groupEn,
-          items: (group.items || []).map((dish) => ({
-            ...dish,
-            groupName: group.groupName,
-            groupNameEn: group.groupEn,
-            categoryName: categoryName.value,
-            categoryNameEn: categoryNameEn.value,
-            en: dish.nameEn,
-            img: dish.imageUrl || dish.image || "",
-            count: 0,
-          })),
+          items: (group.items || []).map((dish) => {
+            const cartItem = currentCategoryCartList.find(s => s.id === dish.id)
+            const result = {
+              ...dish,
+              groupName: group.groupName,
+              groupNameEn: group.groupEn,
+              categoryName: categoryName.value,
+              categoryNameEn: categoryNameEn.value,
+              en: dish.nameEn,
+              img: dish.imageUrl || dish.image || "",
+              count: 0,
+            };
+            if(cartItem) {
+              result.submitted = cartItem.submitted;
+            }
+            return result;
+          }),
         },
       ],
     }));
@@ -490,15 +500,23 @@ function confirmMenu() {
     ElMessage.warning("请先选择菜品再确认");
     return;
   }
+  console.log("🚀 ~ confirmMenu ~ globalCartList.value:", globalCartList.value)
+  const query = {
+    items: JSON.stringify(globalCartList.value),
+    type: type.value,
+    name: categoryName.value,
+  };
+
+  if(isContinue == 1) {
+    query.isContinue = 1;
+  }
+  
+  // if(route.query.)
   // 直接使用全局购物车（所有菜系汇总）
   router.push({
     path: "/confirmMenu",
     
-    query: {
-      items: JSON.stringify(globalCartList.value),
-      type: type.value,
-      name: categoryName.value,
-    },
+    query,
   });
 }
 

@@ -196,9 +196,17 @@ const nextOrder = () => {
 const goHome = () => router.push("/index");
 
 const continueAdd = () => {
+  // console.log('????', JSON.parse(localStorage.getItem('cachedDishesAll')));
+  const dishesAll = JSON.parse(localStorage.getItem('cachedDishesAll'));
+  for (const key in dishesAll) {
+    dishesAll[key].submitted = dishesAll[key].count;
+  }
+  // console.log("🚀 ~ continueAdd ~ dishesAll:", dishesAll)
+  localStorage.setItem('cachedDishesAll', JSON.stringify(dishesAll));
+  
   const category = route.query.category || "chinese";
   const name = route.query.name || "中式佳肴"; // 默认值
-  router.push({ path: "/menuChoose", query: { type: category, name } });
+  router.push({ path: "/menuChoose", query: { type: category, name, isContinue: 1 } });
 };
 
 const viewOrder = () => {
@@ -292,6 +300,7 @@ function fallbackCopyTextToClipboard(text) {
   display: flex;
   justify-content: center;
   align-items: center;
+  user-select: none;
   /* font-family: "Noto Serif SC", serif; */
 }
 
@@ -303,6 +312,7 @@ function fallbackCopyTextToClipboard(text) {
   text-align: center;
   color: #fff;
   width: 60%;
+  user-select: none;
 }
 
 .check-icon {
@@ -481,6 +491,7 @@ function fallbackCopyTextToClipboard(text) {
   background: #88641780;
   margin-right: 24px;
   width: max-content;
+  user-select: text;
 }
 
 .dialog-content {
@@ -579,6 +590,7 @@ function fallbackCopyTextToClipboard(text) {
 
 /* .dish-table th, */
 .dish-table td {
+  user-select: text;
   padding: 20px;
   border-bottom: 1px solid #fcfcfc;
   text-align: center;
@@ -607,6 +619,7 @@ function fallbackCopyTextToClipboard(text) {
 .menu-list .remark-content {
   font-size: 16px;
   font-family: 'Source Han Serif CN Medium';
+  user-select: text;
 }
 
 /* 

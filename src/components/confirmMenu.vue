@@ -141,7 +141,6 @@ function syncListFromMap() {
   // 按 groupName 分组
   const grouped = {};
   cartItems.forEach(item => {
-    console.log("🚀 ~ item:", item)
     const cartCategoryName = item.categoryName || '未分组';
     const cartCategoryNameEn = item.categoryNameEn || 'unknown';
     if (!grouped[cartCategoryName]) {
@@ -184,7 +183,15 @@ function increase(dish) {
 
 function decrease(dish) {
   const key = dishKey(dish);
+  console.log("🚀 ~ decrease ~ dish:", dish)
   const cur = cartMap.value[key]?.count || 0;
+  if(dish.submitted && cur <= dish.submitted) {
+    ElMessage({
+      type: 'warning',
+      message: '已点菜单无法减少'
+    });
+    return
+  }
   if (cur <= 1) {
     const { [key]: _, ...rest } = cartMap.value;
     cartMap.value = rest;
@@ -223,6 +230,19 @@ function submitOrder() {
   orderRemark.value = tempRemark.value;
   showRemarkDialog.value = false;
 
+  console.log(111, dishes.value);
+  dishes.value.forEach((dish) => {
+    dish.children = dish.children.filter((child) => child.count != child.submitted);
+    dish.children.forEach((child) => {
+      if(child.submitted) {
+        child.count -= child.submitted;
+        delete child.submitted;
+      }
+    });
+  });
+  dishes.value = dishes.value.filter((dish) => dish.children.length > 0);
+  console.log("🚀 ~ submitOrder ~ dishes.value:", dishes.value)
+
   const now = new Date();
   const datetime = now.toISOString().replace("T", " ").substring(0, 19);
   const historyOrders = JSON.parse(localStorage.getItem('historyOrders') || '[]');
@@ -233,6 +253,12 @@ function submitOrder() {
   });
   localStorage.setItem('historyOrders', JSON.stringify(historyOrders))
 
+  const localCartList = JSON.parse(localStorage.getItem('cachedDishesAll') || '[]');
+  for (const key in localCartList) {
+    delete localCartList[key].submitted;
+  }
+  localStorage.setItem('cachedDishesAll', JSON.stringify(localCartList));
+  
   router.push({
     path: "/orderInfo",
     query: {
@@ -277,6 +303,7 @@ function confirmRemark() {
   padding: 16px;
   overflow: hidden;
   font-family: 'Source Han Serif CN Bold';
+  user-select: none;
 }
 
 .header-row {
@@ -301,6 +328,7 @@ function confirmRemark() {
   font-weight: 700;
   letter-spacing: 2.4px;
   height: auto;
+  width: max-content;
 }
 
 .top-bar .en {
