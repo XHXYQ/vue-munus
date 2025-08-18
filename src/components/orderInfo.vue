@@ -547,8 +547,8 @@ function fallbackCopyTextToClipboard(text) {
   /* padding: 24px; */
   margin-top: 24px;
   box-sizing: border-box;
-  max-height: calc(100vh - 240px);
-  overflow-y: auto;
+  /* max-height: calc(100vh - 240px); */
+  /* overflow-y: auto; */
 
   border-radius: 8px;
   /* background: rgba(64, 44, 13, 0.35); */
@@ -618,6 +618,8 @@ function fallbackCopyTextToClipboard(text) {
   font-size: 16px;
   font-family: 'Source Han Serif CN Medium';
   user-select: text;
+  white-space: pre-wrap; /* 允许换行 */
+  word-wrap: break-word; /* 防止长单词溢出 */
 }
 
 /* 

@@ -397,8 +397,8 @@ function confirmRemark() {
   /* padding: 24px; */
   margin-top: 24px;
   box-sizing: border-box;
-  max-height: calc(100vh - 240px);
-  overflow-y: auto;
+  /* max-height: calc(100vh - 240px); */
+  /* overflow-y: auto; */
   
   border-radius: 8px;
   /* background: rgba(64, 44, 13, 0.35); */
