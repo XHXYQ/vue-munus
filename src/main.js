@@ -6,7 +6,6 @@ import router from './router'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import faviconUrl from '@/assets/logo.svg'
-import './registerPWA' // 导入PWA注册文件
 
 const link = document.createElement('link')
 link.rel = 'icon'

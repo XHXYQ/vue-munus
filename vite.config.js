@@ -46,13 +46,7 @@ export default defineConfig({
         icon: 'public/icons/logo.png',
         start_url: "/",
         scope: "/",
-      },
-      injectRegister: 'auto',
-      pwaAssets: {
-        disabled: false,
-        config: true,
-      },
-      strategies: 'generateSW'
+      }
     })
   ],
   resolve: {
