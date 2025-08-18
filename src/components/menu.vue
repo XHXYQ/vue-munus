@@ -76,8 +76,7 @@ function truncate(str: string, maxLength: number): string {
 
 async function fetchMenuList() {
   try {
-    const res = await listCategory()
-    console.log("listCategory response:", res)
+    const res = await listCategory();
 
     // 处理类型问题：res可能是CategoryVO[]或包含rows的对象
     const data = Array.isArray(res) ? res : res?.rows || []

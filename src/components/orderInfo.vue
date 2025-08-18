@@ -196,12 +196,10 @@ const nextOrder = () => {
 const goHome = () => router.push("/index");
 
 const continueAdd = () => {
-  // console.log('????', JSON.parse(localStorage.getItem('cachedDishesAll')));
   const dishesAll = JSON.parse(localStorage.getItem('cachedDishesAll'));
   for (const key in dishesAll) {
     dishesAll[key].submitted = dishesAll[key].count;
   }
-  // console.log("🚀 ~ continueAdd ~ dishesAll:", dishesAll)
   localStorage.setItem('cachedDishesAll', JSON.stringify(dishesAll));
   
   const category = route.query.category || "chinese";

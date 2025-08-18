@@ -183,7 +183,6 @@ function increase(dish) {
 
 function decrease(dish) {
   const key = dishKey(dish);
-  console.log("🚀 ~ decrease ~ dish:", dish)
   const cur = cartMap.value[key]?.count || 0;
   if(dish.submitted && cur <= dish.submitted) {
     ElMessage({
@@ -230,7 +229,6 @@ function submitOrder() {
   orderRemark.value = tempRemark.value;
   showRemarkDialog.value = false;
 
-  console.log(111, dishes.value);
   dishes.value.forEach((dish) => {
     dish.children = dish.children.filter((child) => child.count != child.submitted);
     dish.children.forEach((child) => {
@@ -258,7 +256,7 @@ function submitOrder() {
     delete localCartList[key].submitted;
   }
   localStorage.setItem('cachedDishesAll', JSON.stringify(localCartList));
-  
+
   router.push({
     path: "/orderInfo",
     query: {
