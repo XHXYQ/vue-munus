@@ -327,7 +327,8 @@ function scrollToCategory(index) {
     categoryItem.scrollIntoView({
       behavior: 'smooth',
       block: 'center',
-      inline: 'nearest'
+      // inline: 'nearest'
+      inline: 'center'
     });
   }
 }
@@ -461,7 +462,7 @@ async function fetchDishGroups() {
     // 你的后端：根据“菜系根分类ID”取分组与菜品
     const rawType = route.query.type;
     const categoryMap = { chinese: 1, western: 2, beverages: 3, snacks: 4 };
-    const rootCategoryId = categoryMap[rawType] || Number(rawType) || 1;
+    const rootCategoryId = categoryMap[rawType] || rawType || 1;
 
     const res = await groupWithDishes({ categoryId: rootCategoryId });
     const rows = res?.data || [];

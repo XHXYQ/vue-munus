@@ -87,7 +87,7 @@ export const delDishGroup = (id: string | number | Array<string | number>) => {
 //     params
 //   });
 // }
-export function groupWithDishes(params: { categoryId: number }) {
+export function groupWithDishes(params: { categoryId: number | string }) {
   const result = request({
     url: '/system/dishGroup/groupedList',
     method: 'get',
