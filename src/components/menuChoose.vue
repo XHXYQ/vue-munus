@@ -11,7 +11,8 @@
           <p class="en">Back</p>
         </div>
       </div>
-      <div class="category-list" ref="categoryListRef">
+      <div class="category-list" ref="categoryListRef" @touchstart="handleListTouchStart"
+        @touchend="handleListTouchEnd" @touchmove="handleListTouchScroll($event, '.category-list')">
         <template v-if="loading">
           <div class="category-item category-item-skeleton" v-for="i in 3" :key="'skeleton-' + i">
             <div class="name-cn name-skeleton"></div>
@@ -33,6 +34,17 @@
       <h1 class="menu-title">
         <div class="zh">{{ categoryName }}</div>
         <div class="en">{{ categoryNameEn }}</div>
+
+        <div v-if="!cartVisible" class="cart-fab" @click="toggleCart">
+          <el-icon class="cart-icon">
+            <ShoppingCart />
+          </el-icon>
+          <div class="cart-text">
+            <p class="zh">购物车</p>
+            <p class="en">Shopping cart</p>
+          </div>
+          <div class="cart-badge" v-if="totalCount > 0">{{ totalCount }}</div>
+        </div>
       </h1>
 
       <div class="menu-overlay-wrapper">
@@ -55,7 +67,12 @@
                   @touchmove.passive="onTouchMove" @touchend.passive="onTouchEnd"
                   :ref="(el) => { if (el) menuListRefs[index] = el }">
                   <div class="menu-item" v-for="dish in group.items" :key="dishKey(dish)">
-                    <img :src="dish.img" class="dish-img" />
+                    <div class="dish-img-box">
+                      <img :src="dish.img" class="dish-img" />
+                      <div class="submitted-tag" v-if="dish.submitted">
+                        <ShoppingCart /> <span class="zh">已购</span>
+                      </div>
+                    </div>
                     <div class="dish-info">
                       <div class="dish-name">{{ dish.name }}</div>
                       <div class="dish-en">{{ dish.en }}</div>
@@ -93,10 +110,10 @@
     </main>
 
     <!-- 底部悬浮购物车图标（购物车打开时隐藏） -->
-    <div v-if="!cartVisible" class="cart-fab" @click="toggleCart">
+    <!-- <div v-if="!cartVisible" class="cart-fab" @click="toggleCart">
       <img src="@/assets/menu/shopCar2.svg" class="cart-icon" />
       <div class="cart-badge" v-if="totalCount > 0">{{ totalCount }}</div>
-    </div>
+    </div> -->
 
     <!-- 遮罩层 -->
     <div v-if="cartVisible" class="cart-mask" @click="toggleCart" />
@@ -121,7 +138,7 @@
         </div>
       </div>
 
-      <div class="cart-list">
+      <div class="cart-list" @touchstart="handleListTouchStart" @touchend="handleListTouchEnd" @touchmove="handleListTouchScroll($event, '.cart-list')">
         <template v-if="globalCartList.length > 0">
           <div v-for="(group, groupIndex) in globalCartList" :key="groupIndex">
             <h3 class="cart-group-name" v-if="group.cartCategoryName">
@@ -161,10 +178,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick, onBeforeUnmount } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { groupWithDishes } from "@/api/system/dishGroup";
-import { ArrowLeftBold } from "@element-plus/icons-vue";
+import { ArrowLeftBold, ShoppingCart } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 
 const router = useRouter();
@@ -247,7 +264,8 @@ function syncCountsFromCart() {
         const key = dishKey(dish);
         const inCart = cartMap.value[key];
         dish.count = inCart ? inCart.count : 0;
-        catCount += dish.count;
+        console.log("🚀 ~ syncCountsFromCart ~ dish:", dish)
+        catCount += (dish.count - (dish?.submitted || 0));
       });
     });
     cat.count = catCount;
@@ -295,7 +313,7 @@ function decrease(dish) {
 
 function clearCart() {
   ElMessageBox.confirm(
-    '确定要清空所有已选菜品吗？此操作不可撤销。',
+    '确定要清空所有新增菜品吗？此操作不可撤销。',
     '清空购物车',
     {
       confirmButtonText: '确定',
@@ -307,13 +325,36 @@ function clearCart() {
     }
   ).then(() => {
     // 清空全局
-    cartMap.value = {};
+    // cartMap.value = {};
+    // console.log("🚀 ~ clearCart ~ cartMap.value:", cartMap.value)
+    cartMap.value = Object.values(cartMap.value).filter(dish => {
+      dish.count = dish?.submitted || 0;
+      return dish.count;
+    }).reduce((acc, dish) => {
+      acc[dishKey(dish)] = dish;
+      return acc;
+    }, {});
+    // cartMap.value = Object.values(cartMap.value).filter(dish => {
+    //   dish.count = dish?.submitted || 0;
+    //   return dish.count;
+    // })
+    // .map(dish => ({ 
+    //   [dish.id]: {...dish}
+    // }));
+    // console.log("🚀 ~ clearCart ~ cartMap.value: 222222222", cartMap.value)
     saveCart();
     // 清空当前页面所有菜的数量
     categories.value.forEach((cat) => {
+      console.log("🚀 ~ clearCart ~ cat:", cat)
       cat.count = 0;
       cat.groups.forEach((group) => {
-        group.items.forEach((item) => (item.count = 0));
+        group.items.forEach((item) => {
+          if(item.count) {
+            item.count = cartMap.value[item.id]?.submitted || 0;
+          }else {
+            item.count = 0;
+          }
+        });
       });
     });
 
@@ -342,15 +383,15 @@ function scrollToCategory(index) {
   if (categoryListRef.value && categoryListRef.value.children[index]) {
     const categoryItem = categoryListRef.value.children[index];
     const container = categoryListRef.value;
-    
+
     // 计算元素在容器中的位置
     const itemOffsetTop = categoryItem.offsetTop;
     const itemHeight = categoryItem.offsetHeight;
     const containerHeight = container.clientHeight;
-    
+
     // 将元素滚动到容器中心位置
     const scrollPosition = itemOffsetTop - (containerHeight / 2) + (itemHeight / 2);
-    
+
     // 平滑滚动到指定位置
     container.scrollTo({
       top: scrollPosition,
@@ -393,32 +434,55 @@ function onMenuListScroll(event) {
   }
 }
 
-function canScrollVertically(element) {
-  // 记录初始滚动位置
-  const initialScrollTop = element.scrollTop;
-
-  // 尝试向下滚动1px
-  element.scrollTop += 1;
-
-  // 检查是否真的滚动
-  const didScroll = element.scrollTop !== initialScrollTop;
-
-  // 恢复原始位置
-  element.scrollTop = initialScrollTop;
-
-  return didScroll;
-}
 
 // 触摸事件相关变量
 let touchStartY = 0;
-const isScrollable = ref(true);
+const isScrollable = ref(false);
+
+const handleCategoryScroll = (event) => { 
+  const categoryList = document.querySelector('.category-list')
+  const { scrollTop, scrollHeight, clientHeight } = categoryList;
+  if(scrollTop == 0) {
+    isScrollable.value = true;
+  } else {
+    isScrollable.value = false;
+  }
+};
+
+const handleListTouchStart = (event) => { 
+  touchStartY = event.touches[0].clientY;
+  isScrollable.value = true;
+};
+
+const handleListTouchEnd = (event) => { 
+  isScrollable.value = false;
+};
+
+const handleListTouchScroll = (event, className) => {
+  const categoryList = document.querySelector(className)
+  const { scrollTop, scrollHeight, clientHeight } = categoryList;
+
+  const touchEndY = event.changedTouches[0].clientY;
+  const touchDiff = touchStartY - touchEndY;
+  const tolerance = 15; // 触摸滑动的最小距离阈值
+
+  if (touchDiff < -tolerance && scrollTop === 0) {
+    isScrollable.value = false;
+  }else {
+    isScrollable.value = true;
+  }
+}
 
 // 触摸开始事件
 function onTouchStart(event) {
   const element = event.target.closest('.menu-list');
   if (element) {
     touchStartY = event.touches[0].clientY;
-
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    isScrollable.value = !(scrollHeight <= clientHeight);
+    // console.log("🚀 ~ onTouchStart ~ isScrollable.value:", isScrollable.value)
+  } else {
+    const element = event.target;
     const { scrollTop, scrollHeight, clientHeight } = element;
     isScrollable.value = !(scrollHeight <= clientHeight);
   }
@@ -430,7 +494,7 @@ function onTouchMove(event) {
 
 // 触摸结束事件
 function onTouchEnd(event) {
-  isScrollable.value = true;
+  isScrollable.value = false;
   const element = event.target.closest('.menu-list');
   if (element) {
     const touchEndY = event.changedTouches[0].clientY;
@@ -537,13 +601,27 @@ async function fetchDishGroups() {
 }
 
 function confirmMenu() {
-  if (globalCartList.value.length === 0) {
-    ElMessage.warning("请先选择菜品再确认");
+  let dishes = JSON.parse(JSON.stringify(globalCartList.value));
+  dishes.forEach(item => { 
+    let newChildren = [];
+    item.children.forEach(child => {
+      child.count -= (child?.submitted || 0);
+      if(child.count > 0) {
+        newChildren.push(child);
+      }
+    });
+    console.log("🚀 ~ confirmMenu ~ newChildren:", newChildren)
+    item.children = newChildren;
+  });
+  console.log("🚀 ~ confirmMenu ~ dishes:", dishes)
+  dishes = dishes.filter(item => item.children.length > 0);
+  console.log("🚀 ~ confirmMenu ~ dishes:", dishes)
+  if (dishes.length === 0) {
+    ElMessage.warning("请先添加菜品再确认");
     return;
   }
-  console.log("🚀 ~ confirmMenu ~ globalCartList.value:", globalCartList.value)
   const query = {
-    items: JSON.stringify(globalCartList.value),
+    items: JSON.stringify(dishes),
     type: type.value,
     name: categoryName.value,
   };
@@ -588,7 +666,10 @@ onMounted(async () => {
   }
 
   // 阻止页面被上拉下拉
-  preventPullToRefresh();
+  // preventPullToRefresh();
+});
+onBeforeUnmount(() => { 
+  document.removeEventListener('touchmove', preventPullToRefresh);
 });
 </script>
 
@@ -663,7 +744,7 @@ onMounted(async () => {
   color: #886417;
   cursor: pointer;
   display: flex;
-  line-height: 28px;
+  /* line-height: 28px; */
   align-items: center;
   gap: 6px;
   font-weight: 700;
@@ -691,6 +772,7 @@ onMounted(async () => {
   margin-right: 16px;
   border-radius: 8px;
 }
+
 .category-item-skeleton:first-of-type {
   margin-right: 0;
   border-radius: 8px 0 0 8px;
@@ -762,17 +844,63 @@ onMounted(async () => {
   /* 占满整个视口高度 */
   overflow: hidden;
   /* 隐藏溢出内容 */
+  position: relative;
 }
 
 .menu-title {
   font-size: 40px;
   font-weight: 900;
   font-style: normal;
-  line-height: 44px;
-  margin: 0 auto 16px;
+  margin: 0 auto 12px;
   color: #886417;
   text-align: center;
   letter-spacing: 6px;
+}
+
+.cart-fab {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-top: 24px;
+  margin-right: 38px;
+  font-size: 24px;
+  font-family: 'Source Han Serif CN Bold';
+  margin-bottom: 16px;
+  color: #886417;
+  cursor: pointer;
+  display: flex;
+  /* line-height: 28px; */
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  letter-spacing: 3.6px;
+  width: max-content;
+  height: 92px;
+  gap: 8px;
+  white-space: nowrap;
+  /* overflow: hidden; */
+}
+
+.cart-icon {
+  font-size: 20px;
+}
+
+.cart-text .zh {
+  /* 中文一行 + 自适应字号与字距 */
+  white-space: nowrap;
+  font-size: clamp(16px, 1.9vw, 22px);
+  /* 小屏略缩 */
+  letter-spacing: clamp(1.2px, 0.28vw, 3.6px);
+  /* line-height: 1.25; */
+  text-align: center;
+}
+
+.cart-text .en {
+  /* 英文副文更克制一点 */
+  font-size: clamp(12px, 1.2vw, 14px);
+  letter-spacing: 0.5px;
+  /* line-height: 1.1; */
+  text-align: center;
 }
 
 /* 包裹商品列表的浅棕色背景区域 */
@@ -818,9 +946,11 @@ onMounted(async () => {
   width: 100%;
   height: 100%;
 }
+
 .menu-section-wrapper {
   height: 100%;
 }
+
 .menu-section {
   height: 100%;
   display: flex;
@@ -887,6 +1017,7 @@ onMounted(async () => {
   border-radius: 8px;
   padding: 16px;
 }
+
 .dish-name-skeleton {
   background: white;
   height: 28px;
@@ -902,12 +1033,38 @@ onMounted(async () => {
   border-bottom: 1px dashed #c7b294;
 }
 
-.dish-img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
+.dish-img-box {
+  position: relative;
   border-radius: 8px;
+  overflow: hidden;
   margin-right: 16px;
+  width: 130px;
+  height: 130px;
+}
+.submitted-tag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: white;
+  font-size: 12px;
+  border-radius: 0 0  0 12px;
+  background: #DE4E50;
+  /* width: 60px; */
+  /* white-space: nowrap; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  gap: 2px;
+}
+.submitted-tag>svg {
+  width: 14px;
+  height: 14px;
+}
+.dish-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   user-select: none;
   /* 禁止选中图片 */
   -webkit-user-drag: none;
@@ -976,7 +1133,7 @@ onMounted(async () => {
   text-align: center;
 }
 
-.cart-fab {
+/* .cart-fab {
   position: fixed;
   bottom: 32px;
   left: 32px;
@@ -985,7 +1142,7 @@ onMounted(async () => {
   background: transparent;
   cursor: pointer;
   z-index: 1000;
-}
+} */
 
 .cart-icon {
   width: 100%;
@@ -994,13 +1151,19 @@ onMounted(async () => {
 
 .cart-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: 0px;
+  right: 0px;
   background: #d64040;
   color: white;
   font-size: 14px;
   border-radius: 50%;
-  padding: 2px 9px;
+  padding: 2px 6px;
+  min-width: 26px;
+  min-height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0;
 }
 
 .cart-drawer {
@@ -1308,19 +1471,18 @@ onMounted(async () => {
   scrollbar-width: thin;
 }
 
-.menu-title .zh {
+.menu-title>.zh {
   font-size: 40px;
   font-weight: 900;
   color: #886417;
   letter-spacing: 6px;
-  line-height: 44px;
 }
 
 /* .back-text en, */
-.menu-title .en {
+.menu-title>.en {
   font-size: 20px;
   color: #886417;
-  margin-top: 4px;
+  /* margin-top: 4px; */
   font-weight: 500;
   letter-spacing: 1.5px;
   text-align: center;
@@ -1454,10 +1616,6 @@ onMounted(async () => {
   padding-bottom: max(24px, env(safe-area-inset-bottom));
 }
 
-.cart-fab {
-  bottom: max(32px, calc(env(safe-area-inset-bottom) + 12px));
-}
-
 /* === A. 返回选择菜系：一行显示 + 轻量响应 === */
 .back {
   /* 容器不换行、不挤压 */
@@ -1476,7 +1634,7 @@ onMounted(async () => {
   font-size: clamp(16px, 1.9vw, 22px);
   /* 小屏略缩 */
   letter-spacing: clamp(1.2px, 0.28vw, 3.6px);
-  line-height: 1.25;
+  /* line-height: 1.25; */
   text-align: center;
 }
 
@@ -1484,7 +1642,7 @@ onMounted(async () => {
   /* 英文副文更克制一点 */
   font-size: clamp(12px, 1.2vw, 14px);
   letter-spacing: 0.5px;
-  line-height: 1.1;
+  /* line-height: 1.1; */
   text-align: center;
 }
 

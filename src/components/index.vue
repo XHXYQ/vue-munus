@@ -28,7 +28,7 @@
       </div>
 
       <!-- 清除数据按钮 -->
-      <div class="clear-btn" @click="clearStorage">清除数据</div>
+      <div class="clear-btn" @click.stop="clearStorage">清除数据</div>
     </div>
   </div>
 </template>

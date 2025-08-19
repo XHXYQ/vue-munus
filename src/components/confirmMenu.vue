@@ -2,12 +2,43 @@
   <div class="confirm-page">
     <div class="header-row">
       <div class="top-bar" @click="router.back()">
-        <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
+        <el-icon class="back-icon">
+          <ArrowLeftBold />
+        </el-icon>
         <div class="top-bar-text">
           <div class="zh">返回选择菜品</div>
           <div class="en">Back</div>
         </div>
       </div>
+      <el-popover placement="bottom-end" trigger="click" :showArrow="false"
+        popperStyle="background: #D4C0A8; border: none;" width="20rem">
+        <template #reference>
+          <div class="top-bar">
+            <el-icon class="back-icon">
+              <Clock />
+            </el-icon>
+            <div class="top-bar-text">
+              <div class="zh">历史记录</div>
+              <div class="en">records</div>
+            </div>
+          </div>
+        </template>
+        <div class="history-board">
+          <div class="history-board-title">
+            <div class="zh">当前显示记录</div>
+            <div class="en">Current display record</div>
+          </div>
+          <div class="history-board-list">
+            <div class="history-item" :class="orderIndex === index ? 'activeOrder' : ''"
+              v-for="(item, index) in historyOrders" :key="index" @click="selectHistoryOrder(item, index)">
+              <div class="item-title">{{ item.datetime }}</div>
+            </div>
+            <div class="history-item" :class="orderIndex === -1 ? 'activeOrder' : ''" @click="orderIndex = -1">
+              <div class="item-title">当前待下单</div>
+            </div>
+          </div>
+        </div>
+      </el-popover>
 
       <h1 class="title">
         <div class="zh">确认菜单</div>
@@ -15,19 +46,24 @@
       </h1>
     </div>
 
-    <div class="menu-container"> 
-      <div class="menu-list">
-        <div v-for="(group, groupIndex) in dishes" :key="groupIndex">
+    <div class="menu-container">
+      <div class="menu-list" @touchstart="handleListTouchStart" @touchend="handleListTouchEnd"
+        @touchmove="handleListTouchScroll($event, '.menu-list')">
+        <div v-for="(group, groupIndex) in (orderIndex == -1 ? dishes : currentOrder)" :key="groupIndex">
           <div class="cart-group-name-cn">{{ group.cartCategoryName }}</div>
           <div class="cart-group-name-en">{{ group.cartCategoryNameEn }}</div>
           <div class="table-wrapper">
             <table class="dish-table">
               <thead>
                 <tr>
-                  <th>序号<div class="en">number</div></th>
-                  <th>菜品名称<div class="en">Dish name</div></th>
-                  <th>数量<div class="en">Quantity</div></th>
-                  <th>操作<div class="en">Operation</div></th>
+                  <th>序号<div class="en">number</div>
+                  </th>
+                  <th>菜品名称<div class="en">Dish name</div>
+                  </th>
+                  <th>数量<div class="en">Quantity</div>
+                  </th>
+                  <th v-if="orderIndex == -1">操作<div class="en">Operation</div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -39,21 +75,20 @@
                   </td>
                   <td>
                     <div class="quantity-control">
-                      <button @click="decrease(dish)">-</button>
+                      <button @click="decrease(dish)" v-if="orderIndex == -1">-</button>
                       <span>{{ dish.count }}</span>
-                      <button @click="increase(dish)">+</button>
+                      <button @click="increase(dish)" v-if="orderIndex == -1">+</button>
                     </div>
                   </td>
-                  <td>
+                  <td  v-if="orderIndex == -1">
                     <span class="delete-btn" @click="removeDish(dish)">
                       <img src="@/assets/trash.svg" class="trash-icon" />
-                      删除
                     </span>
                   </td>
                 </tr>
               </tbody>
             </table>
-      
+
             <!-- 订单备注 -->
             <!-- <div class="order-remark-row">
               <div class="remark-content">
@@ -67,13 +102,15 @@
           </div>
         </div>
       </div>
-  
-      <div class="bottom-actions">
+
+      <div class="bottom-actions" v-if="orderIndex == -1">
         <button class="back-btn" @click="router.back()">
-          <div class="zh">返回</div><div class="en">Back</div>
+          <div class="zh">返回</div>
+          <div class="en">Back</div>
         </button>
         <button class="submit-btn" @click="openRemarkDialog">
-          <div class="zh">提交</div><div class="en">Submit</div>
+          <div class="zh">提交</div>
+          <div class="en">Submit</div>
         </button>
       </div>
     </div>
@@ -103,10 +140,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, h } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed, h } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { ArrowLeftBold } from "@element-plus/icons-vue";
+import { ElMessage, ElMessageBox, ElPopover } from "element-plus";
+import { ArrowLeftBold, Clock } from "@element-plus/icons-vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -115,9 +152,12 @@ const CART_KEY = 'cachedDishesAll';
 const orderRemark = ref("");
 const tempRemark = ref("");
 const showRemarkDialog = ref(false);
-
+const historyOrders = ref([]);
+const currentOrder = ref([]);
+const orderIndex = ref(-1);
 const dishes = ref([]); // 此页展示用（数组）
 const cartMap = ref({}); // 全局购物车镜像（对象）
+const isScrollable = ref(false);
 
 function dishKey(dish) {
   return dish.id ?? dish.dishId ?? dish.code ?? dish.name;
@@ -137,7 +177,7 @@ function saveCart() {
 function syncListFromMap() {
 
   const cartItems = Object.values(cartMap.value);
-  
+
   // 按 groupName 分组
   const grouped = {};
   cartItems.forEach(item => {
@@ -151,7 +191,7 @@ function syncListFromMap() {
     }
     grouped[cartCategoryName].items.push(item);
   });
-  
+
   // 转换为 [{cartCategoryName: 'xxx', cartCategoryNameEn: 'xxx', children: [...]}, ...] 格式
   dishes.value = Object.entries(grouped).map(([cartCategoryName, groupData]) => ({
     cartCategoryName,
@@ -159,38 +199,89 @@ function syncListFromMap() {
     children: groupData.items
   }));
 }
+let touchStartY = 0;
+const handleListTouchStart = (event) => {
+  touchStartY = event.touches[0].clientY;
+  isScrollable.value = true;
+};
+
+const handleListTouchEnd = (event) => {
+  isScrollable.value = false;
+};
+
+const handleListTouchScroll = (event, className) => {
+  const categoryList = document.querySelector(className)
+  const { scrollTop, scrollHeight, clientHeight } = categoryList;
+
+  const touchEndY = event.changedTouches[0].clientY;
+  const touchDiff = touchStartY - touchEndY;
+  const tolerance = 15; // 触摸滑动的最小距离阈值
+
+  if (touchDiff < -tolerance && scrollTop === 0) {
+    isScrollable.value = false;
+  } else {
+    isScrollable.value = true;
+  }
+}
+
+function preventPullToRefresh(e) {
+  // 处理橡皮筋效果
+  if (!isScrollable.value) {
+    e.preventDefault()
+  }
+}
 
 onMounted(() => {
+  document.addEventListener('touchmove', preventPullToRefresh, { passive: false })
+
+  historyOrders.value = JSON.parse(localStorage.getItem("historyOrders") || "[]");
+
   loadCart();
   // 兼容从菜单页 query 传来的 items，但以全局购物车为准
   const fromQuery = route.query.items ? JSON.parse(route.query.items) : null;
-  if (fromQuery && fromQuery.length && Object.keys(cartMap.value).length === 0) {
-    const tmp = {};
-    fromQuery.forEach(d => (tmp[dishKey(d)] = d));
-    cartMap.value = tmp;
-    saveCart();
+  console.log("🚀 ~ fromQuery:", fromQuery)
+  if (fromQuery && fromQuery.length) {
+    dishes.value = fromQuery;
   }
-  syncListFromMap();
+  // if (fromQuery && fromQuery.length) {
+  //   const tmp = {};
+  //   fromQuery.forEach(d => (tmp[dishKey(d)] = d));
+  //   // cartMap.value = tmp;
+  //   console.log("🚀 ~ tmp:", tmp)
+  //   // saveCart();
+  // }
+  // syncListFromMap();
 });
 
+onBeforeUnmount(() => {
+  document.removeEventListener('touchmove', preventPullToRefresh);
+});
+
+const selectHistoryOrder = (order, index) => { 
+  orderIndex.value = index;
+  currentOrder.value = order.dishes;
+};
+
 function increase(dish) {
+  if (dish.count == 99) return;
+  dish.count++;
   const key = dishKey(dish);
   const next = (cartMap.value[key]?.count || 0) + 1;
   cartMap.value[key] = { ...dish, count: next };
   saveCart();
-  syncListFromMap();
+  // syncListFromMap();
 }
 
 function decrease(dish) {
   const key = dishKey(dish);
   const cur = cartMap.value[key]?.count || 0;
-  if(dish.submitted && cur <= dish.submitted) {
-    ElMessage({
-      type: 'warning',
-      message: '已点菜单无法减少'
-    });
-    return
-  }
+  // if(dish.submitted && cur <= dish.submitted) {
+  //   ElMessage({
+  //     type: 'warning',
+  //     message: '已点菜单无法减少'
+  //   });
+  //   return
+  // }
   if (cur <= 1) {
     const { [key]: _, ...rest } = cartMap.value;
     cartMap.value = rest;
@@ -198,7 +289,20 @@ function decrease(dish) {
     cartMap.value[key] = { ...dish, count: cur - 1 };
   }
   saveCart();
-  syncListFromMap();
+
+  dish.count--;
+  console.log("🚀 ~ decrease ~ dish.count:", dish.count)
+  if (dish.count == 0) {
+    // 删除dishes.value里面这条数据
+    for (let i = 0; i < dishes.value.length; i++) {
+      const element = dishes.value[i];
+      if (element.cartCategoryName === dish.categoryName) {
+        element.children = element.children.filter(d => d.id != dish.id);
+        break;
+      }
+    }
+  }
+  // syncListFromMap();
 }
 
 function removeDish(dish) {
@@ -214,11 +318,26 @@ function removeDish(dish) {
       cancelButtonClass: 'cancel-button'
     }
   ).then(() => {
+    console.log("🚀 ~ removeDish ~ dish:", dish)
     const key = dishKey(dish);
-    const { [key]: _, ...rest } = cartMap.value;
-    cartMap.value = rest;
+    console.log("🚀 ~ removeDish ~ cartMap.value:", cartMap.value[key])
+    if (cartMap.value[key].submitted) {
+      cartMap.value[key].count = cartMap.value[key].submitted;
+    } else {
+      delete cartMap.value[key];
+    }
+    console.log("🚀 ~ removeDish ~ cartMap.value:", cartMap.value)
     saveCart();
-    syncListFromMap();
+
+    // 删除dishes.value里面这条数据
+    for (let i = 0; i < dishes.value.length; i++) {
+      const element = dishes.value[i];
+      if (element.cartCategoryName === dish.categoryName) {
+        element.children = element.children.filter(d => d.id != dish.id);
+        break;
+      }
+    }
+    // syncListFromMap();
   }).catch(() => {
     // 用户点击取消或关闭弹窗
     // 不执行任何操作
@@ -229,17 +348,17 @@ function submitOrder() {
   orderRemark.value = tempRemark.value;
   showRemarkDialog.value = false;
 
-  dishes.value.forEach((dish) => {
-    dish.children = dish.children.filter((child) => child.count != child.submitted);
-    dish.children.forEach((child) => {
-      if(child.submitted) {
-        child.count -= child.submitted;
-        delete child.submitted;
-      }
-    });
-  });
-  dishes.value = dishes.value.filter((dish) => dish.children.length > 0);
-  console.log("🚀 ~ submitOrder ~ dishes.value:", dishes.value)
+  // dishes.value.forEach((dish) => {
+  //   dish.children = dish.children.filter((child) => child.count != child.submitted);
+  //   dish.children.forEach((child) => {
+  //     if(child.submitted) {
+  //       child.count -= child.submitted;
+  //       delete child.submitted;
+  //     }
+  //   });
+  // });
+  // dishes.value = dishes.value.filter((dish) => dish.children.length > 0);
+  // console.log("🚀 ~ submitOrder ~ dishes.value:", dishes.value)
 
   const now = new Date();
   const datetime = now.toISOString().replace("T", " ").substring(0, 19);
@@ -312,6 +431,8 @@ function confirmRemark() {
   /* height: 48px; */
   height: max-content;
   flex: none;
+  display: flex;
+  justify-content: space-between;
 }
 
 
@@ -327,11 +448,54 @@ function confirmRemark() {
   letter-spacing: 2.4px;
   height: auto;
   width: max-content;
+  padding-right: 16px;
 }
 
 .top-bar .en {
   font-size: 16px;
   margin-top: 4px;
+}
+
+.history-board {
+  /* width: max-content; */
+  font-family: 'Source Han Serif CN Bold';
+  color: #886417;
+}
+
+.history-board-title {
+  width: max-content;
+}
+
+.history-board-title .zh {
+  font-family: 'Source Han Serif CN Heavy';
+  font-size: 20px;
+}
+
+.history-board-title .en {
+  font-size: 14px;
+}
+
+.history-board-list {
+  margin-top: 4px;
+}
+
+.history-board-list .history-item {
+  padding: 10px 8px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.history-board-list .history-item.activeOrder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #88641780;
+  color: white;
+}
+
+.history-board-list .history-item.activeOrder::after {
+  content: '✔';
+  display: inline-block;
 }
 
 .back-icon {
@@ -356,7 +520,8 @@ function confirmRemark() {
 }
 
 .menu-container::-webkit-scrollbar-track {
-  background: transparent; /* 滚动槽背景色设为透明 */
+  background: transparent;
+  /* 滚动槽背景色设为透明 */
   border-radius: 4px;
 }
 
@@ -378,14 +543,17 @@ function confirmRemark() {
   padding: 16px;
   overflow-y: auto;
   /* 添加滚动条样式 */
-  scrollbar-width: thin; /* 对于 Firefox */
-  scrollbar-color: #886417 rgba(102, 66, 33, 0.25); /* 对于 Firefox */
+  scrollbar-width: thin;
+  /* 对于 Firefox */
+  scrollbar-color: #886417 rgba(102, 66, 33, 0.25);
+  /* 对于 Firefox */
   color: white;
 }
 
 .menu-list .cart-group-name-cn {
   font-size: 16px;
 }
+
 .menu-list .cart-group-name-en {
   font-size: 14px;
   font-family: 'Source Han Serif CN Medium';
@@ -399,7 +567,7 @@ function confirmRemark() {
   box-sizing: border-box;
   /* max-height: calc(100vh - 240px); */
   /* overflow-y: auto; */
-  
+
   border-radius: 8px;
   /* background: rgba(64, 44, 13, 0.35); */
   /* backdrop-filter: blur(10px); */
@@ -415,18 +583,22 @@ function confirmRemark() {
   padding: 20px;
   font-size: 20px;
 }
+
 .dish-table th .en {
   font-size: 14px;
   line-height: 14px;
 }
+
 .dish-table th:first-child {
   border-radius: 8px 0 0 0;
 }
+
 .dish-table th:nth-child(2),
 .dish-table td:nth-child(2) {
   text-align: left;
   width: 40%;
 }
+
 .dish-table th:last-child {
   border-radius: 0 8px 0 0;
 }
@@ -477,13 +649,13 @@ function confirmRemark() {
   border-radius: 4px;
   cursor: pointer;
   } */
-  
-  .quantity-control {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
 
 .quantity-control button {
   width: 28px;
@@ -585,9 +757,12 @@ function confirmRemark() {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.6); /* 可调深浅 */
-  backdrop-filter: blur(8px); /* 关键：模糊效果 */
-  -webkit-backdrop-filter: blur(8px); /* Safari 支持 */
+  background: rgba(0, 0, 0, 0.6);
+  /* 可调深浅 */
+  backdrop-filter: blur(8px);
+  /* 关键：模糊效果 */
+  -webkit-backdrop-filter: blur(8px);
+  /* Safari 支持 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -619,7 +794,7 @@ function confirmRemark() {
   margin-bottom: 16px;
 }
 
-.remark-header .remark-title .en{
+.remark-header .remark-title .en {
   font-size: 16px;
 }
 
@@ -642,23 +817,29 @@ function confirmRemark() {
   height: 120px;
   padding: 12px;
   font-size: 15px;
-  border: none; /* 去掉黑色边框 */
-  outline: none; /* 去掉点击后的黑色高亮框 */
+  border: none;
+  /* 去掉黑色边框 */
+  outline: none;
+  /* 去掉点击后的黑色高亮框 */
   border-radius: 8px;
   background: transparent;
   color: #5e4003;
   resize: none;
   box-sizing: border-box;
-  box-shadow: inset 0 0 0 1px #d8c3a0; /* 可选：柔和内边框 */
+  box-shadow: inset 0 0 0 1px #d8c3a0;
+  /* 可选：柔和内边框 */
   border: 1px solid #886417;
   margin-top: 4px;
 }
 
 /* 修改 placeholder 的样式 */
 .remark-dialog textarea::placeholder {
-  color: #00000033; /* 设置 placeholder 颜色 */
-  font-size: 14px; /* 设置 placeholder 字体大小 */
-  opacity: 0.7; /* 可选：调整透明度 */
+  color: #00000033;
+  /* 设置 placeholder 颜色 */
+  font-size: 14px;
+  /* 设置 placeholder 字体大小 */
+  opacity: 0.7;
+  /* 可选：调整透明度 */
 }
 
 /* 兼容 Webkit 浏览器 */
@@ -767,5 +948,4 @@ function confirmRemark() {
   font-size: 12px;
   opacity: 0.8;
 }
-
 </style>

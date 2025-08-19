@@ -5,6 +5,16 @@
     <h1 class="title">
       选择菜系
       <div class="title-en">Choose Category</div>
+
+      <div class="back-btn" @click="goHome">
+        <el-icon class="back-icon">
+          <ArrowLeftBold />
+        </el-icon>
+        <div class="back-btn-text">
+          返回首页
+          <div class="back-btn-en">Back</div>
+        </div>
+      </div>
     </h1>
     <div class="menu-body" :class="loading ? 'menu-body-skeleton' : '' ">
       <div class="menu-grid">
@@ -38,10 +48,6 @@
     </div>
 
     <!-- <div class="back-btn" @click="goHome">返回首页</div> -->
-    <div class="back-btn" @click="goHome">
-      返回首页
-      <div class="back-btn-en">Back to Home</div>
-    </div>
   </div>
 </template>
 
@@ -49,6 +55,7 @@
 import { useRouter } from "vue-router";
 import { ref, onMounted, nextTick, watch, watchEffect } from "vue";
 import { listCategory } from '@/api/system/category'
+import { ArrowLeftBold } from "@element-plus/icons-vue";
 import type { CategoryVO } from '@/api/system/category/types'
 import '@/assets/font/fonts.css'
 
@@ -162,6 +169,7 @@ onMounted(() => {
   color: #7b5500;
   letter-spacing: 6px;
   flex: none;
+  position: relative;
 }
 
 .menu-body {
@@ -282,11 +290,12 @@ onMounted(() => {
 }
 
 .back-btn {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
   flex: none;
-  font-size: 24px;
-  font-style: normal;
   font-weight: 700;
-  color: #886417;
   cursor: pointer;
   background: none;
   /* 移除背景 */
@@ -297,8 +306,20 @@ onMounted(() => {
   backdrop-filter: none;
   /* 取消毛玻璃效果 */
   transition: color 0.3s ease;
-  display: inline-block;
-  margin: 3vh auto 0;
+  /* margin: 3vh auto 0; */
+  display: flex;
+  align-items: center;
+}
+
+.back-icon {
+  font-size: 20px;
+  margin-right: 6px;
+}
+
+.back-btn-text {
+  font-size: 24px;
+  font-style: normal;
+  color: #886417;
   font-family: "Source Han Serif CN Bold";
 }
 
@@ -445,7 +466,7 @@ onMounted(() => {
 
 .title-en {
   font-size: 20px;
-  color: #fff;
+  /* color: #fff; */
   /* 浅白色 */
   /* margin-top: 5px; */
   font-weight: 700;
@@ -455,7 +476,7 @@ onMounted(() => {
 
 .back-btn-en {
   font-size: 16px;
-  color: #fff;
+  /* color: #fff; */
   font-weight: 700;
   margin-top: 4px;
   letter-spacing: 0.5px;

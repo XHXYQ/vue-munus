@@ -14,48 +14,7 @@
     </div>
 
     <!-- 订单详情弹窗 -->
-    <div class="order-dialog" v-if="showDialog">
-      <!-- <div class="dialog-box">
-        <div class="dialog-header">
-          <span>查看订单</span>
-          <span class="close" @click="showDialog = false">✕</span>
-        </div>
-
-        <table class="dialog-table">
-          <thead class="dialog-header-row">
-            <tr>
-              <th>序号</th>
-              <th>菜品名称</th>
-              <th>数量</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr v-for="(item, idx) in dishes" :key="idx">
-              <td>{{ idx + 1 }}</td>
-              <td>
-                <div class="name-cn">{{ item.name }}</div>
-                <div class="name-en">{{ item.en }}</div>
-              </td>
-              <td>{{ item.count }}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="remark">备注：{{ remark || "无" }}</div>
-
-        <div class="dialog-footer">
-          <button @click="copyContent">复制内容</button>
-        </div>
-      </div> -->
-      <!-- ✅ 修改后的结构：将 scroll 区域包裹在 .dialog-content 中 -->
-      <div class="dialog-box">
-        <div class="nav-button left" v-if="orderIndex !== 0" @click="prevOrder">
-          <el-icon class="back-icon"><ArrowLeftBold /></el-icon>
-        </div>
-        <div class="nav-button right" v-if="orderIndex !== orders.length - 1" @click="nextOrder">
-          <el-icon class="back-icon"><ArrowRightBold /></el-icon>
-        </div>
+    <div class="order-dialog" v-if="showDialog">      <div class="dialog-box">
         <div class="dialog-header">
           <div class="dialog-title">
             <span>查看订单</span>
@@ -64,100 +23,63 @@
           <span class="close" @click="showDialog = false">✕</span>
         </div>
 
-        <div class="order-id">{{ orders[orderIndex]?.datetime || '' }}</div>
+        <!-- 修改为滚动显示所有订单 -->
+        <div class="all-orders-list" @touchstart="handleListTouchStart" @touchend="handleListTouchEnd" @touchmove="handleListTouchScroll($event, '.all-orders-list')">
+          <div v-for="(order, index) in sortedOrders" :key="index" class="order-item">
+            <div class="order-id">{{ order.datetime || '' }}</div>
 
-        <div class="menu-list">
-          <div v-for="(group, groupIndex) in (orders[orderIndex]?.dishes || [])" :key="groupIndex">
-            <div class="cart-group-name-cn">{{ group.cartCategoryName }}</div>
-            <div class="cart-group-name-en">{{ group.cartCategoryNameEn }}</div>
-            <div class="table-wrapper">
-              <table class="dish-table">
-                <thead>
-                  <tr>
-                    <th>序号<div class="en">number</div>
-                    </th>
-                    <th>菜品名称<div class="en">Dish name</div>
-                    </th>
-                    <th>数量<div class="en">Quantity</div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr class="cart-item" v-for="(dish, index) in group.children" :key="index">
-                    <td>{{ index + 1 }}</td>
-                    <td>
-                      <div class="dish-name-cn">{{ dish.name }}</div>
-                      <div class="dish-name-en">{{ dish.en }}</div>
-                    </td>
-                    <td>
-                      <div class="quantity-control">
-                        <span>{{ dish.count }}</span>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="menu-list">
+              <div v-for="(group, groupIndex) in (order.dishes || [])" :key="groupIndex">
+                <div class="cart-group-name-cn">{{ group.cartCategoryName }}</div>
+                <div class="cart-group-name-en">{{ group.cartCategoryNameEn }}</div>
+                <div class="table-wrapper">
+                  <table class="dish-table">
+                    <thead>
+                      <tr>
+                        <th>序号<div class="en">number</div>
+                        </th>
+                        <th>菜品名称<div class="en">Dish name</div>
+                        </th>
+                        <th>数量<div class="en">Quantity</div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="cart-item" v-for="(dish, index) in group.children" :key="index">
+                        <td>{{ index + 1 }}</td>
+                        <td>
+                          <div class="dish-name-cn">{{ dish.name }}</div>
+                          <div class="dish-name-en">{{ dish.en }}</div>
+                        </td>
+                        <td>
+                          <div class="quantity-control">
+                            <span>{{ dish.count }}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-              <!-- 订单备注 -->
-              <!-- <div class="order-remark-row">
-              <div class="remark-content">
-                <span v-if="orderRemark">备注：{{ orderRemark }}</span>
-                <span v-else class="add-remark" @click="openRemarkDialog">+ 添加备注</span>
+              <div class="order-remark">
+                <div class="remark-title">备注：</div>
+                <div class="remark-content">{{ order.remark || '' }}</div>
               </div>
-              <div v-if="orderRemark" class="edit-btn-wrapper">
-                <span class="edit-remark" @click="openRemarkDialog">✎ 修改</span>
-              </div>
-            </div> -->
             </div>
-          </div>
-
-          <div class="order-remark">
-            <div class="remark-title">备注：</div>
-            <div class="remark-content">{{ orders[orderIndex]?.remark || '' }}</div>
           </div>
         </div>
 
         <div class="dialog-footer">
-          <button @click="copyContent">复制内容 Copy</button>
+          <button @click="copyAllOrdersContent">复制内容 Copy</button>
         </div>
-
-
-        <!-- <div class="dialog-content">
-          <table class="dialog-table">
-            <thead class="dialog-header-row">
-              <tr class="dialog-header-row-tr">
-                <th>序号</th>
-                <th>菜品名称</th>
-                <th>数量</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="(item, idx) in dishes" :key="idx">
-                <td>{{ idx + 1 }}</td>
-                <td>
-                  <div class="name-cn">{{ item.name }}</div>
-                  <div class="name-en">{{ item.en }}</div>
-                </td>
-                <td>{{ item.count }}</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div class="remark">备注：{{ remark || "无" }}</div>
-
-          <div class="dialog-footer">
-            <button @click="copyContent">复制内容</button>
-          </div>
-        </div> -->
       </div>
-
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import { ArrowLeftBold, ArrowRightBold } from "@element-plus/icons-vue";
@@ -168,32 +90,63 @@ const router = useRouter();
 const dishes = ref([]);
 const remark = ref("");
 const orders = ref([]);
-const orderIndex = ref(null);
 const showDialog = ref(false);
+const isScrollable = ref(false);
+
+let touchStartY = 0;
+const handleListTouchStart = (event) => { 
+  touchStartY = event.touches[0].clientY;
+  isScrollable.value = true;
+};
+
+const handleListTouchEnd = (event) => { 
+  isScrollable.value = false;
+};
+
+const handleListTouchScroll = (event, className) => {
+  const categoryList = document.querySelector(className)
+  const { scrollTop, scrollHeight, clientHeight } = categoryList;
+
+  const touchEndY = event.changedTouches[0].clientY;
+  const touchDiff = touchStartY - touchEndY;
+  const tolerance = 15; // 触摸滑动的最小距离阈值
+
+  if (touchDiff < -tolerance && scrollTop === 0) {
+    isScrollable.value = false;
+  }else {
+    isScrollable.value = true;
+  }
+}
+
+function preventPullToRefresh(e) {
+  // 处理橡皮筋效果
+  if (!isScrollable.value) {
+    e.preventDefault()
+  }
+}
 
 onMounted(() => {
+  document.addEventListener('touchmove', preventPullToRefresh, { passive: false })
   dishes.value = JSON.parse(route.query.dishes || "[]");
   remark.value = route.query.remark || "";
 
   orders.value = JSON.parse(localStorage.getItem("historyOrders") || "[]");
-  orderIndex.value = orders.value.length - 1;
 });
 
-// 切换到上一个订单
-const prevOrder = () => {
-  if (orderIndex.value > 0) {
-    orderIndex.value--;
-  }
-};
+onBeforeUnmount(() => { 
+  document.removeEventListener('touchmove', preventPullToRefresh);
+});
 
-// 切换到下一个订单
-const nextOrder = () => {
-  if (orderIndex.value < orders.value.length - 1) {
-    orderIndex.value++;
-  }
-};
 
-const goHome = () => router.push("/index");
+const goHome = () => {
+  const dishesAll = JSON.parse(localStorage.getItem('cachedDishesAll'));
+  for (const key in dishesAll) {
+    dishesAll[key].submitted = dishesAll[key].count;
+  }
+  localStorage.setItem('cachedDishesAll', JSON.stringify(dishesAll));
+
+  router.push("/index")
+};
 
 const continueAdd = () => {
   const dishesAll = JSON.parse(localStorage.getItem('cachedDishesAll'));
@@ -232,8 +185,9 @@ const viewOrder = () => {
 //     ElMessage.success("已复制订单内容");
 //   });
 // }
+// 保留原有的 copyContent 函数以备将来可能使用
 function copyContent() {
-  const currentOrder = orders.value[orderIndex.value];
+  const currentOrder = sortedOrders.value[0]; // 默认复制最新订单
 
   let content = `订单：\n时间：${currentOrder.datetime}\n\n菜系\n`;
 
@@ -288,6 +242,51 @@ function fallbackCopyTextToClipboard(text) {
   
   document.body.removeChild(textArea);
 }
+
+// 更新复制功能以复制所有订单数据
+function copyAllOrdersContent() {
+  let content = "所有订单：\n\n";
+  
+  sortedOrders.value.forEach((order, index) => {
+    content += `订单：\n时间：${order.datetime}\n\n`;
+    
+    for (const category of order.dishes) {
+      // content += `${category.cartCategoryName}\n`;
+      for (const item of category.children) {
+        content += `${item.name} x${item.count}\n`;
+      }
+      // content += '\n';
+    }
+    
+    content += `\n备注：${order.remark || "无"}\n`;
+    content += "----------------------------------------\n\n";
+  });
+
+  // 首先尝试使用现代的 Clipboard API
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(content).then(() => {
+      ElMessage.success("已复制所有订单内容");
+    }).catch(() => {
+      // 如果现代 API 失败，使用降级方案
+      fallbackCopyTextToClipboard(content);
+    });
+  } else {
+    // 如果不支持 Clipboard API，直接使用降级方案
+    fallbackCopyTextToClipboard(content);
+  }
+}
+
+// 添加计算属性，按时间排序订单（最新的在前）
+const sortedOrders = computed(() => {
+  // 创建订单数组的副本以避免修改原始数据
+  const ordersCopy = [...orders.value];
+  // 按时间降序排序（最新的在前）
+  return ordersCopy.sort((a, b) => {
+    const dateA = new Date(a.datetime);
+    const dateB = new Date(b.datetime);
+    return dateB - dateA;
+  });
+});
 </script>
 
 <style scoped>
@@ -502,6 +501,34 @@ function fallbackCopyTextToClipboard(text) {
   border-bottom-right-radius: 6px;
 }
 
+/* 所有订单列表样式 */
+.all-orders-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 16px;
+  margin: 16px 0;
+  /* border: 1px solid #e6d4b4;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7); */
+}
+
+.order-item {
+  padding: 16px 0;
+  /* border-bottom: 1px dashed #c7b294; */
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item .order-id {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 16px;
+  color: #886417;
+  font-size: 18px;
+}
+
 
 .dialog-header .close {
   cursor: pointer;
@@ -664,6 +691,23 @@ function fallbackCopyTextToClipboard(text) {
   /* ✅ 添加圆角 */
   border-bottom-right-radius: 6px;
   /* ✅ 添加圆角 */
+  padding: 20px 0;
+}
+
+.dialog-footer button {
+  background: #b68d41;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.dialog-footer button:hover {
+  background: #886417;
 }
 
 .dialog-footer button {
@@ -686,6 +730,26 @@ function fallbackCopyTextToClipboard(text) {
 
 .dialog-content::-webkit-scrollbar-track {
   background-color: #f5e3c6;
+}
+
+/* 隐藏滚动条 - Webkit 浏览器 (Chrome, Safari, Edge) */
+.all-orders-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.all-orders-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.all-orders-list::-webkit-scrollbar-thumb {
+  background-color: #886417;
+  border-radius: 3px;
+}
+
+/* Firefox */
+.all-orders-list {
+  scrollbar-width: thin;
+  scrollbar-color: #886417 transparent;
 }
 
 .dialog-header-row-tr th:first-child {
