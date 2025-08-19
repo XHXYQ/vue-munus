@@ -69,6 +69,9 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, '')  // 去掉 /api 前缀
       }
-    }
+    },
+    allowedHosts: [
+      '94b7569b73e0.ngrok-free.app' // ngrok内网穿透调试
+    ]
   }
 })
