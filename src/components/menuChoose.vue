@@ -42,33 +42,52 @@
               <div class="dish-name-skeleton"></div>
             </div>
           </template>
-          <div class="menu-section" v-for="group in currentCategory.groups" :key="group.name">
-            <h2 class="group-title">
-              <div class="group-cn">{{ group.name }}</div>
-              <div class="group-en">{{ group.en }}</div>
-            </h2>
-            <div class="menu-list" @scroll.passive="onMenuListScroll" @touchstart.passive="onTouchStart"
-              @touchmove.passive="onTouchMove" @touchend.passive="onTouchEnd"
-              :ref="(el) => { if (el) menuListRefs[index] = el }">
-              <div class="menu-item" v-for="dish in group.items" :key="dishKey(dish)">
-                <img :src="dish.img" class="dish-img" />
-                <div class="dish-info">
-                  <div class="dish-name">{{ dish.name }}</div>
-                  <div class="dish-en">{{ dish.en }}</div>
+          <!-- 为菜单内容添加过渡效果 -->
+          <transition name="slide-fade" mode="out-in">
+            <div class="menu-section-wrapper" :key="activeIndex">
+              <div class="menu-section" v-for="group in currentCategory.groups" :key="group.name">
+                <h2 class="group-title">
+                  <div class="group-cn">{{ group.name }}</div>
+                  <div class="group-en">{{ group.en }}</div>
+                </h2>
+                <!-- 确保始终渲染.menu-list容器以支持滑动切换功能 -->
+                <div class="menu-list" @scroll.passive="onMenuListScroll" @touchstart.passive="onTouchStart"
+                  @touchmove.passive="onTouchMove" @touchend.passive="onTouchEnd"
+                  :ref="(el) => { if (el) menuListRefs[index] = el }">
+                  <div class="menu-item" v-for="dish in group.items" :key="dishKey(dish)">
+                    <img :src="dish.img" class="dish-img" />
+                    <div class="dish-info">
+                      <div class="dish-name">{{ dish.name }}</div>
+                      <div class="dish-en">{{ dish.en }}</div>
+                    </div>
+                    <div class="quantity-control">
+                      <template v-if="dish.count > 0">
+                        <button @click="decrease(dish)">-</button>
+                        <div class="count">{{ dish.count }}</div>
+                        <button @click="increase(dish)">+</button>
+                      </template>
+                      <template v-else>
+                        <button @click="increase(dish)">+</button>
+                      </template>
+                    </div>
+                  </div>
+                  <!-- 当没有菜品时显示提示信息 -->
+                  <div v-if="group.items.length === 0" class="no-dishes">
+                    <div class="no-dishes-text">暂无菜品</div>
+                  </div>
                 </div>
-                <div class="quantity-control">
-                  <template v-if="dish.count > 0">
-                    <button @click="decrease(dish)">-</button>
-                    <div class="count">{{ dish.count }}</div>
-                    <button @click="increase(dish)">+</button>
-                  </template>
-                  <template v-else>
-                    <button @click="increase(dish)">+</button>
-                  </template>
+              </div>
+              <!-- 当没有分组时显示空的menu-list以支持滑动切换 -->
+              <div v-if="currentCategory.groups.length === 0" class="menu-section">
+                <div class="menu-list" @scroll.passive="onMenuListScroll" @touchstart.passive="onTouchStart"
+                  @touchmove.passive="onTouchMove" @touchend.passive="onTouchEnd">
+                  <div class="no-dishes">
+                    <div class="no-dishes-text">暂无菜品</div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </transition>
         </div>
       </div>
     </main>
@@ -322,13 +341,20 @@ async function selectCategory(index) {
 function scrollToCategory(index) {
   if (categoryListRef.value && categoryListRef.value.children[index]) {
     const categoryItem = categoryListRef.value.children[index];
-
-    // 使用 scrollIntoView 方法确保元素可见，调整参数使元素居中显示
-    categoryItem.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-      // inline: 'nearest'
-      inline: 'center'
+    const container = categoryListRef.value;
+    
+    // 计算元素在容器中的位置
+    const itemOffsetTop = categoryItem.offsetTop;
+    const itemHeight = categoryItem.offsetHeight;
+    const containerHeight = container.clientHeight;
+    
+    // 将元素滚动到容器中心位置
+    const scrollPosition = itemOffsetTop - (containerHeight / 2) + (itemHeight / 2);
+    
+    // 平滑滚动到指定位置
+    container.scrollTo({
+      top: scrollPosition,
+      behavior: 'smooth'
     });
   }
 }
@@ -792,7 +818,9 @@ onMounted(async () => {
   width: 100%;
   height: 100%;
 }
-
+.menu-section-wrapper {
+  height: 100%;
+}
 .menu-section {
   height: 100%;
   display: flex;
@@ -1110,8 +1138,59 @@ onMounted(async () => {
   color: white;
 }
 
-.cart-actions button.confirm-btn {
+/* 底部操作栏按钮 - 确认下单 */
+.cart-actions .confirm-button {
   background: #b68d41;
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  font-size: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+  letter-spacing: 2px;
+}
+
+.cart-actions .confirm-button:hover {
+  background: #886417;
+}
+
+/* 过渡动画 - 垂直滑动 */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from {
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+/* 无菜品提示样式 */
+.no-dishes {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.no-dishes-text {
+  font-size: 24px;
+  color: #886417;
+  opacity: 0.6;
+}
+
+/* 🎯 Firefox 浏览器支持滚动条颜色（较少控制力） */
+.cart-drawer {
+  scrollbar-color: #886417 transparent;
+  scrollbar-width: thin;
 }
 
 .cart-mask {
