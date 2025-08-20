@@ -16,13 +16,5 @@ document.head.appendChild(link)
 
 const app = createApp(App).use(router).use(ElementPlus).mount('#app');
 
-// 注册PWA服务工作者
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(registration => {
-      console.log('SW registered: ', registration);
-    }).catch(registrationError => {
-      console.log('SW registration failed: ', registrationError);
-    });
-  });
-}
+// PWA服务工作者由vite-plugin-pwa自动注册
+// 移除手动注册代码以避免冲突

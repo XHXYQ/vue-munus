@@ -1,5 +1,39 @@
 let deferredPrompt;
 
+// 添加Service Worker更新检测
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    // 当新的Service Worker接管时，显示更新提示
+    showUpdatePrompt();
+  });
+}
+
+function showUpdatePrompt() {
+  // 创建更新提示
+  const updateBanner = document.createElement('div');
+  updateBanner.id = 'pwa-update-banner';
+  updateBanner.innerHTML = `
+    <div style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #886417; color: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 9999; display: flex; align-items: center; gap: 10px;">
+      <span>发现新版本，是否立即更新？</span>
+      <button id="update-button" style="background: white; color: #886417; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">更新</button>
+      <button id="update-close-button" style="background: transparent; color: white; border: none; padding: 8px; cursor: pointer;">×</button>
+    </div>
+  `;
+  
+  document.body.appendChild(updateBanner);
+  
+  // 添加更新按钮事件
+  document.getElementById('update-button').addEventListener('click', () => {
+    // 强制刷新页面以使用新的Service Worker
+    window.location.reload();
+  });
+  
+  // 添加关闭按钮事件
+  document.getElementById('update-close-button').addEventListener('click', () => {
+    updateBanner.remove();
+  });
+}
+
 window.addEventListener('beforeinstallprompt', (e) => {
   // 阻止默认的安装提示
   e.preventDefault();

@@ -27,18 +27,35 @@ export default defineConfig({
       devOptions: {
         enabled: true,
         type: 'module',
-        navigateFallback: '/',
+        navigateFallback: '/index.html',
         suppressWarnings: true,
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        maximumFileSizeToCacheInBytes: 20000000 // 20MB
+        maximumFileSizeToCacheInBytes: 20000000, // 20MB
+        skipWaiting: true, // 立即激活新的service worker
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/api\..*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 // 24小时
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
       },
       manifest: {
         name: 'CIBC点餐系统',
-        short_name: '点餐系统',
+        short_name: 'CIBC点餐系统',
         description: 'CIBC点餐系统',
         theme_color: '#886417',
         background_color: '#f5e3c6',
