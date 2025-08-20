@@ -327,6 +327,7 @@ onMounted(() => {
 .back-icon {
   font-size: 20px;
   margin-right: 6px;
+  color: #886417;
 }
 
 .back-btn-text {
