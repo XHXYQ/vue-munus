@@ -20,28 +20,31 @@
       <div class="menu-grid">
         <!-- 骨架屏 -->
         <template v-if="loading">
-          <div class="menu-card menu-card-skeleton" v-for="item in 8" :key="'skeleton-' + item">
-            <!-- <div class="card-img-wrapper skeleton-img"></div> -->
-            <div class="card-text card-text-skeleton">
-              <h2 class="card-title skeleton-title"></h2>
-              <p class="card-subtitle skeleton-subtitle"></p>
+          <div class="menu-card-warper" v-for="item in 8" :key="'skeleton-' + item">
+            <div class="menu-card menu-card-skeleton">
+              <!-- <div class="card-img-wrapper skeleton-img"></div> -->
+              <div class="card-text card-text-skeleton">
+                <h2 class="card-title skeleton-title"></h2>
+                <p class="card-subtitle skeleton-subtitle"></p>
+              </div>
+              <img class="card-next skeleton-next" src="@/assets/next.svg" alt="箭头" />
             </div>
-            <img class="card-next skeleton-next" src="@/assets/next.svg" alt="箭头" />
           </div>
         </template>
         
         <!-- 实际菜单数据 -->
         <template v-else>
-          <div class="menu-card" v-for="item in menuList" :key="item.title"
-            @click="router.push({ name: 'menuChoose', query: { type: item.code, name: item.title, nameEn: item.subtitle } })">
-            <div class="card-img-wrapper">
-              <img :src="item.img" alt="image" class="card-img" loading="lazy" />
+          <div class="menu-card-warper" v-for="item in menuList" :key="item.title" @click="router.push({ name: 'menuChoose', query: { type: item.code, name: item.title, nameEn: item.subtitle } })">
+            <div class="menu-card">
+              <div class="card-img-wrapper">
+                <img :src="item.img" alt="image" class="card-img" loading="lazy" />
+              </div>
+              <div class="card-text">
+                <h2 class="card-title">{{ item.title }}</h2>
+                <p class="card-subtitle">{{ item.subtitle }}</p>
+              </div>
+              <img class="card-next" src="@/assets/next.svg" alt="箭头" />
             </div>
-            <div class="card-text">
-              <h2 class="card-title">{{ item.title }}</h2>
-              <p class="card-subtitle">{{ item.subtitle }}</p>
-            </div>
-            <img class="card-next" src="@/assets/next.svg" alt="箭头" />
           </div>
         </template>
       </div>
@@ -196,12 +199,22 @@ onMounted(() => {
   margin-right: auto;
 }
 
+.menu-card-warper {
+  width: 100%;
+  height: 24vh;
+  border-radius: 12px;
+  overflow: hidden;
+  /* 自定义点击高亮颜色 */
+  -webkit-tap-highlight-color: transparent;
+}
+
 .menu-card {
   display: flex;
   align-items: center;
+  /* width: 100%;
+  height: 24vh; */
   width: 100%;
-  /* max-width: 600px; */
-  height: 24vh;
+  height: 100%;
   background: rgba(64, 44, 13, 0.35);
   border-radius: 12px;
   padding: 0 32px;

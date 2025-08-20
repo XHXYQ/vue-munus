@@ -1280,34 +1280,43 @@ onBeforeUnmount(() => {
   bottom: 0;
   right: 0;
   width: 706px;
-  background: #f5e8d5;
+  /* background: #f5e8d5; */
   padding: 12px 24px;
   /* box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1); */
   box-sizing: border-box;
   z-index: 1000;
   display: flex;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .cart-actions button {
+  font-family: 'Source Han Serif CN Bold';
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   border: none;
-  font-size: 16px;
-  margin-right: 12px;
+  font-size: 20px;
+  /* margin-right: 12px; */
   border-radius: 6px;
   cursor: pointer;
   background: #ccb89a;
   color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+.cart-actions button .en {
+  font-size: 14px;
 }
 
 /* 底部操作栏按钮 - 确认下单 */
-.cart-actions .confirm-button {
+.cart-actions .confirm-btn {
   background: #b68d41;
   color: white;
   border: none;
-  padding: 12px 32px;
-  font-size: 20px;
+  /* padding: 12px 32px; */
+  /* font-size: 20px; */
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
@@ -1315,7 +1324,7 @@ onBeforeUnmount(() => {
   letter-spacing: 2px;
 }
 
-.cart-actions .confirm-button:hover {
+.cart-actions .confirm-btn:hover {
   background: #886417;
 }
 

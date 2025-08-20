@@ -88,18 +88,12 @@
                 </tr>
               </tbody>
             </table>
-
-            <!-- 订单备注 -->
-            <!-- <div class="order-remark-row">
-              <div class="remark-content">
-                <span v-if="orderRemark">备注：{{ orderRemark }}</span>
-                <span v-else class="add-remark" @click="openRemarkDialog">+ 添加备注</span>
-              </div>
-              <div v-if="orderRemark" class="edit-btn-wrapper">
-                <span class="edit-remark" @click="openRemarkDialog">✎ 修改</span>
-              </div>
-            </div> -->
           </div>
+        </div>
+        <!-- 订单备注 -->
+        <div class="order-remark" v-if="orderIndex !== -1">
+          <div class="remark-title">备注：</div>
+          <div class="remark-content">{{ currentRemark || '' }}</div>
         </div>
       </div>
 
@@ -154,6 +148,7 @@ const tempRemark = ref("");
 const showRemarkDialog = ref(false);
 const historyOrders = ref([]);
 const currentOrder = ref([]);
+const currentRemark = ref('');
 const orderIndex = ref(-1);
 const dishes = ref([]); // 此页展示用（数组）
 const cartMap = ref({}); // 全局购物车镜像（对象）
@@ -260,6 +255,7 @@ onBeforeUnmount(() => {
 const selectHistoryOrder = (order, index) => { 
   orderIndex.value = index;
   currentOrder.value = order.dishes;
+  currentRemark.value = order.remark;
 };
 
 function increase(dish) {
@@ -298,6 +294,10 @@ function decrease(dish) {
       const element = dishes.value[i];
       if (element.cartCategoryName === dish.categoryName) {
         element.children = element.children.filter(d => d.id != dish.id);
+        // 如果children.length == 0，则删除element
+        if (element.children.length == 0) {
+          dishes.value.splice(i, 1);
+        }
         break;
       }
     }
@@ -334,6 +334,10 @@ function removeDish(dish) {
       const element = dishes.value[i];
       if (element.cartCategoryName === dish.categoryName) {
         element.children = element.children.filter(d => d.id != dish.id);
+        // 如果删除的菜品是当前分类下的最后一条数据，则删除该分类
+        if (!element.children.length) {
+          dishes.value.splice(i, 1);
+        }
         break;
       }
     }
@@ -730,9 +734,11 @@ function confirmRemark() {
 }
 
 .remark-content {
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-word;
+  font-size: 16px;
+  font-family: 'Source Han Serif CN Medium';
+  user-select: text;
+  white-space: pre-wrap; /* 允许换行 */
+  word-wrap: break-word; /* 防止长单词溢出 */
 }
 
 .edit-btn-wrapper {
