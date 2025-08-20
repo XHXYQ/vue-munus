@@ -505,6 +505,7 @@ function confirmRemark() {
 .back-icon {
   font-size: 20px;
   margin-right: 6px;
+  color: #886417;
 }
 
 .menu-container {

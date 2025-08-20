@@ -754,6 +754,7 @@ onBeforeUnmount(() => {
 
 .back-icon {
   font-size: 20px;
+  color: #886417;
 }
 
 .category-item {
@@ -883,6 +884,7 @@ onBeforeUnmount(() => {
 
 .cart-icon {
   font-size: 20px;
+  color: #886417;
 }
 
 .cart-text .zh {

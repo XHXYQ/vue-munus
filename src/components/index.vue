@@ -24,7 +24,7 @@
       <div class="swipe-tip">
         <div class="arrow">&#x25B2;</div>
         <div class="text">点击屏幕开始点餐</div>
-        <div class="text-en">Click on the screen to start ordering（v1.0.0）</div>
+        <div class="text-en">Click on the screen to start ordering</div>
       </div>
 
       <!-- 清除数据按钮 -->
