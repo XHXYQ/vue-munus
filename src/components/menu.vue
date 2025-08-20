@@ -340,7 +340,7 @@ onMounted(() => {
 .back-btn:hover {
   color: #aa8533;
   /* 可选：悬停时字体颜色加深 */
-  transform: none;
+  /* transform: none; */
   box-shadow: none;
 }
 

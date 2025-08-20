@@ -34,8 +34,8 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        maximumFileSizeToCacheInBytes: 20000000, // 20MB
         skipWaiting: true, // 立即激活新的service worker
+        maximumFileSizeToCacheInBytes: 20000000, // 20MB
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/api\..*/i,
