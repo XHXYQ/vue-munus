@@ -1,6 +1,6 @@
 {
   "name": "CIBC点餐系统",
-  "short_name": "点餐系统",
+  "short_name": "CIBC点餐系统v1.0.0",
   "description": "CIBC点餐系统",
   "start_url": "/",
   "display": "standalone",
