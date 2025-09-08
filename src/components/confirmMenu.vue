@@ -365,7 +365,9 @@ function submitOrder() {
   // console.log("🚀 ~ submitOrder ~ dishes.value:", dishes.value)
 
   const now = new Date();
-  const datetime = now.toISOString().replace("T", " ").substring(0, 19);
+  console.log("🚀 ~ confirmMenu.vue:368 ~ submitOrder ~ now:", now)
+  const datetime = now.toLocaleString().replace("T", " ").substring(0, 19);
+  console.log(`🚀 ~ confirmMenu.vue:370 ~ submitOrder ~ now.toISOString().replace("T", " "):`, now.toISOString().replace("T", " "))
   const historyOrders = JSON.parse(localStorage.getItem('historyOrders') || '[]');
   historyOrders.push({
     datetime,
@@ -596,6 +598,7 @@ function confirmRemark() {
 
 .dish-table th:first-child {
   border-radius: 8px 0 0 0;
+  width: 10%;
 }
 
 .dish-table th:nth-child(2),
@@ -615,6 +618,7 @@ function confirmRemark() {
   text-align: center;
   color: #fff;
   font-size: 16px;
+  text-align: left;
 }
 
 .dish-name-cn {
@@ -659,7 +663,7 @@ function confirmRemark() {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 28px;
 }
 
 .quantity-control button {
@@ -701,8 +705,10 @@ function confirmRemark() {
   border: none;
   cursor: pointer;
   display: flex;
-  justify-content: space-evenly;
+  /* justify-content: space-evenly; */
+  jsustify-content: center;
   align-items: end;
+  gap: 8px;
 }
 
 .back-btn {

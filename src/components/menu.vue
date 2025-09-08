@@ -236,6 +236,7 @@ onMounted(() => {
 }
 
 .card-img-wrapper {
+  flex: none;
   width: 24vh;
   height: 24vh;
   margin-left: calc(-28vh * 0.6);
@@ -263,8 +264,10 @@ onMounted(() => {
 
 .card-text {
   flex: 1;
+  overflow: hidden;
   text-align: left;
   margin-left: 10%;
+  margin-right: 8px;
 }
 .card-text-skeleton {
   margin-left: 15%;
@@ -298,6 +301,7 @@ onMounted(() => {
 }
 
 .card-next {
+  flex: none;
   font-size: 32px;
   color: #fff;
 }

@@ -1042,6 +1042,7 @@ onBeforeUnmount(() => {
   margin-right: 16px;
   width: 130px;
   height: 130px;
+  flex: none;
 }
 .submitted-tag {
   position: absolute;
@@ -1078,6 +1079,7 @@ onBeforeUnmount(() => {
 .dish-info {
   flex: 1;
   text-align: left;
+  overflow: hidden;
 }
 
 .dish-name {
@@ -1102,6 +1104,8 @@ onBeforeUnmount(() => {
 }
 
 .quantity-control {
+  margin-left: 12px;
+  flex: none;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1229,6 +1233,7 @@ onBeforeUnmount(() => {
 
 .cart-info {
   flex: 1;
+  overflow: hidden;
 }
 
 .cart-group-name {
@@ -1667,7 +1672,7 @@ onBeforeUnmount(() => {
 .name-cn {
   font-size: clamp(20px, 2.2vw, 28px);
   line-height: 1.15;
-  white-space: nowrap;
+  /* white-space: nowrap; */
   /* 防止两字一行的断行 */
 }
 

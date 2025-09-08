@@ -63,7 +63,7 @@
               </div>
 
               <div class="order-remark">
-                <div class="remark-title">备注：</div>
+                <div class="remark-title">备注：{{ order.remark ? '' : '无' }}</div>
                 <div class="remark-content">{{ order.remark || '' }}</div>
               </div>
             </div>
@@ -248,14 +248,15 @@ function copyAllOrdersContent() {
   let content = "所有订单：\n\n";
   
   sortedOrders.value.forEach((order, index) => {
+    console.log("🚀 ~ orderInfo.vue:251 ~ copyAllOrdersContent ~ order:", order)
     content += `订单：\n时间：${order.datetime}\n\n`;
     
     for (const category of order.dishes) {
-      // content += `${category.cartCategoryName}\n`;
+      content += `${category.cartCategoryName}\n`;
       for (const item of category.children) {
-        content += `${item.name} x${item.count}\n`;
+        content += ` ${item.name} x${item.count}\n`;
       }
-      // content += '\n';
+      content += '\n';
     }
     
     content += `\n备注：${order.remark || "无"}\n`;
@@ -302,7 +303,8 @@ const sortedOrders = computed(() => {
 }
 
 .order-box {
-  background: rgba(145, 118, 81, 0.65);
+  backdrop-filter: blur(10px);
+  background: hsla(35, 28.30%, 44.30%, 0.35);
   border-radius: 16px;
   /* padding: 40px 32px; */
   padding: 5vh;
@@ -360,7 +362,7 @@ const sortedOrders = computed(() => {
 }
 
 .btn.light {
-  background: #b39253;
+  background: #88641780;
   color: white;
   width: 272px;
 }
@@ -505,16 +507,20 @@ const sortedOrders = computed(() => {
 .all-orders-list {
   max-height: 60vh;
   overflow-y: auto;
-  padding: 16px;
-  margin: 16px 0;
+  /* padding: 16px; */
+  
   /* border: 1px solid #e6d4b4;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.7); */
 }
 
 .order-item {
-  padding: 16px 0;
+  /* padding: 16px 0; */
   /* border-bottom: 1px dashed #c7b294; */
+}
+
+.order-item +.order-item {
+  margin-top: 16px;
 }
 
 .order-item:last-child {
@@ -525,7 +531,7 @@ const sortedOrders = computed(() => {
   text-align: center;
   font-weight: bold;
   margin-bottom: 16px;
-  color: #886417;
+  color: white;
   font-size: 18px;
 }
 
@@ -607,6 +613,7 @@ const sortedOrders = computed(() => {
 .dish-table td:nth-child(2) {
   text-align: left;
   width: 70%;
+  overflow: hidden;
 }
 
 .dish-table th:last-child {
@@ -629,6 +636,7 @@ const sortedOrders = computed(() => {
   line-height: 24px;
   letter-spacing: 3px;
   font-style: normal;
+  word-break: break-word;
 }
 
 .dish-name-en {
@@ -691,7 +699,7 @@ const sortedOrders = computed(() => {
   /* ✅ 添加圆角 */
   border-bottom-right-radius: 6px;
   /* ✅ 添加圆角 */
-  padding: 20px 0;
+  /* padding: 20px 0; */
 }
 
 .dialog-footer button {
