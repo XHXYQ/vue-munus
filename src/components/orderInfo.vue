@@ -36,7 +36,7 @@
                   <table class="dish-table">
                     <thead>
                       <tr>
-                        <th>序号<div class="en">number</div>
+                        <th>序号<div class="en">Number</div>
                         </th>
                         <th>菜品名称<div class="en">Dish name</div>
                         </th>
@@ -656,6 +656,12 @@ const sortedOrders = computed(() => {
   white-space: pre-wrap; /* 允许换行 */
   word-wrap: break-word; /* 防止长单词溢出 */
 }
+
+.order-remark {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #886417;
+}
+
 
 /* 
 .dialog-table {

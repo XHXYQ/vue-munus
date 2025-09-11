@@ -35,6 +35,7 @@
             </div>
             <div class="history-item" :class="orderIndex === -1 ? 'activeOrder' : ''" @click="orderIndex = -1">
               <div class="item-title">当前待下单</div>
+              <img class="" src="@/assets/checked.svg" alt="√" />
             </div>
           </div>
         </div>
@@ -56,7 +57,7 @@
             <table class="dish-table">
               <thead>
                 <tr>
-                  <th>序号<div class="en">number</div>
+                  <th>序号<div class="en">Number</div>
                   </th>
                   <th>菜品名称<div class="en">Dish name</div>
                   </th>
@@ -499,10 +500,7 @@ function confirmRemark() {
   color: white;
 }
 
-.history-board-list .history-item.activeOrder::after {
-  content: '✔';
-  display: inline-block;
-}
+
 
 .back-icon {
   font-size: 20px;
