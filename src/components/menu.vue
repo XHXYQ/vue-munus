@@ -16,7 +16,7 @@
         </div>
       </div>
     </h1>
-    <div class="menu-body" :class="loading ? 'menu-body-skeleton' : '' ">
+    <div class="menu-body" :class="loading ? 'menu-body-skeleton' : '' " ref="menuBodyRef">
       <div class="menu-grid">
         <!-- 骨架屏 -->
         <template v-if="loading">
@@ -34,7 +34,7 @@
         
         <!-- 实际菜单数据 -->
         <template v-else>
-          <div class="menu-card-warper" v-for="item in menuList" :key="item.title" @click="router.push({ name: 'menuChoose', query: { type: item.code, name: item.title, nameEn: item.subtitle } })">
+          <div class="menu-card-warper" v-for="item in menuList" :key="item.title" @click="handleMenuClick(item)">
             <div class="menu-card">
               <div class="card-img-wrapper">
                 <img :src="item.img" alt="image" class="card-img" loading="lazy" />
@@ -56,13 +56,17 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { ref, onMounted, nextTick, watch, watchEffect } from "vue";
+import { ref, onMounted, nextTick, watch, watchEffect, onBeforeUnmount } from "vue";
 import { listCategory } from '@/api/system/category'
 import { ArrowLeftBold } from "@element-plus/icons-vue";
 import type { CategoryVO } from '@/api/system/category/types'
 import '@/assets/font/fonts.css'
 
 const router = useRouter();
+
+// 滚动位置记忆
+const SCROLL_POSITION_KEY = 'menu-page-scroll-position';
+const menuBodyRef = ref<HTMLElement | null>(null);
 
 const menuList = ref<Array<{
   title: string
@@ -118,12 +122,50 @@ const stop = watch(loading, async (newValue, oldValue) => {
           }
         }
       })
+      
+      // 在数据加载完成后恢复滚动位置
+      restoreScrollPosition();
    } 
 })
 
+// 处理菜单点击，保存滚动位置
+function handleMenuClick(item: any) {
+  // 保存当前滚动位置
+  if (menuBodyRef.value) {
+    const scrollTop = menuBodyRef.value.scrollTop;
+    sessionStorage.setItem(SCROLL_POSITION_KEY, scrollTop.toString());
+  }
+  
+  // 跳转到菜单选择页面
+  router.push({ 
+    name: 'menuChoose', 
+    query: { 
+      type: item.code, 
+      name: item.title, 
+      nameEn: item.subtitle 
+    } 
+  });
+}
+
+// 恢复滚动位置
+function restoreScrollPosition() {
+  const savedPosition = sessionStorage.getItem(SCROLL_POSITION_KEY);
+  if (savedPosition && menuBodyRef.value) {
+    const scrollTop = parseInt(savedPosition, 10);
+    menuBodyRef.value.scrollTop = scrollTop;
+  }
+}
+
 onMounted(() => {
-  fetchMenuList()
-})
+  fetchMenuList();
+  sessionStorage.removeItem('menu-choose-page-state');
+});
+
+// 页面卸载时清理
+onBeforeUnmount(() => {
+  // 可选：如果需要在页面卸载时清理存储的位置
+  // sessionStorage.removeItem(SCROLL_POSITION_KEY);
+});
 </script>
 
 <style scoped>

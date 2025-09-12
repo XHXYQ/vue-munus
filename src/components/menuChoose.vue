@@ -2,7 +2,7 @@
   <div class="menu-choose-page">
     <!-- 左侧分类 -->
     <aside class="category-sidebar">
-      <div class="back" @click="router.push('/menu')">
+      <div class="back" @click="handleBackToMenu">
         <el-icon class="back-icon">
           <ArrowLeftBold />
         </el-icon>
@@ -179,7 +179,7 @@
 
 <script setup>
 import { ref, computed, onMounted, nextTick, onBeforeUnmount } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter, useRoute, onBeforeRouteLeave } from "vue-router";
 import { groupWithDishes } from "@/api/system/dishGroup";
 import { ArrowLeftBold, ShoppingCart } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -189,6 +189,50 @@ const route = useRoute();
 const loading = ref(false);
 const activeIndex = ref(0);
 const cartVisible = ref(false);
+
+// 页面状态记忆
+const MENU_CHOOSE_STATE_KEY = 'menu-choose-page-state';
+
+// 保存页面状态
+function savePageState() {
+  const state = {
+    activeIndex: activeIndex.value,
+    categoryScrollTop: categoryListRef.value ? categoryListRef.value.scrollTop : 0,
+    timestamp: Date.now()
+  };
+  sessionStorage.setItem(MENU_CHOOSE_STATE_KEY, JSON.stringify(state));
+}
+
+// 恢复页面状态
+function restorePageState() {
+  try {
+    const savedState = sessionStorage.getItem(MENU_CHOOSE_STATE_KEY);
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      // 检查状态是否过期（1小时）
+      if (Date.now() - state.timestamp < 3600000) {
+        activeIndex.value = state.activeIndex || 0;
+        
+        // 恢复分类滚动位置
+        nextTick(() => {
+          if (categoryListRef.value && state.categoryScrollTop) {
+            categoryListRef.value.scrollTop = state.categoryScrollTop;
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.warn('恢复页面状态失败:', error);
+  }
+}
+
+// 处理返回到菜单页面
+function handleBackToMenu() {
+  // 保存当前页面状态
+  savePageState();
+  // 返回菜单页面
+  router.push('/menu');
+}
 
 // 添加滚动联动相关的引用
 const categoryListRef = ref(null);
@@ -376,6 +420,9 @@ async function selectCategory(index) {
   // 滚动到对应的左侧分类项
   await nextTick();
   scrollToCategory(index);
+  
+  // 保存当前状态
+  savePageState();
 }
 
 // 滚动到指定的分类项
@@ -588,7 +635,7 @@ async function fetchDishGroups() {
       ],
     }));
 
-    activeIndex.value = 0;
+    // 不在这里重置activeIndex，让restorePageState来处理
   } catch (e) {
     console.error("加载分组菜品失败", e);
     ElMessage({
@@ -659,16 +706,28 @@ onMounted(async () => {
   await fetchDishGroups();   // 拉取当前菜系的分组与菜
   syncCountsFromCart(); // 回灌数量
 
+  // 数据加载完成后恢复页面状态
+  restorePageState();
+
   // 初始化时确保第一个分类可见
   await nextTick();
   if (categories.value.length > 0) {
-    scrollToCategory(0);
+    scrollToCategory(activeIndex.value);
   }
 
   // 阻止页面被上拉下拉
   // preventPullToRefresh();
 });
+// 路由离开守卫
+onBeforeRouteLeave((to, from, next) => {
+  // 保存页面状态
+  savePageState();
+  next();
+});
+
 onBeforeUnmount(() => { 
+  // 页面卸载时保存状态
+  savePageState();
   document.removeEventListener('touchmove', preventPullToRefresh);
 });
 </script>

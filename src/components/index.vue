@@ -119,6 +119,9 @@ onMounted(async () => {
   fitTitle()
   window.addEventListener('resize', handleResize)
   window.addEventListener('orientationchange', handleResize)
+  console.log('index.vue mounted')
+  sessionStorage.removeItem('menu-page-scroll-position');
+  sessionStorage.removeItem('menu-choose-page-state');
 })
 
 onBeforeUnmount(() => {
