@@ -140,11 +140,11 @@ onBeforeUnmount(() => {
 
 
 const goHome = () => {
-  const dishesAll = JSON.parse(localStorage.getItem('cachedDishesAll'));
-  for (const key in dishesAll) {
-    dishesAll[key].submitted = dishesAll[key].count;
-  }
-  localStorage.setItem('cachedDishesAll', JSON.stringify(dishesAll));
+  // const dishesAll = JSON.parse(localStorage.getItem('cachedDishesAll'));
+  // for (const key in dishesAll) {
+  //   dishesAll[key].submitted = dishesAll[key].count;
+  // }
+  // localStorage.setItem('cachedDishesAll', JSON.stringify(dishesAll));
 
   router.push("/index")
 };
