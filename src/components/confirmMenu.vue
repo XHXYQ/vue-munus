@@ -32,10 +32,11 @@
             <div class="history-item" :class="orderIndex === index ? 'activeOrder' : ''"
               v-for="(item, index) in historyOrders" :key="index" @click="selectHistoryOrder(item, index)">
               <div class="item-title">{{ item.datetime }}</div>
+              <img class="" src="@/assets/checked.svg" alt="√" v-show="orderIndex === index"/>
             </div>
             <div class="history-item" :class="orderIndex === -1 ? 'activeOrder' : ''" @click="orderIndex = -1">
               <div class="item-title">当前待下单</div>
-              <img class="" src="@/assets/checked.svg" alt="√" />
+              <img class="" src="@/assets/checked.svg" alt="√" v-show="orderIndex === -1"/>
             </div>
           </div>
         </div>
@@ -155,6 +156,30 @@ const dishes = ref([]); // 此页展示用（数组）
 const cartMap = ref({}); // 全局购物车镜像（对象）
 const isScrollable = ref(false);
 
+const globalCartList = computed(() => {
+  const cartItems = Object.values(cartMap.value);
+
+  // 按 groupName 分组
+  const grouped = {};
+  cartItems.forEach(item => {
+    const cartCategoryName = item.categoryName || '未分组';
+    const cartCategoryNameEn = item.categoryNameEn || 'unknown';
+    if (!grouped[cartCategoryName]) {
+      grouped[cartCategoryName] = {
+        items: [],
+        en: cartCategoryNameEn
+      };
+    }
+    grouped[cartCategoryName].items.push(item);
+  });
+
+  // 转换为 [{cartCategoryName: 'xxx', cartCategoryNameEn: 'xxx', children: [...]}, ...] 格式
+  return Object.entries(grouped).map(([cartCategoryName, groupData]) => ({
+    cartCategoryName,
+    cartCategoryNameEn: groupData.en,
+    children: groupData.items
+  }));
+});
 function dishKey(dish) {
   return dish.id ?? dish.dishId ?? dish.code ?? dish.name;
 }
@@ -163,6 +188,7 @@ function loadCart() {
   try {
     const raw = localStorage.getItem(CART_KEY);
     cartMap.value = raw ? JSON.parse(raw) : {};
+    console.log(22,cartMap.value)
   } catch {
     cartMap.value = {};
   }
@@ -231,13 +257,29 @@ onMounted(() => {
   document.addEventListener('touchmove', preventPullToRefresh, { passive: false })
 
   historyOrders.value = JSON.parse(localStorage.getItem("historyOrders") || "[]");
-
+  console.log(11,historyOrders.value)
   loadCart();
+  setTimeout(() => {
+    let dishesCopy = JSON.parse(JSON.stringify(globalCartList.value));
+    console.log("🚀 ~ confirmMenu.vue:264 ~ dishesCopy:", dishesCopy)
+    dishesCopy.forEach(item => { 
+      let newChildren = [];
+      item.children.forEach(child => {
+        if(child.count > 0) {
+          newChildren.push(child);
+        }
+      });
+      item.children = newChildren;
+    });
+    dishesCopy = dishesCopy.filter(item => item.children.length > 0);
+    dishes.value = dishesCopy
+  }, 100);
+
   // 兼容从菜单页 query 传来的 items，但以全局购物车为准
   const fromQuery = route.query.items ? JSON.parse(route.query.items) : null;
   console.log("🚀 ~ fromQuery:", fromQuery)
   if (fromQuery && fromQuery.length) {
-    dishes.value = fromQuery;
+    // dishes.value = fromQuery;
   }
   // if (fromQuery && fromQuery.length) {
   //   const tmp = {};
@@ -316,7 +358,8 @@ function removeDish(dish) {
       type: 'warning',
       center: true,
       confirmButtonClass: 'confirm-button',
-      cancelButtonClass: 'cancel-button'
+      cancelButtonClass: 'cancel-button',
+      customClass: 'custom-message-box'
     }
   ).then(() => {
     console.log("🚀 ~ removeDish ~ dish:", dish)
@@ -377,11 +420,11 @@ function submitOrder() {
   });
   localStorage.setItem('historyOrders', JSON.stringify(historyOrders))
 
-  const localCartList = JSON.parse(localStorage.getItem('cachedDishesAll') || '[]');
-  for (const key in localCartList) {
-    delete localCartList[key].submitted;
-  }
-  localStorage.setItem('cachedDishesAll', JSON.stringify(localCartList));
+  // const localCartList = JSON.parse(localStorage.getItem('cachedDishesAll') || '[]');
+  // for (const key in localCartList) {
+  //   delete localCartList[key].submitted;
+  // }
+  localStorage.setItem('cachedDishesAll', []);
 
   router.push({
     path: "/orderInfo",
@@ -412,6 +455,18 @@ function confirmRemark() {
 
 
 <style scoped>
+:global(.custom-message-box .el-message-box__title) {
+  max-width: 100%;
+  width: max-content;
+  align-items: baseline !important;
+}
+:global(.custom-message-box .el-message-box__title span) {
+  display: block;
+  flex: 1;
+  width: max-content;
+  word-break: break-word;
+}
+
 .confirm-page {
   background: url("@/assets/index2.png") no-repeat center center;
   background-size: cover;
@@ -511,7 +566,7 @@ function confirmRemark() {
 .menu-container {
   backdrop-filter: blur(10px);
   background: rgba(64, 44, 13, 0.35);
-  border-radius: 8px;
+  border-radius: 20px;
   /* height: 100%; */
   overflow: hidden;
   flex: 1;
@@ -710,7 +765,7 @@ function confirmRemark() {
 }
 
 .back-btn {
-  background: rgba(136, 100, 23, 0.5);
+  background: #88641780;
   color: white;
   display: flex;
   justify-content: center;
@@ -782,9 +837,9 @@ function confirmRemark() {
 
 .remark-dialog {
   background: #D4C0A8;
-  padding: 24px;
+  padding: 20px 24px;
   width: 55vw;
-  border-radius: 10px;
+  border-radius: 20px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   font-family: "Source Han Serif CN Bold";
   color: #886417;

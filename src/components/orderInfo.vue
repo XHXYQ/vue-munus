@@ -40,7 +40,8 @@
                         </th>
                         <th>菜品名称<div class="en">Dish name</div>
                         </th>
-                        <th>数量<div class="en">Quantity</div>
+                        <th>
+                          <div style="text-align: center; width: max-content">数量<div class="en">Quantity</div></div>
                         </th>
                       </tr>
                     </thead>
@@ -149,11 +150,11 @@ const goHome = () => {
 };
 
 const continueAdd = () => {
-  const dishesAll = JSON.parse(localStorage.getItem('cachedDishesAll'));
-  for (const key in dishesAll) {
-    dishesAll[key].submitted = dishesAll[key].count;
-  }
-  localStorage.setItem('cachedDishesAll', JSON.stringify(dishesAll));
+  // const dishesAll = JSON.parse(localStorage.getItem('cachedDishesAll'));
+  // for (const key in dishesAll) {
+  //   dishesAll[key].submitted = dishesAll[key].count;
+  // }
+  // localStorage.setItem('cachedDishesAll', JSON.stringify(dishesAll));
   
   const category = route.query.category || "chinese";
   const name = route.query.name || "中式佳肴"; // 默认值
@@ -305,7 +306,7 @@ const sortedOrders = computed(() => {
 .order-box {
   backdrop-filter: blur(10px);
   background: hsla(35, 28.30%, 44.30%, 0.35);
-  border-radius: 16px;
+  border-radius: 20px;
   /* padding: 40px 32px; */
   padding: 5vh;
   text-align: center;
@@ -427,14 +428,13 @@ const sortedOrders = computed(() => {
   /* width: 500px; */
   width: 70vw;
   max-height: 85vh;
-  border-radius: 12px;
-  padding: 0;
+  border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   color: #7a5700;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 24px;
+  padding: 20px 24px;
   padding-right: 0;
   position: relative;
 }
@@ -616,6 +616,11 @@ const sortedOrders = computed(() => {
   overflow: hidden;
 }
 
+.dish-table th:nth-child(3),
+.dish-table td:nth-child(3) {
+  text-align: left;
+}
+
 .dish-table th:last-child {
   border-radius: 0 8px 0 0;
 }
@@ -625,7 +630,7 @@ const sortedOrders = computed(() => {
   user-select: text;
   padding: 20px;
   border-bottom: 1px solid #fcfcfc;
-  text-align: center;
+  text-align: left;
   color: #886417;
   font-size: 16px;
 }

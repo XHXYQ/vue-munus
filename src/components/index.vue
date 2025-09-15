@@ -36,7 +36,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const bgLoaded = ref(false)
@@ -50,10 +50,25 @@ function goToMenu() {
   router.push('/menu')
 }
 
-function clearStorage() {
-  localStorage.clear()
-  localStorage.clear()
-  ElMessage.success('已清除本地数据')
+async function clearStorage() {
+  try {
+    await ElMessageBox.confirm(
+      '确定要清除所有本地数据吗？此操作不可恢复。',
+      '确认清除',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        confirmButtonClass: 'confirm-button',
+        cancelButtonClass: 'cancel-button'
+      }
+    )
+    localStorage.clear()
+    sessionStorage.clear()
+    ElMessage.success('已清除本地数据')
+  } catch {
+    // 用户取消操作，不做任何处理
+  }
 }
 
 /** 让主标题在任意屏宽“始终一行”地自适应 */

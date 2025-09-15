@@ -69,8 +69,9 @@
                   <div class="menu-item" v-for="dish in group.items" :key="dishKey(dish)">
                     <div class="dish-img-box">
                       <img :src="dish.img" class="dish-img" />
-                      <div class="submitted-tag" v-if="dish.submitted">
-                        <ShoppingCart /> <span class="zh">已购</span>
+                      <div class="submitted-tag" v-if="dish.ordered">
+                        <!-- <ShoppingCart /> <span class="zh">已购</span> -->
+                         <img src="@/assets/menu/stamp.svg" class="cart-icon" />
                       </div>
                     </div>
                     <div class="dish-info">
@@ -119,59 +120,122 @@
     <div v-if="cartVisible" class="cart-mask" @click="toggleCart" />
 
     <!-- 右侧购物车面板（展示全局已选） -->
-    <div class="cart-drawer" v-if="cartVisible" @click.stop>
-      <div class="cart-header">
-        <div class="cart-selected">
-          <div>
-            <div class="zh">已选择</div>
-            <div class="en">Selected</div>
+    <div class="cart-wrapper" v-if="cartVisible" @click.stop> 
+      <div class="cart-drawer" >
+        <!-- Tab 切换头部 -->
+        <div class="cart-tabs">
+          <div 
+            class="tab-item" 
+            :class="{ active: activeTab === 'new' }"
+            @click="activeTab = 'new'"
+          >
+            <div class="zh">新增菜品</div>
+            <div class="en">New Order</div>
           </div>
-          <div class="count">({{ totalCount }})</div>
-        </div>
-
-        <div class="cart-clear" @click="clearCart">
-          <img src="@/assets/trash.svg" class="trash-icon" />
-          <div class="clear-text">
-            <div class="zh">清空列表</div>
-            <div class="en">Clear</div>
+          <div 
+            class="tab-item" 
+            :class="{ active: activeTab === 'ordered' }"
+            @click="activeTab = 'ordered'"
+          >
+            <div class="zh">已下单</div>
+            <div class="en">Ordered</div>
           </div>
         </div>
-      </div>
-
-      <div class="cart-list" @touchstart="handleListTouchStart" @touchend="handleListTouchEnd" @touchmove="handleListTouchScroll($event, '.cart-list')">
-        <template v-if="globalCartList.length > 0">
-          <div v-for="(group, groupIndex) in globalCartList" :key="groupIndex">
-            <h3 class="cart-group-name" v-if="group.cartCategoryName">
-              <div class="cart-group-name-cn">{{ group.cartCategoryName }}</div>
-              <div class="cart-group-name-en">{{ group.cartCategoryNameEn }}</div>
-            </h3>
-            <div class="cart-item" v-for="dish in group.children" :key="dishKey(dish)">
-              <img :src="dish.img" />
-              <div class="cart-info">
-                <div class="cart-name">{{ dish.name }}</div>
-                <div class="cart-en">{{ dish.en }}</div>
+  
+        <!-- 新增菜品标签页 -->
+        <div v-if="activeTab === 'new'" class="tab-content">
+          <div class="cart-header">
+            <div class="cart-selected">
+              <div>
+                <div class="zh">已选择</div>
+                <div class="en">Selected</div>
               </div>
-              <div class="quantity-control">
-                <button @click="decrease(dish)">－</button>
-                <div class="count">{{ dish.count }}</div>
-                <button @click="increase(dish)">＋</button>
+              <div class="count">({{ totalCount }})</div>
+            </div>
+  
+            <div class="cart-clear" @click="clearCart">
+              <img src="@/assets/trash.svg" class="trash-icon" />
+              <div class="clear-text">
+                <div class="zh">清空列表</div>
+                <div class="en">Clear</div>
               </div>
             </div>
           </div>
-        </template>
-
-        <div v-else class="cart-empty-tip">暂无菜品，请添加</div>
-      </div>
-
-      <div class="cart-actions">
-        <button @click="toggleCart">
-          <div class="zh">返回</div>
-          <div class="en">Back</div>
-        </button>
-        <button class="confirm-btn" @click="confirmMenu">
-          <div class="zh">确认</div>
-          <div class="en">Confirm</div>
-        </button>
+  
+          <div class="cart-list" @touchstart="handleListTouchStart" @touchend="handleListTouchEnd" @touchmove="handleListTouchScroll($event, '.cart-list')">
+            <template v-if="globalCartList.length > 0">
+              <div v-for="(group, groupIndex) in globalCartList" :key="groupIndex">
+                <h3 class="cart-group-name" v-if="group.cartCategoryName">
+                  <div class="cart-group-name-cn">{{ group.cartCategoryName }}</div>
+                  <div class="cart-group-name-en">{{ group.cartCategoryNameEn }}</div>
+                </h3>
+                <div class="cart-item" v-for="dish in group.children" :key="dishKey(dish)">
+                  <img :src="dish.img" />
+                  <div class="cart-info">
+                    <div class="cart-name">{{ dish.name }}</div>
+                    <div class="cart-en">{{ dish.en }}</div>
+                  </div>
+                  <div class="quantity-control">
+                    <button @click="decrease(dish)">－</button>
+                    <div class="count">{{ dish.count }}</div>
+                    <button @click="increase(dish)">＋</button>
+                  </div>
+                </div>
+              </div>
+            </template>
+  
+            <div v-else class="cart-empty-tip">暂无菜品，请添加</div>
+          </div>
+  
+        </div>
+        <div class="cart-actions">
+          <button @click="toggleCart">
+            <div class="zh">返回</div>
+            <div class="en">Back</div>
+          </button>
+          <button class="confirm-btn" @click="confirmMenu">
+            <div class="zh">确认</div>
+            <div class="en">Confirm</div>
+          </button>
+        </div>
+  
+        <!-- 已下单标签页 -->
+        <div v-if="activeTab === 'ordered'" class="tab-content">
+          <div class="ordered-list" @touchstart="handleListTouchStart" @touchend="handleListTouchEnd" @touchmove="handleListTouchScroll($event, '.ordered-list')">
+            <template v-if="historyOrdersList.length > 0">
+              <div v-for="(order, orderIndex) in historyOrdersList" :key="orderIndex" class="order-item">
+                <div class="order-header">
+                  <div class="order-time">{{ order.datetime }}</div>
+                </div>
+                <div v-for="(group, groupIndex) in order.dishes" :key="groupIndex">
+                  <h3 class="cart-group-name" v-if="group.cartCategoryName">
+                    <div class="cart-group-name-cn">{{ group.cartCategoryName }}</div>
+                    <div class="cart-group-name-en">{{ group.cartCategoryNameEn }}</div>
+                  </h3>
+                  <div class="cart-item" v-for="dish in group.children" :key="dishKey(dish)">
+                    <img :src="dish.img" />
+                    <div class="cart-info">
+                      <div class="cart-name">{{ dish.name }}</div>
+                      <div class="cart-en">{{ dish.en }}</div>
+                    </div>
+                    <div class="quantity-display">
+                      <div class="count">{{ dish.count }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+  
+            <div v-else class="cart-empty-tip">暂无历史订单</div>
+          </div>
+  
+          <!-- <div class="cart-actions">
+            <button @click="toggleCart">
+              <div class="zh">返回</div>
+              <div class="en">Back</div>
+            </button>
+          </div> -->
+        </div>
       </div>
     </div>
   </div>
@@ -189,6 +253,7 @@ const route = useRoute();
 const loading = ref(false);
 const activeIndex = ref(0);
 const cartVisible = ref(false);
+const activeTab = ref('new'); // 'new' 或 'ordered'
 
 // 页面状态记忆
 const MENU_CHOOSE_STATE_KEY = 'menu-choose-page-state';
@@ -240,7 +305,9 @@ const menuListRefs = ref([]);
 
 /** ---------- 全局购物车（跨菜系共享） ---------- */
 const CART_KEY = 'cachedDishesAll';
+const HISTORY_KEY = 'historyOrders';
 const cartMap = ref({}); // { [key]: dishObjWithCount }
+// const historyMap = ref({});
 
 function loadCart() {
   try {
@@ -250,6 +317,14 @@ function loadCart() {
     cartMap.value = {};
   }
 }
+// function loadHistory() {
+//   try {
+//     const raw = localStorage.getItem(HISTORY_KEY);
+//     historyMap.value = raw ? JSON.parse(raw) : {};
+//   } catch {
+//     historyMap.value = {};
+//   }
+// }
 function saveCart() {
   localStorage.setItem(CART_KEY, JSON.stringify(cartMap.value));
 }
@@ -285,6 +360,12 @@ const globalCartList = computed(() => {
 const totalCount = computed(() =>
   Object.values(cartMap.value).reduce((s, d) => s + (d.count || 0), 0)
 );
+
+// 历史订单列表
+const historyOrdersList = computed(() => {
+  const orders = JSON.parse(localStorage.getItem('historyOrders') || '[]');
+  return orders.reverse(); // 最新的订单在前
+});
 /** ------------------------------------------------- */
 
 const type = computed(() => route.query.type || "chinese");
@@ -293,7 +374,19 @@ const categoryName = computed(() => decodeURIComponent(route.query.name || "菜�
 const categoryNameEn = computed(() => decodeURIComponent(route.query.nameEn || "Cuisine"));
 
 const categories = ref([]); // [{ name, en, count, groups:[{ name,en, items:[dish] }] }]
-const currentCategory = computed(() => categories.value[activeIndex.value] || { name: "", groups: [] });
+const currentCategory = computed(() => {
+  const res = categories.value[activeIndex.value] || { name: "", groups: [] }
+  // if(res.groups[0]) {
+  //   res.groups[0].items = res.groups[0].items.map(dish => {
+  //     return {
+  //       ...dish,
+  //       // ordered: checkOrderedById(dish.id),
+  //     }
+  //   })
+  // } 
+  return res
+}
+);
 
 function toggleCart() {
   cartVisible.value = !cartVisible.value;
@@ -308,8 +401,8 @@ function syncCountsFromCart() {
         const key = dishKey(dish);
         const inCart = cartMap.value[key];
         dish.count = inCart ? inCart.count : 0;
-        console.log("🚀 ~ syncCountsFromCart ~ dish:", dish)
-        catCount += (dish.count - (dish?.submitted || 0));
+        // catCount += (dish.count - (dish?.submitted || 0));
+        catCount += dish.count;
       });
     });
     cat.count = catCount;
@@ -333,13 +426,13 @@ function decrease(dish) {
 
   const key = dishKey(dish);
   const cur = cartMap.value[key]?.count || 0;
-  if (dish.submitted && cur <= dish.submitted) {
-    ElMessage({
-      type: 'warning',
-      message: '已点菜单无法减少'
-    });
-    return
-  }
+  // if (dish.submitted && cur <= dish.submitted) {
+  //   ElMessage({
+  //     type: 'warning',
+  //     message: '已点菜单无法减少'
+  //   });
+  //   return
+  // }
   if (cur <= 1) {
     // 归零则从全局购物车移除
     const { [key]: _, ...rest } = cartMap.value;
@@ -372,7 +465,8 @@ function clearCart() {
     // cartMap.value = {};
     // console.log("🚀 ~ clearCart ~ cartMap.value:", cartMap.value)
     cartMap.value = Object.values(cartMap.value).filter(dish => {
-      dish.count = dish?.submitted || 0;
+      // dish.count = dish?.submitted || 0;
+      dish.count = 0;
       return dish.count;
     }).reduce((acc, dish) => {
       acc[dishKey(dish)] = dish;
@@ -389,15 +483,15 @@ function clearCart() {
     saveCart();
     // 清空当前页面所有菜的数量
     categories.value.forEach((cat) => {
-      console.log("🚀 ~ clearCart ~ cat:", cat)
       cat.count = 0;
       cat.groups.forEach((group) => {
         group.items.forEach((item) => {
-          if(item.count) {
-            item.count = cartMap.value[item.id]?.submitted || 0;
-          }else {
-            item.count = 0;
-          }
+          // if(item.count) {
+          //   item.count = cartMap.value[item.id]?.submitted || 0;
+          // }else {
+          //   item.count = 0;
+          // }
+          item.count = 0;
         });
       });
     });
@@ -615,7 +709,7 @@ async function fetchDishGroups() {
           name: group.groupName,
           en: group.groupEn,
           items: (group.items || []).map((dish) => {
-            const cartItem = currentCategoryCartList.find(s => s.id === dish.id)
+            // const cartItem = currentCategoryCartList.find(s => s.id === dish.id)
             const result = {
               ...dish,
               groupName: group.groupName,
@@ -625,10 +719,11 @@ async function fetchDishGroups() {
               en: dish.nameEn,
               img: dish.imageUrl || dish.image || "",
               count: 0,
+              ordered: checkOrderedById(dish.id)
             };
-            if (cartItem) {
-              result.submitted = cartItem.submitted;
-            }
+            // if (cartItem) {
+            //   result.submitted = cartItem.submitted;
+            // }
             return result;
           }),
         },
@@ -647,28 +742,37 @@ async function fetchDishGroups() {
   }
 }
 
+// 通过id在历史记录里查找判断是否已点
+function checkOrderedById(id) {
+  let ordered = false;
+  for (let i = 0; i < historyOrdersList.value.length; i++) {
+    const order = historyOrdersList.value[i];
+    
+    for (let k = 0; k < order.dishes.length; k++) {
+      const catagory = order.dishes[k];
+      for (let j = 0; j < catagory.children.length; j++) {
+        const dish = catagory.children[j];
+        if (dish.id === id) {
+          ordered = true;
+          break;
+        }
+      }
+      if(ordered) break;
+    }
+    if(ordered) break;
+  }
+  return ordered;
+}
+
 function confirmMenu() {
   let dishes = JSON.parse(JSON.stringify(globalCartList.value));
-  dishes.forEach(item => { 
-    let newChildren = [];
-    item.children.forEach(child => {
-      child.count -= (child?.submitted || 0);
-      if(child.count > 0) {
-        newChildren.push(child);
-      }
-    });
-    console.log("🚀 ~ confirmMenu ~ newChildren:", newChildren)
-    item.children = newChildren;
-  });
-  console.log("🚀 ~ confirmMenu ~ dishes:", dishes)
-  dishes = dishes.filter(item => item.children.length > 0);
-  console.log("🚀 ~ confirmMenu ~ dishes:", dishes)
+  
   if (dishes.length === 0) {
     ElMessage.warning("请先添加菜品再确认");
     return;
   }
   const query = {
-    items: JSON.stringify(dishes),
+    // items: JSON.stringify(dishes),
     type: type.value,
     name: categoryName.value,
   };
@@ -703,6 +807,7 @@ onMounted(async () => {
   // document.querySelector('html').style.overscrollBehavior = 'none';
 
   loadCart();          // 读全局购物车
+  // loadHistory();       // 读全局历史
   await fetchDishGroups();   // 拉取当前菜系的分组与菜
   syncCountsFromCart(); // 回灌数量
 
@@ -750,6 +855,7 @@ onBeforeUnmount(() => {
   /* 禁止上拉刷新 */
   -webkit-overscroll-behavior-y: contain;
   /* Safari 兼容 */
+  gap: 16px;
 }
 
 /* 菜单覆盖层容器 */
@@ -853,16 +959,17 @@ onBeforeUnmount(() => {
 .category-item.active {
   /* background: rgba(64, 44, 13, 0.35); */
   background: #402C0D59;
-  border-left: 4px solid #FFFFFF;
-  color: white;
+  border-radius: 20px;
+  /* border-left: 4px solid #FFFFFF; */
+  color: #FFDE97;
 }
 
 .category-item.active .name-cn {
-  color: #fff;
+  color: #FFDE97;
 }
 
 .category-item.active .name-en {
-  color: #fff;
+  color: #FFDE97;
 }
 
 .name-cn {
@@ -979,7 +1086,7 @@ onBeforeUnmount(() => {
 } */
 .menu-overlay-wrapper {
   background: rgba(64, 44, 13, 0.35);
-  border-radius: 0px 8px 8px 0px;
+  border-radius: 20px;
   /* padding: 24px 32px; */
   padding-left: 24px;
   padding-top: 20px;
@@ -1105,24 +1212,27 @@ onBeforeUnmount(() => {
 }
 .submitted-tag {
   position: absolute;
-  top: 0;
+  bottom: 0;
   right: 0;
   color: white;
   font-size: 12px;
   border-radius: 0 0  0 12px;
-  background: #DE4E50;
+  /* background: #DE4E50; */
   /* width: 60px; */
   /* white-space: nowrap; */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px 8px;
+  /* padding: 2px 8px; */
   gap: 2px;
+  width: 40%;
+  height: 40%;
+  z-index: 2;
 }
-.submitted-tag>svg {
+/* .submitted-tag>svg {
   width: 14px;
   height: 14px;
-}
+} */
 .dish-img {
   width: 100%;
   height: 100%;
@@ -1134,6 +1244,21 @@ onBeforeUnmount(() => {
   pointer-events: none;
   /* 可选：禁用鼠标事件（仅适用于纯展示图） */
 }
+
+/* 当显示已购标签时，为图片添加黑色阴影渐变 */
+.dish-img-box:has(.submitted-tag)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+
 
 .dish-info {
   flex: 1;
@@ -1230,22 +1355,28 @@ onBeforeUnmount(() => {
   justify-content: center;
   letter-spacing: 0;
 }
-
-.cart-drawer {
-  /* 添加 padding-bottom 给按钮留空间 */
-  padding: 24px 24px 80px;
-  padding-right: 0;
+.cart-wrapper {
   position: fixed;
   right: 0;
   top: 0;
   width: 706px;
   height: 100vh;
-  background: #f5e8d5;
+  padding: 20px 20px 20px 0;
+   z-index: 999;
+   boxsizing: border-box;
+}
+.cart-drawer {
+  /* 添加 padding-bottom 给按钮留空间 */
+  padding: 24px 24px 80px;
+  padding-right: 0;
+  width: 100%;
+  height: 100%;
+  background: #D4C0A8;
   box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
-  z-index: 999;
   display: flex;
   flex-direction: column;
+  border-radius: 20px;
 }
 
 .cart-clear {
@@ -1265,7 +1396,7 @@ onBeforeUnmount(() => {
 .cart-list {
   flex: 1;
   overflow-y: auto;
-  margin-bottom: 24px;
+  /* margin-bottom: 24px; */
   padding-right: 24px;
 }
 
@@ -1343,8 +1474,8 @@ onBeforeUnmount(() => {
 /* 固定底部操作栏 */
 .cart-actions {
   position: fixed;
-  bottom: 0;
-  right: 0;
+  bottom: 20px;
+  right: 10px;
   width: 706px;
   /* background: #f5e8d5; */
   padding: 12px 24px;
@@ -1365,7 +1496,7 @@ onBeforeUnmount(() => {
   /* margin-right: 12px; */
   border-radius: 6px;
   cursor: pointer;
-  background: #ccb89a;
+  background: #88641780;
   color: white;
   display: flex;
   justify-content: center;
@@ -1378,7 +1509,7 @@ onBeforeUnmount(() => {
 
 /* 底部操作栏按钮 - 确认下单 */
 .cart-actions .confirm-btn {
-  background: #b68d41;
+  background: #886417;
   color: white;
   border: none;
   /* padding: 12px 32px; */
@@ -1431,13 +1562,120 @@ onBeforeUnmount(() => {
   scrollbar-width: thin;
 }
 
+/* Tab 切换样式 */
+.cart-tabs {
+  display: flex;
+  /* background: #f5e8d5; */
+  padding: 8px 50px;
+  gap: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+.tab-item {
+  flex: 1;
+  padding: 12px 16px;
+  text-align: center;
+  cursor: pointer;
+  /* background: #ccb89a; */
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.tab-item.active {
+  background: #402C0D59;
+}
+
+.tab-item .zh {
+  font-size: 24px;
+  font-weight: bold;
+  color: #886417;
+  font-family: 'Source Han Serif CN';
+  letter-spacing: 1px;
+}
+
+.tab-item .en {
+  font-size: 14px;
+  color: #886417;
+  font-family: 'Source Han Serif CN';
+  margin-top: 2px;
+  letter-spacing: 2px;
+}
+
+.tab-item.active .zh,
+.tab-item.active .en {
+  color: #FFDE97;
+}
+
+/* Tab 内容区域 */
+.tab-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 已下单列表样式 */
+.ordered-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 24px;
+}
+
+.order-item {
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e8dcc6;
+  padding-bottom: 16px;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-header {
+  width: max-content;
+  margin: 0 auto;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #88641780;
+  border-radius: 6px;
+}
+
+.order-time {
+  width: max-content;
+  font-size: 16px;
+  color: #fff;
+  font-weight: bold;
+  font-family: 'Source Han Serif CN Bold';
+  text-align: center;
+}
+
+/* 已下单商品数量显示样式 */
+.quantity-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+}
+
+.quantity-display .count {
+  font-size: 18px;
+  font-weight: bold;
+  color: #886417;
+  /* background: #f0e6d2; */
+  padding: 6px 12px;
+  border-radius: 20px;
+  min-width: 30px;
+  text-align: center;
+}
+
 .cart-mask {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.6);
   /* 可调浅色遮罩 */
   backdrop-filter: blur(6px);
   /* 🔥 毛玻璃模糊 */
@@ -1637,7 +1875,7 @@ onBeforeUnmount(() => {
   bottom: 0;
   width: 220px;
   /* 和 .category-sidebar 的宽度一致 */
-  background: rgba(255, 255, 255, 0.2);
+  /* background: rgba(255, 255, 255, 0.2); */
   pointer-events: none;
   /* 不挡点击 */
   z-index: 0;
@@ -1818,7 +2056,7 @@ onBeforeUnmount(() => {
   bottom: 0;
   width: 220px;
   /* 同步 sidebar 宽度 */
-  background: rgba(255, 255, 255, 0.2);
+  /* background: rgba(255, 255, 255, 0.2); */
   pointer-events: none;
   z-index: 0;
 }

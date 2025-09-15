@@ -244,7 +244,7 @@ onBeforeUnmount(() => {
 .menu-card-warper {
   width: 100%;
   height: 24vh;
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
   /* 自定义点击高亮颜色 */
   -webkit-tap-highlight-color: transparent;
@@ -259,7 +259,9 @@ onBeforeUnmount(() => {
   height: 100%;
   background: rgba(64, 44, 13, 0.35);
   border-radius: 12px;
-  padding: 0 32px;
+  /* padding: 0 32px; */
+  padding-left: 16px;
+  padding-right: 20px;
   cursor: pointer;
   transition: transform 0.2s ease;
   backdrop-filter: blur(6px);
@@ -279,9 +281,9 @@ onBeforeUnmount(() => {
 
 .card-img-wrapper {
   flex: none;
-  width: 24vh;
-  height: 24vh;
-  margin-left: calc(-28vh * 0.6);
+  width: 10vh;
+  height: 10vh;
+  /* margin-left: calc(-28vh * 0.6); */
   border-radius: 50%;
   overflow: hidden;
   user-select: none;
@@ -308,7 +310,7 @@ onBeforeUnmount(() => {
   flex: 1;
   overflow: hidden;
   text-align: left;
-  margin-left: 10%;
+  margin-left: 20px;
   margin-right: 8px;
 }
 .card-text-skeleton {
