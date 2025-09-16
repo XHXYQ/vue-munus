@@ -259,21 +259,19 @@ onMounted(() => {
   historyOrders.value = JSON.parse(localStorage.getItem("historyOrders") || "[]");
   console.log(11,historyOrders.value)
   loadCart();
-  setTimeout(() => {
-    let dishesCopy = JSON.parse(JSON.stringify(globalCartList.value));
-    console.log("🚀 ~ confirmMenu.vue:264 ~ dishesCopy:", dishesCopy)
-    dishesCopy.forEach(item => { 
-      let newChildren = [];
-      item.children.forEach(child => {
-        if(child.count > 0) {
-          newChildren.push(child);
-        }
-      });
-      item.children = newChildren;
+  let dishesCopy = JSON.parse(JSON.stringify(globalCartList.value));
+  console.log("🚀 ~ confirmMenu.vue:264 ~ dishesCopy:", dishesCopy)
+  dishesCopy.forEach(item => { 
+    let newChildren = [];
+    item.children.forEach(child => {
+      if(child.count > 0) {
+        newChildren.push(child);
+      }
     });
-    dishesCopy = dishesCopy.filter(item => item.children.length > 0);
-    dishes.value = dishesCopy
-  }, 100);
+    item.children = newChildren;
+  });
+  dishesCopy = dishesCopy.filter(item => item.children.length > 0);
+  dishes.value = dishesCopy
 
   // 兼容从菜单页 query 传来的 items，但以全局购物车为准
   const fromQuery = route.query.items ? JSON.parse(route.query.items) : null;
@@ -667,7 +665,7 @@ function confirmRemark() {
 /* .dish-table th, */
 .dish-table td {
   padding: 20px;
-  border-bottom: 1px solid #fcfcfc;
+  border-bottom: 1px solid #ffffff57;
   text-align: center;
   color: #fff;
   font-size: 16px;
@@ -762,6 +760,7 @@ function confirmRemark() {
   jsustify-content: center;
   align-items: end;
   gap: 8px;
+  font-family: 'Source Han Serif CN Bold';
 }
 
 .back-btn {
@@ -941,6 +940,7 @@ function confirmRemark() {
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
+  font-family: 'Source Han Serif CN Bold';
 }
 
 .remark-footer button .en {
@@ -1013,5 +1013,7 @@ function confirmRemark() {
 .bottom-actions button .en {
   font-size: 12px;
   opacity: 0.8;
+  line-height: 20px;
+  font-family: 'Source Han Serif CN Bold';
 }
 </style>

@@ -3,50 +3,88 @@
     <div class="order-box">
       <img src="@/assets/SealCheck.svg" class="check-icon" alt="已提交图标" />
       <div class="message">您的订单已收到，请您耐心等候！</div>
-      <div class="message-en">Your order has been received. Please wait patiently!</div>
+      <div class="message-en">
+        Your order has been received. Please wait patiently!
+      </div>
 
       <div class="button-group">
-        <button class="btn light" @click="goHome">返回首页 <div class="en">Return to the homepage</div></button>
-        <button class="btn light" @click="viewOrder">查看订单 <div class="en">View the order</div></button>
-        <button class="btn dark" @click="continueAdd">继续加菜 <div class="en">Continue to add dishes to the menu</div>
+        <button class="btn light" @click="goHome">
+          返回首页
+          <div class="en">Return to the homepage</div>
+        </button>
+        <button class="btn light" @click="viewOrder">
+          查看订单
+          <div class="en">View the order</div>
+        </button>
+        <button class="btn dark" @click="continueAdd">
+          继续加菜
+          <div class="en">Continue to add dishes to the menu</div>
         </button>
       </div>
     </div>
 
     <!-- 订单详情弹窗 -->
-    <div class="order-dialog" v-if="showDialog">      <div class="dialog-box">
+    <div class="order-dialog" v-if="showDialog">
+      <div class="dialog-box">
         <div class="dialog-header">
           <div class="dialog-title">
             <span>查看订单</span>
-            <div class="en">View the order </div>
+            <div class="en">View the order</div>
           </div>
           <span class="close" @click="showDialog = false">✕</span>
         </div>
 
         <!-- 修改为滚动显示所有订单 -->
-        <div class="all-orders-list" @touchstart="handleListTouchStart" @touchend="handleListTouchEnd" @touchmove="handleListTouchScroll($event, '.all-orders-list')">
-          <div v-for="(order, index) in sortedOrders" :key="index" class="order-item">
-            <div class="order-id">{{ order.datetime || '' }}</div>
+        <div
+          class="all-orders-list"
+          @touchstart="handleListTouchStart"
+          @touchend="handleListTouchEnd"
+          @touchmove="handleListTouchScroll($event, '.all-orders-list')"
+        >
+          <div
+            v-for="(order, index) in sortedOrders"
+            :key="index"
+            class="order-item"
+          >
+            <div class="order-id">{{ order.datetime || "" }}</div>
 
             <div class="menu-list">
-              <div v-for="(group, groupIndex) in (order.dishes || [])" :key="groupIndex">
-                <div class="cart-group-name-cn">{{ group.cartCategoryName }}</div>
-                <div class="cart-group-name-en">{{ group.cartCategoryNameEn }}</div>
+              <div
+                v-for="(group, groupIndex) in order.dishes || []"
+                :key="groupIndex"
+              >
+                <div class="cart-group-name-cn">
+                  {{ group.cartCategoryName }}
+                </div>
+                <div class="cart-group-name-en">
+                  {{ group.cartCategoryNameEn }}
+                </div>
                 <div class="table-wrapper">
                   <table class="dish-table">
                     <thead>
                       <tr>
-                        <th>序号<div class="en">Number</div>
-                        </th>
-                        <th>菜品名称<div class="en">Dish name</div>
+                        <th>
+                          序号
+                          <div class="en">Number</div>
                         </th>
                         <th>
-                          <div style="text-align: center; width: max-content">数量<div class="en">Quantity</div></div>
+                          菜品名称
+                          <div class="en">Dish name</div>
+                        </th>
+                        <th>
+                          <div style="text-align: center; width: max-content">
+                            数量
+                            <div class="en">Quantity</div>
+                          </div>
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr class="cart-item" v-for="(dish, index) in group.children" :key="index">
+                      <tr
+                        class="cart-item"
+                        v-for="(dish, index) in group.children"
+                        :key="index"
+                      >
                         <td>{{ index + 1 }}</td>
                         <td>
                           <div class="dish-name-cn">{{ dish.name }}</div>
@@ -64,8 +102,10 @@
               </div>
 
               <div class="order-remark">
-                <div class="remark-title">备注：{{ order.remark ? '' : '无' }}</div>
-                <div class="remark-content">{{ order.remark || '' }}</div>
+                <div class="remark-title">
+                  备注：{{ order.remark ? "" : "无" }}
+                </div>
+                <div class="remark-content">{{ order.remark || "" }}</div>
               </div>
             </div>
           </div>
@@ -95,17 +135,17 @@ const showDialog = ref(false);
 const isScrollable = ref(false);
 
 let touchStartY = 0;
-const handleListTouchStart = (event) => { 
+const handleListTouchStart = (event) => {
   touchStartY = event.touches[0].clientY;
   isScrollable.value = true;
 };
 
-const handleListTouchEnd = (event) => { 
+const handleListTouchEnd = (event) => {
   isScrollable.value = false;
 };
 
 const handleListTouchScroll = (event, className) => {
-  const categoryList = document.querySelector(className)
+  const categoryList = document.querySelector(className);
   const { scrollTop, scrollHeight, clientHeight } = categoryList;
 
   const touchEndY = event.changedTouches[0].clientY;
@@ -114,30 +154,31 @@ const handleListTouchScroll = (event, className) => {
 
   if (touchDiff < -tolerance && scrollTop === 0) {
     isScrollable.value = false;
-  }else {
+  } else {
     isScrollable.value = true;
   }
-}
+};
 
 function preventPullToRefresh(e) {
   // 处理橡皮筋效果
   if (!isScrollable.value) {
-    e.preventDefault()
+    e.preventDefault();
   }
 }
 
 onMounted(() => {
-  document.addEventListener('touchmove', preventPullToRefresh, { passive: false })
+  document.addEventListener("touchmove", preventPullToRefresh, {
+    passive: false,
+  });
   dishes.value = JSON.parse(route.query.dishes || "[]");
   remark.value = route.query.remark || "";
 
   orders.value = JSON.parse(localStorage.getItem("historyOrders") || "[]");
 });
 
-onBeforeUnmount(() => { 
-  document.removeEventListener('touchmove', preventPullToRefresh);
+onBeforeUnmount(() => {
+  document.removeEventListener("touchmove", preventPullToRefresh);
 });
-
 
 const goHome = () => {
   // const dishesAll = JSON.parse(localStorage.getItem('cachedDishesAll'));
@@ -146,7 +187,7 @@ const goHome = () => {
   // }
   // localStorage.setItem('cachedDishesAll', JSON.stringify(dishesAll));
 
-  router.push("/index")
+  router.push("/index");
 };
 
 const continueAdd = () => {
@@ -155,10 +196,13 @@ const continueAdd = () => {
   //   dishesAll[key].submitted = dishesAll[key].count;
   // }
   // localStorage.setItem('cachedDishesAll', JSON.stringify(dishesAll));
-  
+
   const category = route.query.category || "chinese";
   const name = route.query.name || "中式佳肴"; // 默认值
-  router.push({ path: "/menuChoose", query: { type: category, name, isContinue: 1 } });
+  router.push({
+    path: "/menuChoose",
+    query: { type: category, name, isContinue: 1 },
+  });
 };
 
 const viewOrder = () => {
@@ -202,12 +246,15 @@ function copyContent() {
 
   // 首先尝试使用现代的 Clipboard API
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(content).then(() => {
-      ElMessage.success("已复制订单内容");
-    }).catch(() => {
-      // 如果现代 API 失败，使用降级方案
-      fallbackCopyTextToClipboard(content);
-    });
+    navigator.clipboard
+      .writeText(content)
+      .then(() => {
+        ElMessage.success("已复制订单内容");
+      })
+      .catch(() => {
+        // 如果现代 API 失败，使用降级方案
+        fallbackCopyTextToClipboard(content);
+      });
   } else {
     // 如果不支持 Clipboard API，直接使用降级方案
     fallbackCopyTextToClipboard(content);
@@ -219,19 +266,34 @@ function fallbackCopyTextToClipboard(text) {
   const textArea = document.createElement("textarea");
   textArea.value = text;
   
-  // 避免滚动到底部
+  // 设置为只读，防止移动端弹出键盘
+  textArea.readOnly = true;
+  
+  // 避免滚动到底部和键盘弹出
   textArea.style.top = "0";
   textArea.style.left = "0";
   textArea.style.position = "fixed";
   textArea.style.opacity = "0";
   textArea.style.zIndex = "-1";
-  
+  textArea.style.pointerEvents = "none";
+  textArea.style.width = "1px";
+  textArea.style.height = "1px";
+  textArea.style.border = "none";
+  textArea.style.outline = "none";
+  textArea.style.resize = "none";
+
   document.body.appendChild(textArea);
-  textArea.focus();
-  textArea.select();
   
+  // 在移动端，使用 setSelectionRange 而不是 focus
+  if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    textArea.setSelectionRange(0, 99999);
+  } else {
+    textArea.focus();
+    textArea.select();
+  }
+
   try {
-    const successful = document.execCommand('copy');
+    const successful = document.execCommand("copy");
     if (successful) {
       ElMessage.success("已复制订单内容");
     } else {
@@ -240,38 +302,44 @@ function fallbackCopyTextToClipboard(text) {
   } catch (err) {
     ElMessage.error("复制失败，请手动复制");
   }
-  
+
   document.body.removeChild(textArea);
 }
 
 // 更新复制功能以复制所有订单数据
 function copyAllOrdersContent() {
   let content = "所有订单：\n\n";
-  
+
   sortedOrders.value.forEach((order, index) => {
-    console.log("🚀 ~ orderInfo.vue:251 ~ copyAllOrdersContent ~ order:", order)
+    console.log(
+      "🚀 ~ orderInfo.vue:251 ~ copyAllOrdersContent ~ order:",
+      order
+    );
     content += `订单：\n时间：${order.datetime}\n\n`;
-    
+
     for (const category of order.dishes) {
       content += `${category.cartCategoryName}\n`;
       for (const item of category.children) {
         content += ` ${item.name} x${item.count}\n`;
       }
-      content += '\n';
+      content += "\n";
     }
-    
+
     content += `\n备注：${order.remark || "无"}\n`;
     content += "----------------------------------------\n\n";
   });
 
   // 首先尝试使用现代的 Clipboard API
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(content).then(() => {
-      ElMessage.success("已复制所有订单内容");
-    }).catch(() => {
-      // 如果现代 API 失败，使用降级方案
-      fallbackCopyTextToClipboard(content);
-    });
+    navigator.clipboard
+      .writeText(content)
+      .then(() => {
+        ElMessage.success("已复制所有订单内容");
+      })
+      .catch(() => {
+        // 如果现代 API 失败，使用降级方案
+        fallbackCopyTextToClipboard(content);
+      });
   } else {
     // 如果不支持 Clipboard API，直接使用降级方案
     fallbackCopyTextToClipboard(content);
@@ -305,7 +373,7 @@ const sortedOrders = computed(() => {
 
 .order-box {
   backdrop-filter: blur(10px);
-  background: hsla(35, 28.30%, 44.30%, 0.35);
+  background: hsla(35, 28.3%, 44.3%, 0.35);
   border-radius: 20px;
   /* padding: 40px 32px; */
   padding: 5vh;
@@ -354,7 +422,7 @@ const sortedOrders = computed(() => {
   border: none;
   cursor: pointer;
   font-weight: bold;
-  font-family: 'Source Han Serif CN Bold';
+  font-family: "Source Han Serif CN Bold";
 }
 
 .btn .en {
@@ -424,7 +492,7 @@ const sortedOrders = computed(() => {
   padding-top: 8px;
 } */
 .dialog-box {
-  background: #D4C0A8;
+  background: #d4c0a8;
   /* width: 500px; */
   width: 70vw;
   max-height: 85vh;
@@ -508,7 +576,7 @@ const sortedOrders = computed(() => {
   max-height: 60vh;
   overflow-y: auto;
   /* padding: 16px; */
-  
+
   /* border: 1px solid #e6d4b4;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.7); */
@@ -519,7 +587,7 @@ const sortedOrders = computed(() => {
   /* border-bottom: 1px dashed #c7b294; */
 }
 
-.order-item +.order-item {
+.order-item + .order-item {
   margin-top: 16px;
 }
 
@@ -534,7 +602,6 @@ const sortedOrders = computed(() => {
   color: white;
   font-size: 18px;
 }
-
 
 .dialog-header .close {
   cursor: pointer;
@@ -571,7 +638,7 @@ const sortedOrders = computed(() => {
 
 .menu-list .cart-group-name-en {
   font-size: 14px;
-  font-family: 'Source Han Serif CN Medium';
+  font-family: "Source Han Serif CN Medium";
 }
 
 .table-wrapper {
@@ -629,7 +696,7 @@ const sortedOrders = computed(() => {
 .dish-table td {
   user-select: text;
   padding: 20px;
-  border-bottom: 1px solid #fcfcfc;
+  border-bottom: 1px solid #ffffff57;
   text-align: left;
   color: #886417;
   font-size: 16px;
@@ -656,7 +723,7 @@ const sortedOrders = computed(() => {
 
 .menu-list .remark-content {
   font-size: 16px;
-  font-family: 'Source Han Serif CN Medium';
+  font-family: "Source Han Serif CN Medium";
   user-select: text;
   white-space: pre-wrap; /* 允许换行 */
   word-wrap: break-word; /* 防止长单词溢出 */
@@ -664,9 +731,8 @@ const sortedOrders = computed(() => {
 
 .order-remark {
   padding-bottom: 20px;
-  border-bottom: 1px solid #886417;
+  /* border-bottom: 1px solid #886417; */
 }
-
 
 /* 
 .dialog-table {
@@ -723,6 +789,7 @@ const sortedOrders = computed(() => {
   cursor: pointer;
   font-weight: bold;
   transition: background 0.3s;
+  font-family: 'Source Han Serif CN Bold';
 }
 
 .dialog-footer button:hover {

@@ -1405,7 +1405,7 @@ onBeforeUnmount(() => {
   align-items: center;
   margin-bottom: 16px;
   padding: 16px 0;
-  border-bottom: 2px solid #8864174D;
+  border-bottom: 2px solid #8864174f;
 }
 
 .cart-item img {
@@ -1624,8 +1624,8 @@ onBeforeUnmount(() => {
 
 .order-item {
   margin-bottom: 24px;
-  border-bottom: 1px solid #e8dcc6;
-  padding-bottom: 16px;
+  /* border-bottom: 1px solid #e8dcc6; */
+  /* padding-bottom: 16px; */
 }
 
 .order-item:last-child {
