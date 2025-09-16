@@ -80,7 +80,7 @@ const loading = ref(true);
 const defaultImg = 'https://dummyimage.com/100x100/ccc/fff&text=菜系'
 
 function goHome() {
-  router.push("/index");
+  router.push("/");
 }
 
 // 截断文本（中文20字，英文30字符）

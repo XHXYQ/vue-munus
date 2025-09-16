@@ -11,10 +11,10 @@
           <p class="en">Back</p>
         </div>
       </div>
-      <div class="category-list" ref="categoryListRef" @touchstart="handleListTouchStart"
+      <div class="category-list" :class="loading ? 'overflow-hidden' : ''" ref="categoryListRef" @touchstart="handleListTouchStart"
         @touchend="handleListTouchEnd" @touchmove="handleListTouchScroll($event, '.category-list')">
         <template v-if="loading">
-          <div class="category-item category-item-skeleton" v-for="i in 3" :key="'skeleton-' + i">
+          <div class="category-item category-item-skeleton" v-for="i in 20" :key="'skeleton-' + i">
             <div class="name-cn name-skeleton"></div>
           </div>
         </template>
@@ -541,12 +541,23 @@ function scrollToCategory(index) {
   }
 }
 
+let canSlide = false;
+
 // 处理右侧菜单列表滚动到底部或顶部的事件
 function handleMenuScroll(direction) {
+  // 有菜单时才处理canSlide
+  if (currentCategory.value.groups[0].items.length && !canSlide) {
+    setTimeout(() => {
+      canSlide = true;
+    }, 500);
+    return
+  };
+
   if (direction === 'top' && activeIndex.value > 0) {
     // 滚动到顶部，切换到上一个分类
     selectCategory(activeIndex.value - 1);
   } else if (direction === 'bottom' && activeIndex.value < categories.value.length - 1) {
+    console.log(222);
     // 滚动到底部，切换到下一个分类
     selectCategory(activeIndex.value + 1);
   }
@@ -554,6 +565,8 @@ function handleMenuScroll(direction) {
 
 // 右侧菜单列表滚动事件处理
 function onMenuListScroll(event) {
+  // 有滚动才处理canSlide
+  canSlide = false;
   const element = event.target;
   const { scrollTop, scrollHeight, clientHeight } = element;
 
@@ -566,6 +579,7 @@ function onMenuListScroll(event) {
   }
   // 检查是否滚动到底部
   else if (scrollTop + clientHeight >= scrollHeight - tolerance && activeIndex.value < categories.value.length - 1) {
+    console.log(111);    
     handleMenuScroll('bottom');
   }
   // 特殊处理：如果内容不足以滚动，也要能切换分类
@@ -888,7 +902,9 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
 }
-
+.overflow-hidden {
+  overflow-y: hidden !important;
+}
 .category-list {
   flex: 1;
   overflow-y: auto;
@@ -935,14 +951,14 @@ onBeforeUnmount(() => {
 .category-item-skeleton {
   background: rgba(64, 44, 13, 0.35);
   height: 80px;
-  margin-right: 16px;
+  /* margin-right: 16px; */
   border-radius: 8px;
 }
 
-.category-item-skeleton:first-of-type {
+/* .category-item-skeleton:first-of-type {
   margin-right: 0;
   border-radius: 8px 0 0 8px;
-}
+} */
 
 .category-item-skeleton .name-skeleton {
   height: 28px;
