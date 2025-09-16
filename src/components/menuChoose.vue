@@ -1421,7 +1421,7 @@ onBeforeUnmount(() => {
   align-items: center;
   margin-bottom: 16px;
   padding: 16px 0;
-  border-bottom: 2px solid #8864174f;
+  border-bottom: 1px solid #8864174f;
 }
 
 .cart-item img {
